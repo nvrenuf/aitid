@@ -1,6 +1,6 @@
 ---
 // src/pages/index.astro
-// Server-rendered shell — stats fetched at request time, threats loaded client-side
+// Server-rendered shell â€” stats fetched at request time, threats loaded client-side
 import { getStats } from '../lib/store.js';
 import { SEED_THREATS } from '../lib/seed.js';
 import '../styles/threatparallax.css';
@@ -29,23 +29,35 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"/>
   <style is:global>
-    /* ── layout ── */
+    /* â”€â”€ layout â”€â”€ */
     #app { display: flex; flex-direction: column; min-height: 100vh; overflow: hidden; padding: 16px; gap: 16px; }
 
-    /* ── header ── */
+    /* â”€â”€ header â”€â”€ */
     .hdr { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; min-height: 76px; border: 1px solid var(--border); border-radius: var(--radius-lg); flex-shrink: 0; gap: 12px; background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.02)); box-shadow: var(--shadow-panel); }
     .hdr-logo { display: flex; align-items: center; gap: 14px; }
     .logo-mark { width: 38px; height: 38px; background: linear-gradient(135deg, rgba(125, 196, 255, 0.22), rgba(77, 213, 153, 0.18)); border: 1px solid var(--border2); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
     .logo-mark svg { width: 18px; height: 18px; }
     .logo-title { font-size: 18px; font-weight: 600; text-transform: none; }
     .logo-sub { margin-top: 2px; color: var(--txt3); font-weight: 600; }
-    .hdr-right { display: flex; align-items: center; gap: 16px; }
+    .hdr-right { display: flex; flex-direction: column; align-items: flex-end; gap: 14px; }
     .live-pill { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--txt3); font-weight: 600; }
     .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--low); animation: pulse 2s ease-in-out infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
     .hdr-time { font-size: 11px; color: var(--txt2); font-weight: 600; }
+    .hdr-main { display: flex; align-items: flex-start; gap: 18px; }
+    .hdr-copy { display: grid; gap: 8px; max-width: 560px; }
+    .hdr-kicker, .shell-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--txt3); font-weight: 700; }
+    .hdr-headline { font-family: var(--font-display); font-size: clamp(24px, 3vw, 38px); line-height: 1.02; letter-spacing: -0.05em; max-width: 14ch; }
+    .hdr-copy p { color: var(--txt2); line-height: 1.65; max-width: 58ch; }
+    .status-cluster { display: flex; align-items: center; gap: 12px; }
+    .future-nav, .shell-future { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .future-chip { padding: 7px 10px; border: 1px solid var(--border); border-radius: 999px; color: var(--txt2); background: rgba(255,255,255,.03); font-size: 11px; font-weight: 700; }
+    .future-chip strong { color: var(--txt); font-weight: 700; }
+    .shell-note { color: var(--txt2); font-size: 13px; line-height: 1.45; max-width: 26ch; }
 
-    /* ── tab bar ── */
+    /* â”€â”€ tab bar â”€â”€ */
+    .shell-nav { display: flex; align-items: center; gap: 18px; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 18px; background: rgba(9,19,29,.74); box-shadow: var(--shadow-soft); }
+    .shell-nav-meta { display: grid; gap: 4px; min-width: 220px; }
     .tabbar { display: flex; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 6px; flex-shrink: 0; overflow-x: auto; background: rgba(9,19,29,.78); }
     .tabbar::-webkit-scrollbar { display: none; }
     .tab { padding: 0 16px; height: 42px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; color: var(--txt3); border-bottom: 2px solid transparent; border-radius: 999px; white-space: nowrap; transition: color .1s, background .1s; background: none; border-left: none; border-right: none; border-top: none; user-select: none; font-weight: 700; }
@@ -55,7 +67,7 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
     .tab.active .tbadge { background: var(--txt); color: var(--bg); }
     .tbadge.warn { background: var(--crit-bg); color: var(--crit); }
 
-    /* ── metrics ── */
+    /* â”€â”€ metrics â”€â”€ */
     .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; flex-shrink: 0; }
     .metric { padding: 18px 20px; }
     .metric:last-child { border-right: none; }
@@ -67,12 +79,12 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
     .m-delta.up { color: var(--crit); }
     .m-delta.dn { color: var(--low); }
 
-    /* ── body ── */
+    /* â”€â”€ body â”€â”€ */
     .body { display: grid; grid-template-columns: 1fr 260px; flex: 1; min-height: 0; }
     .feed-col { overflow-y: auto; }
     .sidebar { overflow-y: auto; }
 
-    /* ── resize handle ── */
+    /* â”€â”€ resize handle â”€â”€ */
     .resize-handle {
       width: 4px;
       cursor: col-resize;
@@ -91,17 +103,17 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
       left: -4px; right: -4px; /* widen the hit target */
     }
 
-    /* ── filter bar ── */
+    /* â”€â”€ filter bar â”€â”€ */
     .filterbar { padding: 10px 20px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; position: sticky; top: 0; background: rgba(9,19,29,.8); z-index: 10; }
     .fl { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--txt3); font-family: var(--font-sans); }
     .fpill { font-size: 10px; font-family: var(--font-sans); padding: 3px 9px; border-radius: 20px; border: 0.5px solid var(--border2); color: var(--txt2); cursor: pointer; user-select: none; transition: all .1s; background: transparent; }
     .fpill:hover { background: var(--bg2); }
     .fpill.active { background: var(--txt); color: var(--bg); border-color: var(--txt); }
 
-    /* ── section header ── */
+    /* â”€â”€ section header â”€â”€ */
     .shdr { padding: 10px 20px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 44px; background: rgba(9,19,29,.88); z-index: 9; }
 
-    /* ── threat card ── */
+    /* â”€â”€ threat card â”€â”€ */
     .tcard { padding: 14px 20px; border-bottom: 0.5px solid var(--border); cursor: pointer; transition: background .1s; }
     .tcard:hover, .tcard.active { background: var(--bg2); }
     .tc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
@@ -115,7 +127,7 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
     .expand-btn { cursor: pointer; padding: 6px 10px; margin-top: 10px; }
     
 
-    /* ── badges ── */
+    /* â”€â”€ badges â”€â”€ */
     .badge { font-size: 10px; }
     .b-crit { background: var(--crit-bg); color: var(--crit); border: 0.5px solid var(--crit-border); }
     .b-high { background: var(--high-bg); color: var(--high); border: 0.5px solid var(--high-border); }
@@ -127,19 +139,19 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
     .ttp-tag { font-size: 10px; background: rgba(255,255,255,.045); color: var(--txt3); }
     .score { font-size: 12px; font-weight: 700; }
 
-    /* ── model sub-nav ── */
+    /* â”€â”€ model sub-nav â”€â”€ */
     .msubnav { display: flex; border-bottom: 0.5px solid var(--border); padding: 0 20px; overflow-x: auto; background: rgba(9,19,29,.8); position: sticky; top: 0; z-index: 10; }
     .msubnav::-webkit-scrollbar { display: none; }
     .mstab { padding: 0 12px; height: 36px; display: flex; align-items: center; font-size: 12px; color: var(--txt3); cursor: pointer; border-bottom: 1.5px solid transparent; margin-bottom: -0.5px; white-space: nowrap; user-select: none; transition: color .1s; background: none; border-left: none; border-right: none; border-top: none; font-weight: 700; }
     .mstab:hover { color: var(--txt2); }
     .mstab.active { color: var(--txt); border-bottom-color: var(--txt); }
 
-    /* ── vector toggle ── */
+    /* â”€â”€ vector toggle â”€â”€ */
     .vtoggle { display: flex; gap: 6px; border: 0; border-radius: 999px; overflow: visible; }
     .vtbtn { padding: 6px 12px; font-size: 11px; cursor: pointer; color: var(--txt3); border: none; user-select: none; font-weight: 700; }
     .vtbtn.active { background: var(--txt); color: var(--bg); }
 
-    /* ── sidebar ── */
+    /* â”€â”€ sidebar â”€â”€ */
     .sb-block { padding: 16px; margin-bottom: 12px; }
     .sb-title { margin-bottom: 12px; }
     .mbar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
@@ -164,10 +176,18 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
     .md-high { background: var(--high); opacity: .85; }
     .md-med  { background: var(--med);  opacity: .8; }
     .md-none { background: var(--bg3); }
-    /* siem stub */
-    .siem-stub { margin: 20px; padding: 20px; text-align: center; }
-    .siem-stub-title { margin-bottom: 10px; }
-    .siem-stub-body { font-size: 12px; color: var(--txt2); line-height: 1.6; }
+    /* â”€â”€ panels â”€â”€ */
+    .workspace-shell { display: flex; flex-direction: column; gap: 16px; flex: 1; min-height: 0; }
+    .panel { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+    .panel.active { display: flex; }
+    .panel-scroll { overflow-y: auto; flex: 1; }
+    .panel,
+    #overview-layout {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(9,19,29,.78);
+      box-shadow: var(--shadow-soft);
+    }
     .siem-config-rows { text-align: left; margin-top: 16px; }
     .siem-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 11px; font-family: var(--font-sans); }
     .siem-row label { color: var(--txt3); width: 120px; flex-shrink: 0; }
@@ -176,7 +196,7 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
     .export-btn { padding: 8px 14px; }
     
 
-    /* ── panels ── */
+    /* â”€â”€ panels â”€â”€ */
     .panel { display: none; flex: 1; overflow: hidden; flex-direction: column; }
     .panel.active { display: flex; }
     .panel-scroll { overflow-y: auto; flex: 1; }
@@ -184,86 +204,91 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
     .drawer-scrim { position: fixed; inset: 0; background: rgba(0,0,0,.3); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 40; }
     .drawer-scrim.open { opacity: 1; pointer-events: auto; }
     .drawer { position: fixed; top: 0; right: 0; width: min(520px, 100vw); height: 100vh; background: var(--bg); border-left: 0.5px solid var(--border); transform: translateX(100%); transition: transform .2s ease; z-index: 41; display: flex; flex-direction: column; box-shadow: -20px 0 40px rgba(0,0,0,.22); }
-    .drawer.open { transform: translateX(0); }
-    .drawer-hdr { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 16px 18px; border-bottom: 0.5px solid var(--border); }
-    .drawer-title { font-size: 24px; line-height: 1.1; font-weight: 600; }
-    .drawer-sub { margin-top: 8px; }
-    .drawer-close { width: 36px; height: 36px; cursor: pointer; flex-shrink: 0; }
-    .drawer-body { overflow-y: auto; padding: 16px 18px 28px; }
-    .drawer-section { margin-bottom: 18px; }
-    .drawer-label { margin-bottom: 8px; }
-    .drawer-copy { font-size: 12px; line-height: 1.65; color: var(--txt2); }
-    .drawer-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-    .drawer-stat { padding: 12px; }
-    
-    .drawer-stat-v { margin-top: 5px; font-size: 12px; color: var(--txt); line-height: 1.4; }
-    .drawer-list { display: grid; gap: 7px; }
-    .drawer-item { font-size: 12px; color: var(--txt2); line-height: 1.55; padding-left: 14px; position: relative; }
-    .drawer-item::before { content: '→'; position: absolute; left: 0; color: var(--txt3); }
-    .drawer-link { color: var(--info); text-decoration: none; }
-    .drawer-link:hover { text-decoration: underline; }
-    body.drawer-open { overflow: hidden; }
-
     @media (max-width: 780px) {
+      #app { padding: 12px; }
+      .hdr { flex-direction: column; align-items: stretch; }
+      .hdr-main { flex-direction: column; }
+      .hdr-right { align-items: flex-start; }
+      .status-cluster { flex-wrap: wrap; }
+      .shell-nav { flex-direction: column; align-items: stretch; }
+      .shell-nav-meta { min-width: 0; }
+      .shell-future { justify-content: flex-start; }
+      .tabbar { width: 100%; }
       .metrics { grid-template-columns: repeat(2, 1fr); }
       .drawer-grid { grid-template-columns: 1fr; }
     }
-
-    /* ── empty state ── */
-    .empty { padding: 32px 20px; text-align: center; color: var(--txt3); font-size: 12px; }
-
-    /* ── loading ── */
-    .loading { padding: 24px 20px; text-align: center; color: var(--txt3); font-size: 12px; font-weight: 600; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spinner { display: inline-block; width: 14px; height: 14px; border: 1.5px solid var(--border2); border-top-color: var(--txt3); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; }
+    .drawer-close { width: 36px; height: 36px; cursor: pointer; flex-shrink: 0; }
+    .drawer-body { overflow-y: auto; padding: 16px 18px 28px; }
+    .drawer-section { margin-bottom: 18px; }
   </style>
-</head>
-<body>
-<div id="app">
-
   <!-- HEADER -->
   <header class="hdr">
-    <div class="hdr-logo">
-      <div class="logo-mark">
-        <svg viewBox="0 0 14 14" fill="none">
-          <rect x="1" y="1" width="5" height="5" rx="1" fill="#ef4444"/>
-          <rect x="8" y="1" width="5" height="5" rx="1" fill="#f97316" opacity=".7"/>
-          <rect x="1" y="8" width="5" height="5" rx="1" fill="#f97316" opacity=".7"/>
-          <rect x="8" y="8" width="5" height="5" rx="1" fill="#facc15" opacity=".5"/>
-        </svg>
+    <div class="hdr-main">
+      <div class="hdr-logo">
+        <div class="logo-mark">
+          <svg viewBox="0 0 14 14" fill="none">
+            <rect x="1" y="1" width="5" height="5" rx="1" fill="#ef4444"/>
+            <rect x="8" y="1" width="5" height="5" rx="1" fill="#f97316" opacity=".7"/>
+            <rect x="1" y="8" width="5" height="5" rx="1" fill="#f97316" opacity=".7"/>
+            <rect x="8" y="8" width="5" height="5" rx="1" fill="#facc15" opacity=".5"/>
+          </svg>
+        </div>
+        <div>
+          <div class="logo-title">ThreatParallax</div>
+          <div class="logo-sub">AI Threat Intelligence Platform</div>
+        </div>
       </div>
-      <div>
-        <div class="logo-title">ThreatParallax</div>
-        <div class="logo-sub">AI Threat Intelligence Platform</div>
+      <div class="hdr-copy">
+        <div class="hdr-kicker">Security leader and analyst workspace</div>
+        <div class="hdr-headline">Track model-linked threats with a shell built for serious review.</div>
+        <p>ThreatParallax organizes vendor, vector, and severity signals into a buyer-safe control surface that can grow into Threat Map and Research workflows without changing the current deployment model.</p>
       </div>
     </div>
     <div class="hdr-right">
-      <div class="live-pill"><div class="pulse"></div>Live feed active &nbsp;·&nbsp; Updated:</div>
-      <div class="hdr-time" id="hdr-time">{now}</div>
+      <div class="status-cluster">
+        <div class="live-pill"><div class="pulse"></div>Live feed active &nbsp;Â·&nbsp; Updated:</div>
+        <div class="hdr-time" id="hdr-time">{now}</div>
+      </div>
+      <div class="future-nav">
+        <span class="future-chip"><strong>Threat Map</strong> · Phase II</span>
+        <span class="future-chip"><strong>Research</strong> · Phase II</span>
+      </div>
     </div>
   </header>
 
   <!-- TAB BAR -->
-  <nav class="tabbar" id="tabbar">
-    <button class="tab active" data-tab="overview">Overview <span class="tbadge" id="badge-overview">—</span></button>
-    <button class="tab" data-tab="openai">OpenAI <span class="tbadge warn" id="badge-openai">—</span></button>
-    <button class="tab" data-tab="claude">Claude <span class="tbadge" id="badge-claude">—</span></button>
-    <button class="tab" data-tab="copilot">Copilot <span class="tbadge" id="badge-copilot">—</span></button>
-    <button class="tab" data-tab="oss">OSS / HuggingFace <span class="tbadge" id="badge-oss">—</span></button>
-    <button class="tab" data-tab="vectors">Vectors <span class="tbadge" id="badge-vectors">—</span></button>
-    <button class="tab" data-tab="siem">SIEM Config <span class="tbadge" style="background:var(--info-bg);color:var(--info)">stub</span></button>
-  </nav>
+  <div class="shell-nav">
+    <div class="shell-nav-meta">
+      <div class="shell-label">Workspace</div>
+      <div class="shell-note">Current panels stay live while the shell is prepared for later Threat Map and Research expansion.</div>
+    </div>
+    <nav class="tabbar" id="tabbar">
+      <button class="tab active" data-tab="overview">Overview <span class="tbadge" id="badge-overview">â€”</span></button>
+      <button class="tab" data-tab="openai">OpenAI <span class="tbadge warn" id="badge-openai">â€”</span></button>
+      <button class="tab" data-tab="claude">Claude <span class="tbadge" id="badge-claude">â€”</span></button>
+      <button class="tab" data-tab="copilot">Copilot <span class="tbadge" id="badge-copilot">â€”</span></button>
+      <button class="tab" data-tab="oss">OSS / HuggingFace <span class="tbadge" id="badge-oss">â€”</span></button>
+      <button class="tab" data-tab="vectors">Vectors <span class="tbadge" id="badge-vectors">â€”</span></button>
+      <button class="tab" data-tab="siem">SIEM Config <span class="tbadge" style="background:var(--info-bg);color:var(--info)">stub</span></button>
+    </nav>
+    <div class="shell-future">
+      <span class="future-chip">Threat Map navigation reserved</span>
+      <span class="future-chip">Research disclosures reserved</span>
+    </div>
+  </div>
 
+  <div class="workspace-shell">
   <!-- METRICS -->
   <div class="metrics" id="metrics-strip">
-    <div class="metric"><div class="m-label">Active campaigns</div><div class="m-val" id="m-total">—</div><div class="m-delta" id="m-total-d"></div></div>
-    <div class="metric"><div class="m-label">Critical severity</div><div class="m-val crit" id="m-crit">—</div><div class="m-delta up" id="m-crit-d"></div></div>
-    <div class="metric"><div class="m-label">New this week</div><div class="m-val amber" id="m-week">—</div><div class="m-delta" id="m-week-d"></div></div>
-    <div class="metric"><div class="m-label">Models affected</div><div class="m-val" id="m-models">—</div><div class="m-delta dn" id="m-models-d"></div></div>
+    <div class="metric"><div class="m-label">Active campaigns</div><div class="m-val" id="m-total">â€”</div><div class="m-delta" id="m-total-d"></div></div>
+    <div class="metric"><div class="m-label">Critical severity</div><div class="m-val crit" id="m-crit">â€”</div><div class="m-delta up" id="m-crit-d"></div></div>
+    <div class="metric"><div class="m-label">New this week</div><div class="m-val amber" id="m-week">â€”</div><div class="m-delta" id="m-week-d"></div></div>
+    <div class="metric"><div class="m-label">Models affected</div><div class="m-val" id="m-models">â€”</div><div class="m-delta dn" id="m-models-d"></div></div>
   </div>
 
   <!-- PANELS -->
 
+  <!-- OVERVIEW -->
   <!-- OVERVIEW -->
   <div class="panel active" id="panel-overview">
     <div id="overview-layout" style="display:flex;flex:1;min-height:0;overflow:hidden">
@@ -284,7 +309,7 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
       <div class="resize-handle" id="sidebar-resize-handle"></div>
       <div class="sidebar" id="overview-sidebar" style="width:260px;min-width:160px;max-width:520px;overflow-y:auto;flex-shrink:0">
         <div class="sb-block">
-          <div class="sb-title">Threat volume · 8w</div>
+          <div class="sb-title">Threat volume Â· 8w</div>
           <div class="tl" id="sb-tl"></div>
           <div class="tll" id="sb-tll"></div>
         </div>
@@ -293,7 +318,7 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
           <div id="sb-models"></div>
         </div>
         <div class="sb-block">
-          <div class="sb-title">Vector × model</div>
+          <div class="sb-title">Vector Ã— model</div>
           <div id="sb-matrix"></div>
         </div>
       </div>
@@ -333,6 +358,7 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
     </div>
     <div class="panel-scroll"><div id="feed-copilot"><div class="loading"><span class="spinner"></span>Loading...</div></div></div>
   </div>
+  </div>
 
   <div class="panel" id="panel-oss">
     <div class="msubnav" id="msubnav-oss">
@@ -350,7 +376,7 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
       <span>Distribution vector tracking</span>
       <div class="vtoggle">
         <button class="vtbtn active" id="vt-threats">Threats per vector</button>
-        <button class="vtbtn" id="vt-matrix">Vector × model matrix</button>
+        <button class="vtbtn" id="vt-matrix">Vector Ã— model matrix</button>
       </div>
     </div>
     <div class="panel-scroll">
@@ -370,16 +396,16 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
           Supported targets: Microsoft Sentinel, Splunk HEC, Elastic, CrowdStrike Falcon, generic webhook.
         </div>
         <div class="siem-config-rows">
-          <div class="siem-row"><label>SIEM type</label><select id="sc-type"><option value="">— select —</option><option>sentinel</option><option>splunk</option><option>elastic</option><option>crowdstrike</option><option>webhook</option></select></div>
+          <div class="siem-row"><label>SIEM type</label><select id="sc-type"><option value="">â€” select â€”</option><option>sentinel</option><option>splunk</option><option>elastic</option><option>crowdstrike</option><option>webhook</option></select></div>
           <div class="siem-row"><label>Webhook / HEC URL</label><input type="url" id="sc-url" placeholder="https://..." /></div>
-          <div class="siem-row"><label>Secret / token</label><input type="password" id="sc-secret" placeholder="•••••••••" /></div>
+          <div class="siem-row"><label>Secret / token</label><input type="password" id="sc-secret" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" /></div>
           <div class="siem-row"><label>Min severity</label><select id="sc-minsev"><option value="critical">Critical only</option><option value="high" selected>High+</option><option value="medium">Medium+</option></select></div>
         </div>
         <div class="siem-export-btns">
           <button class="export-btn" onclick="exportStix()">Export STIX 2.1 bundle</button>
           <button class="export-btn" onclick="exportCsv()">Export CSV</button>
           <button class="export-btn" onclick="exportJson()">Export JSON</button>
-          <button class="export-btn" style="color:var(--info)" onclick="saveSiemConfig()">Save config →</button>
+          <button class="export-btn" style="color:var(--info)" onclick="saveSiemConfig()">Save config â†’</button>
         </div>
       </div>
     </div>
@@ -394,19 +420,19 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
       <div class="drawer-title" id="drawer-title">Threat detail</div>
       <div class="drawer-sub" id="drawer-sub"></div>
     </div>
-    <button class="drawer-close" id="drawer-close" aria-label="Close detail drawer">×</button>
+    <button class="drawer-close" id="drawer-close" aria-label="Close detail drawer">Ã—</button>
   </div>
   <div class="drawer-body" id="drawer-body"></div>
 </aside>
 
 <script>
-// ── State ─────────────────────────────────────────────────────────────────
+// â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let ALL_THREATS = [];
 let currentTab  = 'overview';
 let overviewFilter = 'all';
 let selectedThreatId = null;
 
-// ── Fetch threats ─────────────────────────────────────────────────────────
+// â”€â”€ Fetch threats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadThreats() {
   try {
     const res = await fetch('/api/threats');
@@ -426,14 +452,14 @@ async function loadStats() {
     document.getElementById('m-crit').textContent     = s.activeCritical;
     document.getElementById('m-week').textContent     = s.newThisWeek;
     document.getElementById('m-models').textContent   = s.modelsAffected + ' / 5';
-    document.getElementById('m-total-d').textContent  = s.totalThreats > 0 ? '↑ ' + Math.max(1, Math.floor(s.totalThreats * 0.25)) + ' vs last week' : '';
-    document.getElementById('m-crit-d').textContent   = s.activeCritical > 0 ? '↑ ' + s.activeCritical + ' new today' : '— none active';
-    document.getElementById('m-week-d').textContent   = '— same as prior';
-    document.getElementById('m-models-d').textContent = s.modelsAffected >= 5 ? '↑ all models affected' : '↓ Gemini cleared';
+    document.getElementById('m-total-d').textContent  = s.totalThreats > 0 ? 'â†‘ ' + Math.max(1, Math.floor(s.totalThreats * 0.25)) + ' vs last week' : '';
+    document.getElementById('m-crit-d').textContent   = s.activeCritical > 0 ? 'â†‘ ' + s.activeCritical + ' new today' : 'â€” none active';
+    document.getElementById('m-week-d').textContent   = 'â€” same as prior';
+    document.getElementById('m-models-d').textContent = s.modelsAffected >= 5 ? 'â†‘ all models affected' : 'â†“ Gemini cleared';
   } catch { /* use defaults */ }
 }
 
-// ── Badge helpers ─────────────────────────────────────────────────────────
+// â”€â”€ Badge helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const SEV_CLS = { critical:'b-crit', high:'b-high', medium:'b-med', low:'b-low', info:'b-info' };
 const STATUS_CLS = { active:'b-high', investigating:'b-med', mitigated:'b-low', patched:'b-low', disputed:'b-gray' };
 const SEV_ORDER = { critical:0, high:1, medium:2, low:3, info:4 };
@@ -522,7 +548,7 @@ function openThreatDetail(id) {
   if (!threat) return;
   selectedThreatId = threat.id;
   document.getElementById('drawer-title').textContent = threat.title;
-  document.getElementById('drawer-sub').textContent = `${threat.type} • ${threat.severity.toUpperCase()} • ${threat.score.blended.toFixed(1)}`;
+  document.getElementById('drawer-sub').textContent = `${threat.type} â€¢ ${threat.severity.toUpperCase()} â€¢ ${threat.score.blended.toFixed(1)}`;
   document.getElementById('drawer-body').innerHTML = threatDrawerHtml(threat);
   document.getElementById('detail-scrim').classList.add('open');
   const drawer = document.getElementById('detail-drawer');
@@ -542,10 +568,10 @@ function closeThreatDetail() {
   updateActiveCard();
 }
 
-// ── Threat card HTML ──────────────────────────────────────────────────────
+// â”€â”€ Threat card HTML â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function cardHtml(t) {
   const cve = t.cve ? `<span class="ttp-tag">${escapeHtml(t.cve)}</span>` : '';
-  const patch = t.patchVersion ? `<span class="tc-foot-item" style="color:var(--low)">→ patch: ${escapeHtml(t.patchVersion)}</span>` : '';
+  const patch = t.patchVersion ? `<span class="tc-foot-item" style="color:var(--low)">â†’ patch: ${escapeHtml(t.patchVersion)}</span>` : '';
 
   return `<article class="tcard" id="card-${t.id}" data-threat-id="${t.id}" tabindex="0" role="button" aria-label="Open details for ${escapeHtml(t.title)}">
     <div class="tc-top">
@@ -565,15 +591,15 @@ function cardHtml(t) {
     <div class="tc-desc clamp">${escapeHtml(t.description)}</div>
     <div class="tc-footer">
       <span class="tc-foot-item">${formatDate(t.publishedAt)}</span>
-      <span class="tc-foot-item">·</span>
+      <span class="tc-foot-item">Â·</span>
       <span class="tc-foot-item">${escapeHtml(t.source)}</span>
       ${patch}
     </div>
-    <button class="expand-btn" type="button" data-open-detail="${t.id}">View details →</button>
+    <button class="expand-btn" type="button" data-open-detail="${t.id}">View details â†’</button>
   </article>`;
 }
 
-// ── Filter & render helpers ───────────────────────────────────────────────
+// â”€â”€ Filter & render helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function filtered(threats, f) {
   if (!f || f === 'all') return threats;
   return threats.filter(t => t.severity === f || t.type === f || t.vectors.includes(f));
@@ -596,7 +622,7 @@ function renderFeed(elId, threats) {
   updateActiveCard();
 }
 
-// ── Model filter helpers ──────────────────────────────────────────────────
+// â”€â”€ Model filter helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const MODEL_FILTERS = {
   openai:  t => t.models.some(m => ['openai-gpt4o','openai-o3','openai-o4','openai-gpt41'].includes(m)),
   claude:  t => t.models.some(m => m === 'anthropic-claude'),
@@ -604,7 +630,7 @@ const MODEL_FILTERS = {
   oss:     t => t.models.some(m => ['huggingface-oss','meta-llama','mistral'].includes(m)) || t.vectors.includes('huggingface'),
 };
 
-// ── Vector tab ───────────────────────────────────────────────────────────
+// â”€â”€ Vector tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const VECTOR_GROUPS = [
   { key:'skill-md',       label:'SKILL.md / AI agent file abuse',       vectors:['skill-md'] },
   { key:'supply-chain',   label:'npm / PyPI / GitHub supply chain',      vectors:['npm','pypi','github-repo','github-advisory'] },
@@ -657,9 +683,9 @@ function renderVectorMatrix() {
     </div>`;
 }
 
-// ── Sidebar ───────────────────────────────────────────────────────────────
+// â”€â”€ Sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderSidebar() {
-  // Timeline (mock data — replace with real per-week aggregates from store)
+  // Timeline (mock data â€” replace with real per-week aggregates from store)
   const weeks  = ['W1','W2','W3','W4','W5','W6','W7','W8'];
   const counts = [3,5,4,7,6,9,8,ALL_THREATS.length||12];
   const maxC   = Math.max(...counts);
@@ -719,7 +745,7 @@ function renderSidebar() {
   }
 }
 
-// ── Update tab badges ─────────────────────────────────────────────────────
+// â”€â”€ Update tab badges â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function updateBadges() {
   document.getElementById('badge-overview').textContent = ALL_THREATS.length;
   document.getElementById('badge-openai').textContent  = ALL_THREATS.filter(MODEL_FILTERS.openai).length;
@@ -730,7 +756,7 @@ function updateBadges() {
   document.getElementById('badge-vectors').textContent = vecThreats.length;
 }
 
-// ── Render all panels ─────────────────────────────────────────────────────
+// â”€â”€ Render all panels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderAll() {
   renderFeed('overview-feed', filtered(ALL_THREATS, overviewFilter));
   renderFeed('feed-openai',   ALL_THREATS.filter(MODEL_FILTERS.openai));
@@ -743,7 +769,7 @@ function renderAll() {
   updateBadges();
 }
 
-// ── Tab switching ─────────────────────────────────────────────────────────
+// â”€â”€ Tab switching â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.getElementById('tabbar').addEventListener('click', e => {
   const btn = e.target.closest('.tab');
   if (!btn) return;
@@ -755,7 +781,7 @@ document.getElementById('tabbar').addEventListener('click', e => {
   currentTab = tab;
 });
 
-// ── Filter pills ──────────────────────────────────────────────────────────
+// â”€â”€ Filter pills â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.querySelector('.filterbar').addEventListener('click', e => {
   const pill = e.target.closest('.fpill');
   if (!pill) return;
@@ -794,7 +820,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeThreatDetail();
 });
 
-// ── Model sub-navs ────────────────────────────────────────────────────────
+// â”€â”€ Model sub-navs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 ['openai','claude','copilot','oss'].forEach(model => {
   const nav = document.getElementById(`msubnav-${model}`);
   if (!nav) return;
@@ -810,7 +836,7 @@ document.addEventListener('keydown', e => {
   });
 });
 
-// ── Vector view toggle ────────────────────────────────────────────────────
+// â”€â”€ Vector view toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.getElementById('vt-threats').addEventListener('click', function() {
   this.classList.add('active');
   document.getElementById('vt-matrix').classList.remove('active');
@@ -824,7 +850,7 @@ document.getElementById('vt-matrix').addEventListener('click', function() {
   document.getElementById('vec-matrix-view').style.display = 'block';
 });
 
-// ── SIEM export stubs ─────────────────────────────────────────────────────
+// â”€â”€ SIEM export stubs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function exportJson() {
   const blob = new Blob([JSON.stringify(ALL_THREATS, null, 2)], { type:'application/json' });
   const a = Object.assign(document.createElement('a'), { href:URL.createObjectURL(blob), download:'aitid-threats.json' });
@@ -859,13 +885,13 @@ function saveSiemConfig() {
   alert('SIEM config saved. Set SIEM_TYPE, SIEM_WEBHOOK_URL, SIEM_SECRET, and SIEM_MIN_SEVERITY in your Vercel environment variables to activate live forwarding.');
 }
 
-// ── Clock update ──────────────────────────────────────────────────────────
+// â”€â”€ Clock update â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 setInterval(() => {
   document.getElementById('hdr-time').textContent =
     new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 }, 30000);
 
-// ── Sidebar resize ────────────────────────────────────────────────────────
+// â”€â”€ Sidebar resize â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 (function initResize() {
   const handle  = document.getElementById('sidebar-resize-handle');
   const sidebar = document.getElementById('overview-sidebar');
@@ -887,7 +913,7 @@ setInterval(() => {
     document.body.style.userSelect = 'none';
 
     function onMove(e) {
-      // Dragging left → larger sidebar; dragging right → smaller
+      // Dragging left â†’ larger sidebar; dragging right â†’ smaller
       const delta = startX - e.clientX;
       const newW  = Math.min(520, Math.max(160, startW + delta));
       sidebar.style.width = newW + 'px';
@@ -908,7 +934,7 @@ setInterval(() => {
   });
 })();
 
-// ── Boot ──────────────────────────────────────────────────────────────────
+// â”€â”€ Boot â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 loadStats();
 loadThreats();
 </script>

@@ -6,7 +6,8 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Updated visible app branding and page metadata to ThreatParallax and removed prototype wording from the shell.
 2. P1-02 [#1](https://github.com/nvrenuf/aitid/issues/1) Theme tokens, typography, and shared UI primitives extraction - completed
    Note: Extracted shared theme tokens and primitive styling into a dedicated stylesheet and reduced mono-heavy prototype presentation.
-3. P1-03 [#2](https://github.com/nvrenuf/aitid/issues/2) App shell and navigation modernization
+3. P1-03 [#2](https://github.com/nvrenuf/aitid/issues/2) App shell and navigation modernization - completed
+   Note: Reworked the top-level shell with a stronger header, future-ready navigation framing, and a cleaner workspace layout while keeping the existing panels live.
 4. P1-04 [#3](https://github.com/nvrenuf/aitid/issues/3) Overview redesign and KPI strip refresh
 5. P1-05 [#4](https://github.com/nvrenuf/aitid/issues/4) Threat feed cards and detail drawer redesign
 6. P1-06 [#5](https://github.com/nvrenuf/aitid/issues/5) README and Phase I regression/QA pass
