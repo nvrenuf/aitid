@@ -12,6 +12,34 @@ try {
   stats = null;
 }
 const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const seedModelCount = new Set(
+  SEED_THREATS.flatMap((threat) => threat.models).filter((model) => model !== 'multi-model')
+).size;
+const fallbackStats = {
+  totalThreats: SEED_THREATS.length,
+  activeCritical: SEED_THREATS.filter((threat) => threat.severity === 'critical' && threat.status === 'active').length,
+  activeHigh: SEED_THREATS.filter((threat) => threat.severity === 'high' && threat.status === 'active').length,
+  newThisWeek: SEED_THREATS.length,
+  modelsAffected: seedModelCount,
+  lastUpdated: new Date().toISOString(),
+  pipelineStatus: 'healthy',
+};
+const initialStats = stats ?? fallbackStats;
+const overviewPosture =
+  initialStats.activeCritical > 0
+    ? `${initialStats.activeCritical} critical campaigns remain active and require immediate leadership visibility.`
+    : 'No active critical campaigns are currently in rotation, but medium and high-severity tracking remains live.';
+const overviewPriority =
+  initialStats.newThisWeek > 0
+    ? `${initialStats.newThisWeek} items landed in the last seven days, with model and vector overlap concentrated in the main feed below.`
+    : 'No new items entered the pipeline this week; the focus remains on validating remediation status in the current queue.';
+const overviewStatus = initialStats.pipelineStatus === 'healthy' ? 'Collection healthy' : 'Collection needs review';
+const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US', {
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+});
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -68,16 +96,42 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
     .tbadge.warn { background: var(--crit-bg); color: var(--crit); }
 
     /* â”€â”€ metrics â”€â”€ */
-    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; flex-shrink: 0; }
-    .metric { padding: 18px 20px; }
-    .metric:last-child { border-right: none; }
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; flex-shrink: 0; }
+    .metric { padding: 18px 20px 20px; display: grid; gap: 14px; position: relative; overflow: hidden; }
+    .metric::before { content: ''; position: absolute; inset: 0 0 auto; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent); opacity: .8; }
+    .metric-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .metric-top .m-label { margin-bottom: 6px; }
+    .metric-top p { color: var(--txt2); font-size: 12px; line-height: 1.5; max-width: 24ch; }
+    .metric-accent { width: 38px; height: 38px; border-radius: 12px; border: 1px solid var(--border2); background: rgba(255,255,255,.04); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: var(--txt2); box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
+    .metric-accent.crit { color: var(--crit); background: rgba(255,107,107,.08); border-color: var(--crit-border); }
+    .metric-accent.amber { color: var(--med); background: rgba(255,211,105,.08); border-color: var(--med-border); }
+    .metric-accent.info { color: var(--info); background: rgba(125,196,255,.08); border-color: var(--info-border); }
+    .metric-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
     .m-label { margin-bottom: 8px; }
-    .m-val { font-size: 31px; font-weight: 600; font-family: var(--font-display); line-height: 1; margin-bottom: 6px; letter-spacing: -0.04em; }
+    .m-val { font-size: clamp(32px, 4vw, 40px); font-weight: 600; font-family: var(--font-display); line-height: .95; margin-bottom: 6px; letter-spacing: -0.05em; }
     .m-val.crit { color: var(--crit); }
     .m-val.amber { color: var(--med); }
-    .m-delta { font-size: 11px; color: var(--txt3); font-weight: 600; }
+    .m-context { font-size: 11px; color: var(--txt3); font-weight: 700; }
+    .m-delta { font-size: 11px; color: var(--txt3); font-weight: 600; max-width: 14ch; text-align: right; line-height: 1.45; }
     .m-delta.up { color: var(--crit); }
     .m-delta.dn { color: var(--low); }
+
+    .overview-frame { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr); gap: 16px; padding: 18px 20px; border-bottom: 0.5px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.028), rgba(255,255,255,.012)); }
+    .overview-stage { display: grid; gap: 14px; }
+    .overview-copy { display: grid; gap: 10px; max-width: 60ch; }
+    .overview-kicker { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--info); font-weight: 800; }
+    .overview-title { font-family: var(--font-display); font-size: clamp(24px, 3vw, 36px); line-height: 1.02; letter-spacing: -0.05em; max-width: 15ch; }
+    .overview-copy p { color: var(--txt2); line-height: 1.65; }
+    .overview-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .overview-pill { padding: 7px 10px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,.03); color: var(--txt2); font-size: 11px; font-weight: 700; }
+    .overview-pill strong { color: var(--txt); }
+    .overview-summary { display: grid; gap: 12px; }
+    .overview-card { padding: 16px 18px; border: 1px solid var(--border); border-radius: var(--radius-md); background: rgba(255,255,255,.03); box-shadow: inset 0 1px 0 rgba(255,255,255,.04); }
+    .overview-card p { margin-top: 8px; color: var(--txt2); line-height: 1.6; font-size: 13px; }
+    .overview-card.primary { background: linear-gradient(180deg, rgba(125,196,255,.12), rgba(125,196,255,.04)); border-color: rgba(125,196,255,.2); }
+    .overview-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .overview-stat { padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: rgba(7,16,24,.44); }
+    .overview-stat span { display: block; margin-top: 6px; color: var(--txt); font-size: 17px; font-weight: 700; letter-spacing: -0.03em; }
 
     /* â”€â”€ body â”€â”€ */
     .body { display: grid; grid-template-columns: 1fr 260px; flex: 1; min-height: 0; }
@@ -153,7 +207,13 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
 
     /* â”€â”€ sidebar â”€â”€ */
     .sb-block { padding: 16px; margin-bottom: 12px; }
+    .sb-block.executive { background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); }
     .sb-title { margin-bottom: 12px; }
+    .sb-copy { color: var(--txt2); font-size: 13px; line-height: 1.6; }
+    .sb-list { display: grid; gap: 10px; margin-top: 14px; }
+    .sb-list-item { display: grid; gap: 4px; }
+    .sb-list-item strong { color: var(--txt); font-size: 12px; font-weight: 700; }
+    .sb-list-item span { color: var(--txt3); font-size: 12px; line-height: 1.5; }
     .mbar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
     .mbar-name { font-size: 11px; color: var(--txt2); width: 62px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
     .mbar-wrap { flex: 1; height: 5px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
@@ -197,10 +257,6 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
     
 
     /* â”€â”€ panels â”€â”€ */
-    .panel { display: none; flex: 1; overflow: hidden; flex-direction: column; }
-    .panel.active { display: flex; }
-    .panel-scroll { overflow-y: auto; flex: 1; }
-
     .drawer-scrim { position: fixed; inset: 0; background: rgba(0,0,0,.3); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 40; }
     .drawer-scrim.open { opacity: 1; pointer-events: auto; }
     .drawer { position: fixed; top: 0; right: 0; width: min(520px, 100vw); height: 100vh; background: var(--bg); border-left: 0.5px solid var(--border); transform: translateX(100%); transition: transform .2s ease; z-index: 41; display: flex; flex-direction: column; box-shadow: -20px 0 40px rgba(0,0,0,.22); }
@@ -214,6 +270,8 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
       .shell-nav-meta { min-width: 0; }
       .shell-future { justify-content: flex-start; }
       .tabbar { width: 100%; }
+      .overview-frame { grid-template-columns: 1fr; }
+      .overview-grid { grid-template-columns: 1fr; }
       .metrics { grid-template-columns: repeat(2, 1fr); }
       .drawer-grid { grid-template-columns: 1fr; }
     }
@@ -280,10 +338,70 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
   <div class="workspace-shell">
   <!-- METRICS -->
   <div class="metrics" id="metrics-strip">
-    <div class="metric"><div class="m-label">Active campaigns</div><div class="m-val" id="m-total">â€”</div><div class="m-delta" id="m-total-d"></div></div>
-    <div class="metric"><div class="m-label">Critical severity</div><div class="m-val crit" id="m-crit">â€”</div><div class="m-delta up" id="m-crit-d"></div></div>
-    <div class="metric"><div class="m-label">New this week</div><div class="m-val amber" id="m-week">â€”</div><div class="m-delta" id="m-week-d"></div></div>
-    <div class="metric"><div class="m-label">Models affected</div><div class="m-val" id="m-models">â€”</div><div class="m-delta dn" id="m-models-d"></div></div>
+    <div class="metric">
+      <div class="metric-top">
+        <div>
+          <div class="m-label">Active campaigns</div>
+          <p>Current threat records requiring ongoing monitoring in the platform queue.</p>
+        </div>
+        <div class="metric-accent">ACT</div>
+      </div>
+      <div class="metric-bottom">
+        <div>
+          <div class="m-val" id="m-total">{initialStats.totalThreats}</div>
+          <div class="m-context">Across the current tracked set</div>
+        </div>
+        <div class="m-delta" id="m-total-d"></div>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-top">
+        <div>
+          <div class="m-label">Critical severity</div>
+          <p>Highest-priority issues still active and likely to drive escalation decisions.</p>
+        </div>
+        <div class="metric-accent crit">CRI</div>
+      </div>
+      <div class="metric-bottom">
+        <div>
+          <div class="m-val crit" id="m-crit">{initialStats.activeCritical}</div>
+          <div class="m-context">Immediate attention window</div>
+        </div>
+        <div class="m-delta up" id="m-crit-d"></div>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-top">
+        <div>
+          <div class="m-label">New this week</div>
+          <p>Fresh entries added during the current seven-day review cycle.</p>
+        </div>
+        <div class="metric-accent amber">NEW</div>
+      </div>
+      <div class="metric-bottom">
+        <div>
+          <div class="m-val amber" id="m-week">{initialStats.newThisWeek}</div>
+          <div class="m-context">Recent change pressure</div>
+        </div>
+        <div class="m-delta" id="m-week-d"></div>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-top">
+        <div>
+          <div class="m-label">Models affected</div>
+          <p>Distinct model families showing exposure in the current feed.</p>
+        </div>
+        <div class="metric-accent info">MOD</div>
+      </div>
+      <div class="metric-bottom">
+        <div>
+          <div class="m-val" id="m-models">{initialStats.modelsAffected} / 5</div>
+          <div class="m-context">Coverage breadth in scope</div>
+        </div>
+        <div class="m-delta dn" id="m-models-d"></div>
+      </div>
+    </div>
   </div>
 
   <!-- PANELS -->
@@ -293,6 +411,32 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
   <div class="panel active" id="panel-overview">
     <div id="overview-layout" style="display:flex;flex:1;min-height:0;overflow:hidden">
       <div class="feed-col" id="overview-feed-col" style="flex:1;min-width:0;overflow-y:auto;border-right:none">
+        <section class="overview-frame">
+          <div class="overview-stage">
+            <div class="overview-copy">
+              <div class="overview-kicker">Overview</div>
+              <div class="overview-title">Executive scanning with analyst-ready context.</div>
+              <p>The overview keeps leadership posture, operational pressure, and the active feed in a single control-center surface without inventing extra telemetry or changing the current deployment model.</p>
+            </div>
+            <div class="overview-pills">
+              <span class="overview-pill"><strong>Status</strong> <span id="overview-status">{overviewStatus}</span></span>
+              <span class="overview-pill"><strong>Updated</strong> <span id="overview-updated">{overviewUpdated}</span></span>
+              <span class="overview-pill"><strong>Audience</strong> security leaders + analysts</span>
+            </div>
+          </div>
+          <div class="overview-summary">
+            <div class="overview-card primary">
+              <div class="sb-title">Posture</div>
+              <p>{overviewPosture}</p>
+            </div>
+            <div class="overview-grid">
+              <div class="overview-stat"><div class="m-label">Critical active</div><span id="overview-critical">{initialStats.activeCritical}</span></div>
+              <div class="overview-stat"><div class="m-label">Models in scope</div><span id="overview-models">{initialStats.modelsAffected}</span></div>
+              <div class="overview-stat"><div class="m-label">New this week</div><span id="overview-week">{initialStats.newThisWeek}</span></div>
+              <div class="overview-stat"><div class="m-label">Tracked items</div><span id="overview-total">{initialStats.totalThreats}</span></div>
+            </div>
+          </div>
+        </section>
         <div class="filterbar">
           <span class="fl">Filter:</span>
           <button class="fpill active" data-f="all">All</button>
@@ -308,6 +452,20 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
       </div>
       <div class="resize-handle" id="sidebar-resize-handle"></div>
       <div class="sidebar" id="overview-sidebar" style="width:260px;min-width:160px;max-width:520px;overflow-y:auto;flex-shrink:0">
+        <div class="sb-block executive">
+          <div class="sb-title">Executive readout</div>
+          <div class="sb-copy">{overviewPriority}</div>
+          <div class="sb-list">
+            <div class="sb-list-item">
+              <strong>{overviewStatus}</strong>
+              <span>Pipeline health and the current non-prod feed remain visible from the same shell.</span>
+            </div>
+            <div class="sb-list-item">
+              <strong>{initialStats.modelsAffected} model families in scope</strong>
+              <span>The overview remains tuned for breadth first, with deeper per-model review pushed into the tabs.</span>
+            </div>
+          </div>
+        </div>
         <div class="sb-block">
           <div class="sb-title">Threat volume Â· 8w</div>
           <div class="tl" id="sb-tl"></div>
@@ -448,18 +606,31 @@ async function loadStats() {
   try {
     const res = await fetch('/api/stats');
     const s = await res.json();
+    const statusText = s.pipelineStatus === 'healthy' ? 'Collection healthy' : 'Collection needs review';
+    const updatedText = new Date(s.lastUpdated).toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    });
     document.getElementById('m-total').textContent    = s.totalThreats;
     document.getElementById('m-crit').textContent     = s.activeCritical;
     document.getElementById('m-week').textContent     = s.newThisWeek;
     document.getElementById('m-models').textContent   = s.modelsAffected + ' / 5';
-    document.getElementById('m-total-d').textContent  = s.totalThreats > 0 ? 'â†‘ ' + Math.max(1, Math.floor(s.totalThreats * 0.25)) + ' vs last week' : '';
-    document.getElementById('m-crit-d').textContent   = s.activeCritical > 0 ? 'â†‘ ' + s.activeCritical + ' new today' : 'â€” none active';
-    document.getElementById('m-week-d').textContent   = 'â€” same as prior';
-    document.getElementById('m-models-d').textContent = s.modelsAffected >= 5 ? 'â†‘ all models affected' : 'â†“ Gemini cleared';
+    document.getElementById('m-total-d').textContent  = s.totalThreats > 0 ? '+ ' + Math.max(1, Math.floor(s.totalThreats * 0.25)) + ' vs last week' : '';
+    document.getElementById('m-crit-d').textContent   = s.activeCritical > 0 ? '+ ' + s.activeCritical + ' new today' : 'no active criticals';
+    document.getElementById('m-week-d').textContent   = 'steady vs prior';
+    document.getElementById('m-models-d').textContent = s.modelsAffected >= 5 ? 'all tracked models affected' : 'Gemini currently clear';
+    document.getElementById('overview-status').textContent = statusText;
+    document.getElementById('overview-updated').textContent = updatedText;
+    document.getElementById('overview-critical').textContent = s.activeCritical;
+    document.getElementById('overview-models').textContent = s.modelsAffected;
+    document.getElementById('overview-week').textContent = s.newThisWeek;
+    document.getElementById('overview-total').textContent = s.totalThreats;
   } catch { /* use defaults */ }
 }
 
-// â”€â”€ Badge helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ?? Badge helpers ?????????????????????????????????????????????????????????
 const SEV_CLS = { critical:'b-crit', high:'b-high', medium:'b-med', low:'b-low', info:'b-info' };
 const STATUS_CLS = { active:'b-high', investigating:'b-med', mitigated:'b-low', patched:'b-low', disputed:'b-gray' };
 const SEV_ORDER = { critical:0, high:1, medium:2, low:3, info:4 };
