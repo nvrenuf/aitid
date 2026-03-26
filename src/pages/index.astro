@@ -167,18 +167,29 @@ const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US
     /* â”€â”€ section header â”€â”€ */
     .shdr { padding: 10px 20px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 44px; background: rgba(9,19,29,.88); z-index: 9; }
 
-    /* â”€â”€ threat card â”€â”€ */
-    .tcard { padding: 14px 20px; border-bottom: 0.5px solid var(--border); cursor: pointer; transition: background .1s; }
-    .tcard:hover, .tcard.active { background: var(--bg2); }
-    .tc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
-    .tc-title { font-size: 15px; font-weight: 600; line-height: 1.45; flex: 1; }
-    .tc-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-    .tc-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-bottom: 7px; }
-    .tc-desc { font-size: 13px; color: var(--txt2); line-height: 1.65; }
+    /* ?? threat card ?? */
+    .feed-stack { display: grid; gap: 0; padding: 2px 0 14px; }
+    .tcard { margin: 14px 14px 0; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius-md); background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)); cursor: pointer; transition: transform .12s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease; box-shadow: var(--shadow-soft); display: grid; gap: 14px; }
+    .tcard:hover, .tcard.active { background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border-color: rgba(139, 162, 191, 0.34); transform: translateY(-1px); }
+    .tc-kicker { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .tc-kicker-main { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .tc-date { color: var(--txt3); font-size: 11px; font-weight: 700; }
+    .tc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+    .tc-title { font-size: 17px; font-weight: 600; line-height: 1.35; flex: 1; max-width: 34ch; }
+    .tc-meta-line { margin-top: 7px; color: var(--txt3); font-size: 12px; line-height: 1.5; }
+    .tc-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+    .tc-score-card { min-width: 106px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(7,16,24,.55); text-align: right; }
+    .tc-score-label { display: block; margin-bottom: 6px; color: var(--txt3); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; }
+    .tc-band { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .tc-group { padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(7,16,24,.4); display: grid; gap: 8px; }
+    .tc-group-label { color: var(--txt3); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; }
+    .tc-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0; }
+    .tc-desc { font-size: 13px; color: var(--txt2); line-height: 1.7; }
     .tc-desc.clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
-    .tc-footer { display: flex; gap: 8px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
+    .tc-footer { display: flex; gap: 12px; margin-top: 2px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid rgba(139, 162, 191, 0.12); }
+    .tc-footer-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .tc-foot-item { font-size: 11px; color: var(--txt3); }
-    .expand-btn { cursor: pointer; padding: 6px 10px; margin-top: 10px; }
+    .expand-btn { cursor: pointer; padding: 7px 12px; margin-top: 0; }
     
 
     /* â”€â”€ badges â”€â”€ */
@@ -191,7 +202,7 @@ const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US
     
     
     .ttp-tag { font-size: 10px; background: rgba(255,255,255,.045); color: var(--txt3); }
-    .score { font-size: 12px; font-weight: 700; }
+    .score { font-size: 24px; font-weight: 700; letter-spacing: -0.04em; }
 
     /* â”€â”€ model sub-nav â”€â”€ */
     .msubnav { display: flex; border-bottom: 0.5px solid var(--border); padding: 0 20px; overflow-x: auto; background: rgba(9,19,29,.8); position: sticky; top: 0; z-index: 10; }
@@ -255,11 +266,33 @@ const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US
     .siem-export-btns { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; justify-content: center; }
     .export-btn { padding: 8px 14px; }
     
-
-    /* â”€â”€ panels â”€â”€ */
-    .drawer-scrim { position: fixed; inset: 0; background: rgba(0,0,0,.3); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 40; }
+    /* ?? panels ?? */
+    .drawer-scrim { position: fixed; inset: 0; background: rgba(3,8,13,.62); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 40; backdrop-filter: blur(4px); }
     .drawer-scrim.open { opacity: 1; pointer-events: auto; }
-    .drawer { position: fixed; top: 0; right: 0; width: min(520px, 100vw); height: 100vh; background: var(--bg); border-left: 0.5px solid var(--border); transform: translateX(100%); transition: transform .2s ease; z-index: 41; display: flex; flex-direction: column; box-shadow: -20px 0 40px rgba(0,0,0,.22); }
+    .drawer { position: fixed; top: 0; right: 0; width: min(560px, 100vw); height: 100vh; background: linear-gradient(180deg, rgba(7,16,24,.98), rgba(9,19,29,.98)); border-left: 1px solid var(--border); transform: translateX(100%); transition: transform .2s ease; z-index: 41; display: flex; flex-direction: column; box-shadow: -26px 0 60px rgba(0,0,0,.34); }
+    .drawer.open { transform: translateX(0); }
+    .drawer-hdr { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding: 18px 20px; border-bottom: 1px solid rgba(139, 162, 191, 0.14); background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); }
+    .drawer-title { font-size: 28px; line-height: 1.02; font-weight: 600; max-width: 14ch; }
+    .drawer-sub { margin-top: 8px; max-width: 36ch; line-height: 1.5; }
+    .drawer-close { width: 38px; height: 38px; cursor: pointer; flex-shrink: 0; }
+    .drawer-body { overflow-y: auto; padding: 20px 20px 30px; display: grid; gap: 18px; }
+    .drawer-section { display: grid; gap: 10px; }
+    .drawer-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(150px, 180px); gap: 14px; }
+    .drawer-copy { font-size: 13px; line-height: 1.7; color: var(--txt2); }
+    .drawer-hero-rail, .drawer-band { padding: 14px; border: 1px solid var(--border); border-radius: 14px; background: rgba(255,255,255,.03); display: grid; gap: 10px; }
+    .drawer-score-card { padding: 14px; border-radius: 14px; border: 1px solid rgba(125,196,255,.18); background: linear-gradient(180deg, rgba(125,196,255,.12), rgba(125,196,255,.04)); }
+    .drawer-score-card .score { display: block; margin-top: 8px; }
+    .drawer-band-title { color: var(--txt3); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; }
+    .drawer-pill-grid { display: grid; gap: 10px; }
+    .drawer-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .drawer-stat { padding: 12px; }
+    .drawer-stat-v { margin-top: 6px; font-size: 13px; color: var(--txt); line-height: 1.45; }
+    .drawer-list { display: grid; gap: 8px; }
+    .drawer-item { font-size: 12px; color: var(--txt2); line-height: 1.55; padding-left: 14px; position: relative; }
+    .drawer-item::before { content: '-'; position: absolute; left: 0; color: var(--txt3); }
+    .drawer-link { color: var(--info); text-decoration: none; font-weight: 700; }
+    .drawer-link:hover { text-decoration: underline; }
+    body.drawer-open { overflow: hidden; }
     @media (max-width: 780px) {
       #app { padding: 12px; }
       .hdr { flex-direction: column; align-items: stretch; }
@@ -273,11 +306,10 @@ const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US
       .overview-frame { grid-template-columns: 1fr; }
       .overview-grid { grid-template-columns: 1fr; }
       .metrics { grid-template-columns: repeat(2, 1fr); }
+      .tc-band { grid-template-columns: 1fr; }
+      .drawer-hero { grid-template-columns: 1fr; }
       .drawer-grid { grid-template-columns: 1fr; }
     }
-    .drawer-close { width: 36px; height: 36px; cursor: pointer; flex-shrink: 0; }
-    .drawer-body { overflow-y: auto; padding: 16px 18px 28px; }
-    .drawer-section { margin-bottom: 18px; }
   </style>
   <!-- HEADER -->
   <header class="hdr">
@@ -671,11 +703,11 @@ function arraySection(label, items) {
 function threatDrawerHtml(threat) {
   const facts = [
     ['Severity', threat.severity.toUpperCase()],
-    ['Score', threat.score.blended.toFixed(1)],
     ['Status', threat.status],
     ['Published', formatDate(threat.publishedAt)],
     ['Source', threat.source],
     ['Patch', threat.patchVersion ?? 'None listed'],
+    ['Threat type', threat.type],
   ];
   const modelBadges = threat.models.map(m => `<span class="badge b-model">${escapeHtml(shortModel(m))}</span>`).join('');
   const vectorBadges = threat.vectors.map(v => `<span class="badge b-gray">${escapeHtml(v)}</span>`).join('');
@@ -683,21 +715,44 @@ function threatDrawerHtml(threat) {
   const sourceHref = /^https?:\/\//.test(threat.sourceUrl ?? '') ? threat.sourceUrl : null;
 
   return `
-    <section class="drawer-section">
-      <div class="drawer-label">Summary</div>
-      <div class="drawer-copy">${escapeHtml(threat.description)}</div>
-    </section>
-    <section class="drawer-section">
-      <div class="drawer-label">Coverage</div>
-      <div class="tc-meta">
-        ${modelBadges}
-        ${vectorBadges}
-        ${ttpBadges}
-        ${threat.cve ? `<span class="ttp-tag">${escapeHtml(threat.cve)}</span>` : ''}
+    <section class="drawer-hero">
+      <div class="drawer-band">
+        <div class="drawer-label">Incident summary</div>
+        <div class="drawer-copy">${escapeHtml(threat.description)}</div>
+        <div class="tc-meta">
+          ${sevBadge(threat.severity)}
+          ${statusBadge(threat.status)}
+          <span class="badge b-gray">${escapeHtml(threat.type)}</span>
+        </div>
+      </div>
+      <div class="drawer-hero-rail">
+        <div class="drawer-score-card">
+          <div class="drawer-label">Blended score</div>
+          <span class="score">${threat.score.blended.toFixed(1)}</span>
+        </div>
+        <div class="drawer-band-title">Review focus</div>
+        <div class="drawer-copy">Model impact, distribution vectors, and mitigation readiness are grouped below for faster analyst review.</div>
       </div>
     </section>
     <section class="drawer-section">
-      <div class="drawer-label">Key Facts</div>
+      <div class="drawer-label">Coverage</div>
+      <div class="drawer-pill-grid">
+        <div class="drawer-band">
+          <div class="drawer-band-title">Models</div>
+          <div class="tc-meta">${modelBadges}</div>
+        </div>
+        <div class="drawer-band">
+          <div class="drawer-band-title">Vectors and TTPs</div>
+          <div class="tc-meta">
+            ${vectorBadges}
+            ${ttpBadges}
+            ${threat.cve ? `<span class="ttp-tag">${escapeHtml(threat.cve)}</span>` : ''}
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="drawer-section">
+      <div class="drawer-label">Key facts</div>
       <div class="drawer-grid">
         ${facts.map(([label, value]) => `<div class="drawer-stat"><div class="drawer-stat-k">${escapeHtml(label)}</div><div class="drawer-stat-v">${escapeHtml(value)}</div></div>`).join('')}
       </div>
@@ -742,35 +797,52 @@ function closeThreatDetail() {
 // â”€â”€ Threat card HTML â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function cardHtml(t) {
   const cve = t.cve ? `<span class="ttp-tag">${escapeHtml(t.cve)}</span>` : '';
-  const patch = t.patchVersion ? `<span class="tc-foot-item" style="color:var(--low)">â†’ patch: ${escapeHtml(t.patchVersion)}</span>` : '';
+  const patchLabel = t.patchVersion ? `Patch ${escapeHtml(t.patchVersion)}` : 'Patch not listed';
+  const modelBadges = t.models.map(m => `<span class="badge b-model">${shortModel(m)}</span>`).join('');
+  const vectorBadges = t.vectors.map(v => `<span class="badge b-gray">${escapeHtml(v)}</span>`).join('');
+  const ttpBadges = t.ttps.map(p => `<span class="ttp-tag">${escapeHtml(p.id)}</span>`).join('');
 
   return `<article class="tcard" id="card-${t.id}" data-threat-id="${t.id}" tabindex="0" role="button" aria-label="Open details for ${escapeHtml(t.title)}">
-    <div class="tc-top">
-      <div class="tc-title">${escapeHtml(t.title)}</div>
-      <div class="tc-right">
+    <div class="tc-kicker">
+      <div class="tc-kicker-main">
         ${sevBadge(t.severity)}
-        <span class="score">${t.score.blended.toFixed(1)}</span>
+        ${statusBadge(t.status)}
+        <span class="badge b-gray">${escapeHtml(t.type)}</span>
+      </div>
+      <span class="tc-date">${formatDate(t.publishedAt)}</span>
+    </div>
+    <div class="tc-top">
+      <div>
+        <div class="tc-title">${escapeHtml(t.title)}</div>
+        <div class="tc-meta-line">Source ${escapeHtml(t.source)} | ${t.models.length} model targets | ${t.vectors.length} vectors</div>
+      </div>
+      <div class="tc-right">
+        <div class="tc-score-card">
+          <span class="tc-score-label">Blended score</span>
+          <span class="score">${t.score.blended.toFixed(1)}</span>
+        </div>
       </div>
     </div>
-    <div class="tc-meta">
-      ${t.models.map(m => `<span class="badge b-model">${shortModel(m)}</span>`).join('')}
-      ${t.vectors.map(v => `<span class="badge b-gray">${escapeHtml(v)}</span>`).join('')}
-      ${statusBadge(t.status)}
-      ${t.ttps.map(p => `<span class="ttp-tag">${escapeHtml(p.id)}</span>`).join('')}
-      ${cve}
+    <div class="tc-band">
+      <div class="tc-group">
+        <div class="tc-group-label">Models</div>
+        <div class="tc-meta">${modelBadges}</div>
+      </div>
+      <div class="tc-group">
+        <div class="tc-group-label">Vectors and TTPs</div>
+        <div class="tc-meta">${vectorBadges}${ttpBadges}${cve}</div>
+      </div>
     </div>
     <div class="tc-desc clamp">${escapeHtml(t.description)}</div>
     <div class="tc-footer">
-      <span class="tc-foot-item">${formatDate(t.publishedAt)}</span>
-      <span class="tc-foot-item">Â·</span>
-      <span class="tc-foot-item">${escapeHtml(t.source)}</span>
-      ${patch}
+      <div class="tc-footer-meta">
+        <span class="tc-foot-item">${patchLabel}</span>
+      </div>
+      <button class="expand-btn" type="button" data-open-detail="${t.id}">Open detail</button>
     </div>
-    <button class="expand-btn" type="button" data-open-detail="${t.id}">View details â†’</button>
   </article>`;
 }
 
-// â”€â”€ Filter & render helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function filtered(threats, f) {
   if (!f || f === 'all') return threats;
   return threats.filter(t => t.severity === f || t.type === f || t.vectors.includes(f));
@@ -788,7 +860,7 @@ function renderFeed(elId, threats) {
   if (!el) return;
   const sorted = sortedThreats(threats);
   el.innerHTML = sorted.length
-    ? sorted.map(cardHtml).join('')
+    ? `<div class="feed-stack">${sorted.map(cardHtml).join('')}</div>`
     : '<div class="empty">No threats matching this filter.</div>';
   updateActiveCard();
 }
@@ -819,7 +891,7 @@ function renderVectorThreats() {
     if (!threats.length) return '';
     return `<div>
       <div class="shdr">${g.label}<span>${threats.length} threat${threats.length>1?'s':''}</span></div>
-      ${sortedThreats(threats).map(cardHtml).join('')}
+      <div class="feed-stack">${sortedThreats(threats).map(cardHtml).join('')}</div>
     </div>`;
   }).join('');
 }
