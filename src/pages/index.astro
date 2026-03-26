@@ -130,19 +130,15 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
 
     /* ── threat card ── */
     .tcard { padding: 14px 20px; border-bottom: 0.5px solid var(--border); cursor: pointer; transition: background .1s; }
-    .tcard:hover { background: var(--bg2); }
+    .tcard:hover, .tcard.active { background: var(--bg2); }
     .tc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
     .tc-title { font-size: 13px; font-weight: 500; line-height: 1.4; flex: 1; }
     .tc-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
     .tc-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-bottom: 7px; }
     .tc-desc { font-size: 12px; color: var(--txt2); line-height: 1.55; }
+    .tc-desc.clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
     .tc-footer { display: flex; gap: 8px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
     .tc-foot-item { font-size: 10px; font-family: var(--mono); color: var(--txt3); }
-    .tc-mitigations { margin-top: 10px; display: none; }
-    .tc-mitigations.open { display: block; }
-    .mit-hdr { font-size: 10px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--txt3); margin-bottom: 6px; }
-    .mit-item { font-size: 11px; color: var(--txt2); line-height: 1.5; padding-left: 14px; position: relative; margin-bottom: 4px; }
-    .mit-item::before { content: '→'; position: absolute; left: 0; color: var(--txt3); }
     .expand-btn { font-size: 10px; font-family: var(--mono); color: var(--txt3); cursor: pointer; padding: 2px 6px; border: 0.5px solid var(--border2); border-radius: 3px; background: transparent; margin-top: 8px; transition: background .1s; }
     .expand-btn:hover { background: var(--bg2); }
 
@@ -211,6 +207,34 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
     .panel { display: none; flex: 1; overflow: hidden; flex-direction: column; }
     .panel.active { display: flex; }
     .panel-scroll { overflow-y: auto; flex: 1; }
+
+    .drawer-scrim { position: fixed; inset: 0; background: rgba(0,0,0,.3); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 40; }
+    .drawer-scrim.open { opacity: 1; pointer-events: auto; }
+    .drawer { position: fixed; top: 0; right: 0; width: min(520px, 100vw); height: 100vh; background: var(--bg); border-left: 0.5px solid var(--border); transform: translateX(100%); transition: transform .2s ease; z-index: 41; display: flex; flex-direction: column; box-shadow: -20px 0 40px rgba(0,0,0,.08); }
+    .drawer.open { transform: translateX(0); }
+    .drawer-hdr { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 16px 18px; border-bottom: 0.5px solid var(--border); }
+    .drawer-title { font-size: 16px; line-height: 1.35; font-weight: 500; }
+    .drawer-sub { margin-top: 6px; font-size: 10px; font-family: var(--mono); color: var(--txt3); }
+    .drawer-close { border: 0.5px solid var(--border2); background: transparent; color: var(--txt2); border-radius: 4px; width: 28px; height: 28px; cursor: pointer; flex-shrink: 0; }
+    .drawer-body { overflow-y: auto; padding: 16px 18px 28px; }
+    .drawer-section { margin-bottom: 18px; }
+    .drawer-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--txt3); font-family: var(--mono); margin-bottom: 8px; }
+    .drawer-copy { font-size: 12px; line-height: 1.65; color: var(--txt2); }
+    .drawer-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .drawer-stat { border: 0.5px solid var(--border); background: var(--bg2); border-radius: 8px; padding: 10px; }
+    .drawer-stat-k { font-size: 9px; color: var(--txt3); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; }
+    .drawer-stat-v { margin-top: 5px; font-size: 12px; color: var(--txt); line-height: 1.4; }
+    .drawer-list { display: grid; gap: 7px; }
+    .drawer-item { font-size: 12px; color: var(--txt2); line-height: 1.55; padding-left: 14px; position: relative; }
+    .drawer-item::before { content: '→'; position: absolute; left: 0; color: var(--txt3); }
+    .drawer-link { color: var(--info); text-decoration: none; }
+    .drawer-link:hover { text-decoration: underline; }
+    body.drawer-open { overflow: hidden; }
+
+    @media (max-width: 780px) {
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .drawer-grid { grid-template-columns: 1fr; }
+    }
 
     /* ── empty state ── */
     .empty { padding: 32px 20px; text-align: center; color: var(--txt3); font-size: 12px; }
@@ -390,11 +414,24 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
 
 </div>
 
+<div class="drawer-scrim" id="detail-scrim"></div>
+<aside class="drawer" id="detail-drawer" aria-hidden="true">
+  <div class="drawer-hdr">
+    <div>
+      <div class="drawer-title" id="drawer-title">Threat detail</div>
+      <div class="drawer-sub" id="drawer-sub"></div>
+    </div>
+    <button class="drawer-close" id="drawer-close" aria-label="Close detail drawer">×</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</aside>
+
 <script>
 // ── State ─────────────────────────────────────────────────────────────────
 let ALL_THREATS = [];
 let currentTab  = 'overview';
 let overviewFilter = 'all';
+let selectedThreatId = null;
 
 // ── Fetch threats ─────────────────────────────────────────────────────────
 async function loadThreats() {
@@ -440,21 +477,106 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
 }
 
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function findThreat(id) {
+  return ALL_THREATS.find(t => t.id === id) ?? null;
+}
+
+function arraySection(label, items) {
+  if (!items?.length) return '';
+  return `<section class="drawer-section">
+    <div class="drawer-label">${label}</div>
+    <div class="drawer-list">${items.map(item => `<div class="drawer-item">${escapeHtml(item)}</div>`).join('')}</div>
+  </section>`;
+}
+
+function threatDrawerHtml(threat) {
+  const facts = [
+    ['Severity', threat.severity.toUpperCase()],
+    ['Score', threat.score.blended.toFixed(1)],
+    ['Status', threat.status],
+    ['Published', formatDate(threat.publishedAt)],
+    ['Source', threat.source],
+    ['Patch', threat.patchVersion ?? 'None listed'],
+  ];
+  const modelBadges = threat.models.map(m => `<span class="badge b-model">${escapeHtml(shortModel(m))}</span>`).join('');
+  const vectorBadges = threat.vectors.map(v => `<span class="badge b-gray">${escapeHtml(v)}</span>`).join('');
+  const ttpBadges = threat.ttps.map(p => `<span class="ttp-tag">${escapeHtml(p.id)}</span>`).join('');
+  const sourceHref = /^https?:\/\//.test(threat.sourceUrl ?? '') ? threat.sourceUrl : null;
+
+  return `
+    <section class="drawer-section">
+      <div class="drawer-label">Summary</div>
+      <div class="drawer-copy">${escapeHtml(threat.description)}</div>
+    </section>
+    <section class="drawer-section">
+      <div class="drawer-label">Coverage</div>
+      <div class="tc-meta">
+        ${modelBadges}
+        ${vectorBadges}
+        ${ttpBadges}
+        ${threat.cve ? `<span class="ttp-tag">${escapeHtml(threat.cve)}</span>` : ''}
+      </div>
+    </section>
+    <section class="drawer-section">
+      <div class="drawer-label">Key Facts</div>
+      <div class="drawer-grid">
+        ${facts.map(([label, value]) => `<div class="drawer-stat"><div class="drawer-stat-k">${escapeHtml(label)}</div><div class="drawer-stat-v">${escapeHtml(value)}</div></div>`).join('')}
+      </div>
+    </section>
+    ${arraySection('Mitigations', threat.mitigations)}
+    ${arraySection('IOCs', threat.iocs)}
+    ${sourceHref ? `<section class="drawer-section"><div class="drawer-label">Reference</div><a class="drawer-link" href="${escapeHtml(sourceHref)}" target="_blank" rel="noreferrer">Open source advisory</a></section>` : ''}
+  `;
+}
+
+function updateActiveCard() {
+  document.querySelectorAll('.tcard').forEach(card => {
+    card.classList.toggle('active', card.dataset.threatId === selectedThreatId);
+  });
+}
+
+function openThreatDetail(id) {
+  const threat = findThreat(id);
+  if (!threat) return;
+  selectedThreatId = threat.id;
+  document.getElementById('drawer-title').textContent = threat.title;
+  document.getElementById('drawer-sub').textContent = `${threat.type} • ${threat.severity.toUpperCase()} • ${threat.score.blended.toFixed(1)}`;
+  document.getElementById('drawer-body').innerHTML = threatDrawerHtml(threat);
+  document.getElementById('detail-scrim').classList.add('open');
+  const drawer = document.getElementById('detail-drawer');
+  drawer.classList.add('open');
+  drawer.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('drawer-open');
+  updateActiveCard();
+}
+
+function closeThreatDetail() {
+  selectedThreatId = null;
+  document.getElementById('detail-scrim').classList.remove('open');
+  const drawer = document.getElementById('detail-drawer');
+  drawer.classList.remove('open');
+  drawer.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('drawer-open');
+  updateActiveCard();
+}
+
 // ── Threat card HTML ──────────────────────────────────────────────────────
 function cardHtml(t) {
-  const mitigations = t.mitigations?.length
-    ? `<div class="tc-mitigations" id="mit-${t.id}">
-        <div class="mit-hdr">Mitigations</div>
-        ${t.mitigations.map(m => `<div class="mit-item">${m}</div>`).join('')}
-       </div>
-       <button class="expand-btn" onclick="toggleMit('${t.id}',this)">Show mitigations ↓</button>`
-    : '';
-  const cve = t.cve ? `<span class="ttp-tag">${t.cve}</span>` : '';
-  const patch = t.patchVersion ? `<span class="tc-foot-item" style="color:var(--low)">→ patch: ${t.patchVersion}</span>` : '';
+  const cve = t.cve ? `<span class="ttp-tag">${escapeHtml(t.cve)}</span>` : '';
+  const patch = t.patchVersion ? `<span class="tc-foot-item" style="color:var(--low)">→ patch: ${escapeHtml(t.patchVersion)}</span>` : '';
 
-  return `<div class="tcard" id="card-${t.id}">
+  return `<article class="tcard" id="card-${t.id}" data-threat-id="${t.id}" tabindex="0" role="button" aria-label="Open details for ${escapeHtml(t.title)}">
     <div class="tc-top">
-      <div class="tc-title">${t.title}</div>
+      <div class="tc-title">${escapeHtml(t.title)}</div>
       <div class="tc-right">
         ${sevBadge(t.severity)}
         <span class="score">${t.score.blended.toFixed(1)}</span>
@@ -462,27 +584,20 @@ function cardHtml(t) {
     </div>
     <div class="tc-meta">
       ${t.models.map(m => `<span class="badge b-model">${shortModel(m)}</span>`).join('')}
-      ${t.vectors.map(v => `<span class="badge b-gray">${v}</span>`).join('')}
+      ${t.vectors.map(v => `<span class="badge b-gray">${escapeHtml(v)}</span>`).join('')}
       ${statusBadge(t.status)}
-      ${t.ttps.map(p => `<span class="ttp-tag">${p.id}</span>`).join('')}
+      ${t.ttps.map(p => `<span class="ttp-tag">${escapeHtml(p.id)}</span>`).join('')}
       ${cve}
     </div>
-    <div class="tc-desc">${t.description}</div>
+    <div class="tc-desc clamp">${escapeHtml(t.description)}</div>
     <div class="tc-footer">
       <span class="tc-foot-item">${formatDate(t.publishedAt)}</span>
       <span class="tc-foot-item">·</span>
-      <span class="tc-foot-item">${t.source}</span>
+      <span class="tc-foot-item">${escapeHtml(t.source)}</span>
       ${patch}
     </div>
-    ${mitigations}
-  </div>`;
-}
-
-function toggleMit(id, btn) {
-  const el = document.getElementById(`mit-${id}`);
-  if (!el) return;
-  const open = el.classList.toggle('open');
-  btn.textContent = open ? 'Hide mitigations ↑' : 'Show mitigations ↓';
+    <button class="expand-btn" type="button" data-open-detail="${t.id}">View details →</button>
+  </article>`;
 }
 
 // ── Filter & render helpers ───────────────────────────────────────────────
@@ -505,6 +620,7 @@ function renderFeed(elId, threats) {
   el.innerHTML = sorted.length
     ? sorted.map(cardHtml).join('')
     : '<div class="empty">No threats matching this filter.</div>';
+  updateActiveCard();
 }
 
 // ── Model filter helpers ──────────────────────────────────────────────────
@@ -674,6 +790,35 @@ document.querySelector('.filterbar').addEventListener('click', e => {
   document.querySelectorAll('.fpill').forEach(p => p.classList.remove('active'));
   pill.classList.add('active');
   renderFeed('overview-feed', filtered(ALL_THREATS, overviewFilter));
+});
+
+document.body.addEventListener('click', e => {
+  const btn = e.target.closest('[data-open-detail]');
+  if (btn) {
+    e.stopPropagation();
+    openThreatDetail(btn.dataset.openDetail);
+    return;
+  }
+
+  const card = e.target.closest('.tcard');
+  if (card) {
+    openThreatDetail(card.dataset.threatId);
+  }
+});
+
+document.body.addEventListener('keydown', e => {
+  const card = e.target.closest('.tcard');
+  if (!card) return;
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    openThreatDetail(card.dataset.threatId);
+  }
+});
+
+document.getElementById('detail-scrim').addEventListener('click', closeThreatDetail);
+document.getElementById('drawer-close').addEventListener('click', closeThreatDetail);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeThreatDetail();
 });
 
 // ── Model sub-navs ────────────────────────────────────────────────────────

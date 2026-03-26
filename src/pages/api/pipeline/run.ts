@@ -10,7 +10,14 @@ export const POST: APIRoute = async ({ request }) => {
   const authHeader = request.headers.get('Authorization') ?? '';
   const cronSecret = process.env.CRON_SECRET ?? '';
   
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret) {
+    return new Response(JSON.stringify({ error: 'CRON_SECRET is not configured' }), {
+      status:  503,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  if (authHeader !== `Bearer ${cronSecret}`) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status:  401,
       headers: { 'Content-Type': 'application/json' },
@@ -39,7 +46,13 @@ export const POST: APIRoute = async ({ request }) => {
 export const GET: APIRoute = async ({ request }) => {
   const authHeader = request.headers.get('Authorization') ?? '';
   const cronSecret = process.env.CRON_SECRET ?? '';
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret) {
+    return new Response(JSON.stringify({ error: 'CRON_SECRET is not configured' }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+  if (authHeader !== `Bearer ${cronSecret}`) {
     return new Response(JSON.stringify({ error: 'Use POST with Authorization header' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
