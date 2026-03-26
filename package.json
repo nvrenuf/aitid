@@ -1,0 +1,26 @@
+{
+  "name": "aitid",
+  "version": "0.1.0",
+  "description": "AI Threat Intelligence Dashboard",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "pipeline:run": "node pipeline/run.js",
+    "pipeline:seed": "node pipeline/seed.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@astrojs/vercel": "^8.0.0",
+    "astro": "^5.0.0",
+    "node-fetch": "^3.3.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
