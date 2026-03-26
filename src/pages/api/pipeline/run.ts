@@ -1,5 +1,5 @@
 // src/pages/api/pipeline/run.ts
-// Called by Vercel Cron (every 6h) and optionally manually
+// Called by Vercel Cron (daily at 8:00 AM EST / 13:00 UTC) and optionally manually
 // Protected by CRON_SECRET to prevent public triggering
 
 import type { APIRoute } from 'astro';

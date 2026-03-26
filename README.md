@@ -8,7 +8,7 @@ Test branch note: this README includes a small edit on the `test` branch.
 
 - **Frontend**: Astro (SSR) — deployed to Vercel
 - **API**: Astro API routes on Vercel Serverless Functions
-- **Pipeline**: Vercel Cron Jobs (every 6 hours)
+- **Pipeline**: Vercel Cron Job (daily at 8:00 AM EST / 13:00 UTC)
 - **Storage**: Vercel KV (Upstash Redis)
 - **Classifier**: Claude API (model configurable via env var)
 - **Sources**: NVD, GitHub Advisory DB, CISA KEV, JFrog, npm
@@ -71,7 +71,7 @@ curl -X POST https://your-aitid.vercel.app/api/pipeline/run \
 
 This runs a 30-day backfill. Takes ~2-5 minutes depending on advisory volume.
 
-From then on, Vercel Cron runs the pipeline automatically every 6 hours.
+From then on, Vercel Cron runs the pipeline automatically once per day at 8:00 AM EST (13:00 UTC).
 
 ---
 
@@ -153,7 +153,7 @@ npm run pipeline:run    # runs live pipeline against real APIs
 ## Architecture
 
 ```
-Vercel Cron (every 6h)
+Vercel Cron (daily at 8:00 AM EST / 13:00 UTC)
     │
     ▼
 /api/pipeline/run
