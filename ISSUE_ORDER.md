@@ -14,3 +14,11 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Rebuilt the threat cards around clearer severity/status/model/vector bands and turned the drawer into a more structured incident brief without changing the underlying data model.
 6. P1-06 [#5](https://github.com/nvrenuf/aitid/issues/5) README and Phase I regression/QA pass - completed
    Note: Updated the README to the ThreatParallax framing, refreshed package-level product description, and closed Phase I with a final build and brand-reference sweep.
+
+## Phase 1.5 Execution Order
+
+1. P1.5-01 [#8](https://github.com/nvrenuf/aitid/issues/8) UTF-8 normalization and visible copy cleanup - completed
+   Note: Removed the remaining corrupted banner text in the main page source and normalized high-risk visible separators in the drawer subtitle.
+2. P1.5-02 [#9](https://github.com/nvrenuf/aitid/issues/9) Component extraction for shell, overview, feed, and drawer
+3. P1.5-03 [#10](https://github.com/nvrenuf/aitid/issues/10) Minimal smoke test harness and npm test script
+4. P1.5-04 [#11](https://github.com/nvrenuf/aitid/issues/11) Final regression sweep and PR polish
