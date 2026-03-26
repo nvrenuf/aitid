@@ -12,4 +12,5 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Reframed the overview as a control-center landing surface with executive summary modules, stronger KPI cards, and clearer hierarchy around the live feed.
 5. P1-05 [#4](https://github.com/nvrenuf/aitid/issues/4) Threat feed cards and detail drawer redesign - completed
    Note: Rebuilt the threat cards around clearer severity/status/model/vector bands and turned the drawer into a more structured incident brief without changing the underlying data model.
-6. P1-06 [#5](https://github.com/nvrenuf/aitid/issues/5) README and Phase I regression/QA pass
+6. P1-06 [#5](https://github.com/nvrenuf/aitid/issues/5) README and Phase I regression/QA pass - completed
+   Note: Updated the README to the ThreatParallax framing, refreshed package-level product description, and closed Phase I with a final build and brand-reference sweep.
