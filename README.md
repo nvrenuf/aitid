@@ -2,6 +2,8 @@
 
 Real-time threat intelligence for AI models and distribution vectors. Monitors OpenAI, Anthropic Claude, Microsoft Copilot, and OSS/HuggingFace models across supply chain, MCP, IDE extension, and API attack surfaces.
 
+Test branch note: this README includes a small edit on the `test` branch.
+
 ## Stack
 
 - **Frontend**: Astro (SSR) — deployed to Vercel
