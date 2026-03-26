@@ -1,11 +1,12 @@
 import { defineConfig } from 'astro/config';
-import vercel from '@astrojs/vercel/serverless';
+import vercel from '@astrojs/vercel';
 
 export default defineConfig({
   output: 'server',
   adapter: vercel({
     edgeMiddleware: false,
     functionPerRoute: false,
+    maxDuration: 60,
   }),
   vite: {
     define: {
