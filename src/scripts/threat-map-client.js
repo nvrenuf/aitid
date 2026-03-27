@@ -125,6 +125,7 @@ function renderRegionDetails(points, regions) {
         <div>
           <div class="page-kicker">Regional detail</div>
           <h2>No mapped regions match the current filters</h2>
+          <p class="threat-map-detail-copy">Adjust the current filters to restore mapped regional posture in the detail panel.</p>
         </div>
       </div>
       <div class="page-list">
@@ -143,11 +144,16 @@ function renderRegionDetails(points, regions) {
       <div>
         <div class="page-kicker">Regional detail</div>
         <h2>${escapeHtml(activeRegion.regionName)}</h2>
+        <p class="threat-map-detail-copy">Approximate regional posture based on the mapped observations currently in scope.</p>
       </div>
-      <span class="page-eyebrow">${activeRegion.threatCount} tracked threats</span>
+      <div class="threat-map-detail-stat">
+        <span>Tracked threats</span>
+        <strong>${activeRegion.threatCount}</strong>
+        <p>${activeRegion.pointCount} mapped observations</p>
+      </div>
     </div>
 
-    <div class="info-card-grid">
+    <div class="info-card-grid threat-map-detail-grid">
       <div class="info-card">
         <span>Precision</span>
         <strong>${escapeHtml(activeRegion.precisions.join(', '))}</strong>
@@ -170,24 +176,26 @@ function renderRegionDetails(points, regions) {
       </div>
     </div>
 
-    <div class="threat-map-section">
-      <div class="page-kicker">Top threats</div>
-      <div class="page-list">
-        ${activeRegion.topThreats.map((threat) => `<div class="page-list-item">
-          <strong><a class="drawer-link" href="${getThreatDetailHref({ title: threat.title })}">${escapeHtml(threat.title)}</a></strong>
-          <p>Severity ${escapeHtml(threat.severity)} · blended score ${threat.score.toFixed(1)}</p>
-        </div>`).join('')}
-      </div>
-    </div>
+    <div class="threat-map-detail-columns">
+      <section class="threat-map-section-card">
+        <div class="page-kicker">Top threats</div>
+        <div class="page-list">
+          ${activeRegion.topThreats.map((threat) => `<div class="page-list-item">
+            <strong><a class="drawer-link" href="${getThreatDetailHref({ title: threat.title })}">${escapeHtml(threat.title)}</a></strong>
+            <p>Severity ${escapeHtml(threat.severity)} · blended score ${threat.score.toFixed(1)}</p>
+          </div>`).join('')}
+        </div>
+      </section>
 
-    <div class="threat-map-section">
-      <div class="page-kicker">Observation notes</div>
-      <div class="page-list">
-        ${regionPoints.map((point) => `<div class="page-list-item">
-          <strong><a class="drawer-link" href="${getThreatDetailHref({ title: point.threatTitle })}">${escapeHtml(point.threatTitle)}</a></strong>
-          <p>${escapeHtml(point.summary)}<br />Scope: ${escapeHtml(point.scope)} · Quality: ${escapeHtml(point.sourceQuality)}</p>
-        </div>`).join('')}
-      </div>
+      <section class="threat-map-section-card">
+        <div class="page-kicker">Observation notes</div>
+        <div class="page-list">
+          ${regionPoints.map((point) => `<div class="page-list-item">
+            <strong><a class="drawer-link" href="${getThreatDetailHref({ title: point.threatTitle })}">${escapeHtml(point.threatTitle)}</a></strong>
+            <p>${escapeHtml(point.summary)}<br />Scope: ${escapeHtml(point.scope)} · Quality: ${escapeHtml(point.sourceQuality)}</p>
+          </div>`).join('')}
+        </div>
+      </section>
     </div>
   </section>`;
 }
@@ -290,7 +298,24 @@ function bindSelect(id, key) {
   });
 }
 
+function resetFilters() {
+  state.severity = '';
+  state.model = '';
+  state.vector = '';
+
+  const severity = document.getElementById('threat-map-filter-severity');
+  const model = document.getElementById('threat-map-filter-model');
+  const vector = document.getElementById('threat-map-filter-vector');
+
+  if (severity) severity.value = '';
+  if (model) model.value = '';
+  if (vector) vector.value = '';
+
+  render();
+}
+
 bindSelect('threat-map-filter-severity', 'severity');
 bindSelect('threat-map-filter-model', 'model');
 bindSelect('threat-map-filter-vector', 'vector');
+document.getElementById('threat-map-reset-filters')?.addEventListener('click', resetFilters);
 render();
