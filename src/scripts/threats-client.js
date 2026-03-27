@@ -2,6 +2,7 @@ import { shortModel } from '../lib/dashboard-utils.js';
 import {
   DEFAULT_THREAT_SORT,
   applyThreatFilters,
+  getThreatDetailHref,
   sortThreatCollection,
   summarizeThreatResultSet,
 } from '../lib/threats-utils.js';
@@ -64,12 +65,13 @@ function resultCard(threat) {
   const vectors = threat.vectors.map((vector) => badge(vector, 'b-gray')).join('');
   const ttpIds = threat.ttps.map((ttp) => `<span class="ttp-tag">${escapeHtml(ttp.id)}</span>`).join('');
   const patchLine = threat.patchVersion ? `Patch ${escapeHtml(threat.patchVersion)}` : 'Patch not listed';
+  const detailHref = getThreatDetailHref(threat);
 
   return `
     <article class="threat-row">
       <div class="threat-row-head">
         <div>
-          <div class="threat-row-title">${escapeHtml(threat.title)}</div>
+          <div class="threat-row-title"><a class="threat-row-link" href="${detailHref}">${escapeHtml(threat.title)}</a></div>
           <div class="threat-row-source">${escapeHtml(threat.source)}</div>
         </div>
         <div class="tc-score-card">
@@ -104,6 +106,7 @@ function resultCard(threat) {
       <div class="threat-row-foot">
         <span>${patchLine}</span>
         <span>${threat.iocs.length} IOC${threat.iocs.length === 1 ? '' : 's'} | ${threat.mitigations.length} mitigation actions</span>
+        <a class="expand-btn" href="${detailHref}">Open detail page</a>
       </div>
     </article>
   `;

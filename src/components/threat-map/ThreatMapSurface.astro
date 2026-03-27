@@ -1,4 +1,6 @@
 ---
+import { getThreatDetailHref } from '../../lib/threats-utils.js';
+
 const { dataset } = Astro.props;
 
 const initialRegion = dataset.regions[0] ?? null;
@@ -145,7 +147,7 @@ const projectAnchor = (anchor) => ({
                 {
                   region.topThreats.map((threat) => (
                     <div class="page-list-item">
-                      <strong>{threat.title}</strong>
+                      <strong><a class="drawer-link" href={getThreatDetailHref({ title: threat.title })}>{threat.title}</a></strong>
                       <p>
                         Severity {threat.severity} · blended score {threat.score.toFixed(1)}
                       </p>
@@ -163,7 +165,7 @@ const projectAnchor = (anchor) => ({
                     .filter((point) => point.regionKey === region.regionKey)
                     .map((point) => (
                       <div class="page-list-item">
-                        <strong>{point.threatTitle}</strong>
+                        <strong><a class="drawer-link" href={getThreatDetailHref({ title: point.threatTitle })}>{point.threatTitle}</a></strong>
                         <p>
                           {point.summary}
                           <br />

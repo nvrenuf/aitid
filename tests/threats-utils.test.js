@@ -4,6 +4,8 @@ import assert from 'node:assert/strict';
 import {
   applyThreatFilters,
   buildThreatSearchText,
+  getThreatDetailHref,
+  getThreatDetailSlug,
   sortThreatCollection,
   summarizeThreatResultSet,
 } from '../src/lib/threats-utils.js';
@@ -57,6 +59,11 @@ test('buildThreatSearchText includes models, vectors, ttps, and iocs', () => {
   assert.match(haystack, /trackpipe\.dev/);
   assert.match(haystack, /claude/);
   assert.match(haystack, /aml\.t0053/);
+});
+
+test('detail route helpers generate stable canonical paths', () => {
+  assert.equal(getThreatDetailSlug(threats[0]), 'ghostclaw-supply-chain');
+  assert.equal(getThreatDetailHref(threats[0]), '/threats/ghostclaw-supply-chain');
 });
 
 test('applyThreatFilters combines query and structured filters', () => {

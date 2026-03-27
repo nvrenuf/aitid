@@ -10,6 +10,22 @@ export const THREAT_SORT_OPTIONS = [
   { value: 'title', label: 'Title A-Z' },
 ];
 
+export function slugifyThreatSegment(value) {
+  return String(value ?? '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/-{2,}/g, '-');
+}
+
+export function getThreatDetailSlug(threat) {
+  return slugifyThreatSegment(threat.title);
+}
+
+export function getThreatDetailHref(threat) {
+  return `/threats/${getThreatDetailSlug(threat)}`;
+}
+
 export function buildThreatSearchText(threat) {
   return [
     threat.id,

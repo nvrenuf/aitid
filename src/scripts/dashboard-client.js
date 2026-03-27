@@ -5,6 +5,7 @@ import {
   shortModel,
   sortThreats,
 } from '../lib/dashboard-utils.js';
+import { getThreatDetailHref } from '../lib/threats-utils.js';
 
 let allThreats = [];
 let overviewFilter = 'all';
@@ -132,6 +133,10 @@ function threatDrawerHtml(threat) {
     </section>
     ${arraySection('Mitigations', threat.mitigations)}
     ${arraySection('IOCs', threat.iocs)}
+    <section class="drawer-section">
+      <div class="drawer-label">Canonical route</div>
+      <a class="drawer-link" href="${escapeHtml(getThreatDetailHref(threat))}">Open detail page</a>
+    </section>
     ${sourceHref ? `<section class="drawer-section"><div class="drawer-label">Reference</div><a class="drawer-link" href="${escapeHtml(sourceHref)}" target="_blank" rel="noreferrer">Open source advisory</a></section>` : ''}
   `;
 }
@@ -179,6 +184,7 @@ function cardHtml(threat) {
   const modelBadges = threat.models.map((model) => `<span class="badge b-model">${shortModel(model)}</span>`).join('');
   const vectorBadges = threat.vectors.map((vector) => `<span class="badge b-gray">${escapeHtml(vector)}</span>`).join('');
   const ttpBadges = threat.ttps.map((ttp) => `<span class="ttp-tag">${escapeHtml(ttp.id)}</span>`).join('');
+  const detailHref = getThreatDetailHref(threat);
 
   return `<article class="tcard" id="card-${threat.id}" data-threat-id="${threat.id}" tabindex="0" role="button" aria-label="Open details for ${escapeHtml(threat.title)}">
     <div class="tc-kicker">
@@ -191,7 +197,7 @@ function cardHtml(threat) {
     </div>
     <div class="tc-top">
       <div>
-        <div class="tc-title">${escapeHtml(threat.title)}</div>
+        <div class="tc-title"><a class="drawer-link" href="${detailHref}" data-threat-link>${escapeHtml(threat.title)}</a></div>
         <div class="tc-meta-line">Source ${escapeHtml(threat.source)} | ${threat.models.length} model targets | ${threat.vectors.length} vectors</div>
       </div>
       <div class="tc-right">
@@ -216,7 +222,10 @@ function cardHtml(threat) {
       <div class="tc-footer-meta">
         <span class="tc-foot-item">${patchLabel}</span>
       </div>
-      <button class="expand-btn" type="button" data-open-detail="${threat.id}">Open detail</button>
+      <div class="tc-meta">
+        <button class="expand-btn" type="button" data-open-detail="${threat.id}">Open drawer</button>
+        <a class="expand-btn" href="${detailHref}" data-threat-link>Open detail page</a>
+      </div>
     </div>
   </article>`;
 }
@@ -454,6 +463,8 @@ function initOverviewFilters() {
 
 function initThreatInteractions() {
   document.body.addEventListener('click', (event) => {
+    if (event.target.closest('[data-threat-link]')) return;
+
     const openButton = event.target.closest('[data-open-detail]');
     if (openButton) {
       event.stopPropagation();

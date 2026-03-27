@@ -43,8 +43,8 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
 
 1. P3-01 [#19](https://github.com/nvrenuf/aitid/issues/19) Threats index route and operator filter workflow - completed
    Note: Added a dedicated `/threats` route with operator-oriented search, filtering, sorting, and corpus summary cues while preserving the current ThreatParallax visual language.
-2. P3-02 [#20](https://github.com/nvrenuf/aitid/issues/20) Canonical threat detail pages and deep-link routing - pending
-   Note: Promote threats into canonical deep-linkable routes and reduce drawer-only dependency across Overview, Threats, and Threat Map.
+2. P3-02 [#20](https://github.com/nvrenuf/aitid/issues/20) Canonical threat detail pages and deep-link routing - completed
+   Note: Added canonical `/threats/[slug]` detail routes, linked them from the Threats surface, exposed canonical detail links from Overview while keeping the drawer, and wired Threat Map regional lists into the same deep-link flow.
 3. P3-03 [#21](https://github.com/nvrenuf/aitid/issues/21) Evidence, source transparency, and score/method context on threat detail - pending
    Note: Add explicit evidence, source, methodology, and confidence framing to detail pages without overstating dataset fidelity.
 4. P3-04 [#22](https://github.com/nvrenuf/aitid/issues/22) Threat Map drilldowns, filters, and unmapped reason categories - pending

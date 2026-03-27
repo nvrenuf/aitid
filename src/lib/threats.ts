@@ -1,6 +1,6 @@
 import { SEED_THREATS } from './seed.js';
 import { getAllThreats } from './store.js';
-import { summarizeThreatResultSet } from './threats-utils.js';
+import { getThreatDetailSlug, summarizeThreatResultSet } from './threats-utils.js';
 
 export async function getThreatCorpus() {
   let threats = await getAllThreats();
@@ -21,4 +21,9 @@ export async function getThreatSurfaceData() {
       statuses: [...new Set(threats.map((threat) => threat.status))].sort(),
     },
   };
+}
+
+export async function getThreatBySlug(slug: string) {
+  const threats = await getThreatCorpus();
+  return threats.find((threat) => getThreatDetailSlug(threat) === slug) ?? null;
 }
