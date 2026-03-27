@@ -110,7 +110,7 @@ function resultCard(threat) {
         <div>
           <div class="threat-row-title"><a class="threat-row-link" href="${detailHref}">${escapeHtml(threat.title)}</a></div>
           <div class="threat-row-source">${escapeHtml(threat.source)}</div>
-          <div class="tc-meta-line">${threat.models.length} model targets · ${threat.vectors.length} mapped vectors · ${threat.iocs.length} IOC${threat.iocs.length === 1 ? '' : 's'}</div>
+          <div class="threat-row-meta-line">${threat.models.length} model targets · ${threat.vectors.length} mapped vectors · ${threat.iocs.length} IOC${threat.iocs.length === 1 ? '' : 's'}</div>
         </div>
         <div class="tc-score-card">
           <span class="tc-score-label">Blended score</span>
@@ -118,12 +118,9 @@ function resultCard(threat) {
         </div>
       </div>
 
+      <div class="threat-row-summary">${escapeHtml(threat.description)}</div>
+
       <div class="threat-row-scan">
-        <div class="threat-row-scan-item">
-          <span>Severity</span>
-          <strong>${escapeHtml(threat.severity.toUpperCase())}</strong>
-          <p>${escapeHtml(threat.status)} workflow state</p>
-        </div>
         <div class="threat-row-scan-item">
           <span>Models</span>
           <strong>${escapeHtml(topModels || 'None listed')}</strong>
@@ -141,9 +138,7 @@ function resultCard(threat) {
         </div>
       </div>
 
-      <div class="threat-row-summary">${escapeHtml(threat.description)}</div>
-
-      <div class="threat-row-groups">
+      <div class="threat-row-bands">
         <div class="threat-row-band">
           <strong>Model exposure</strong>
           <div class="tc-meta">${models}</div>
