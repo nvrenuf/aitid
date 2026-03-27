@@ -23,6 +23,8 @@ const overviewStats = [
   { label: 'New this week', id: 'overview-week', value: initialStats.newThisWeek },
   { label: 'Tracked items', id: 'overview-total', value: initialStats.totalThreats },
 ];
+
+const initialStatsJson = JSON.stringify(initialStats);
 ---
 
 <div class="panel active" id="panel-overview">
@@ -113,6 +115,7 @@ const overviewStats = [
           <div class="loading-copy">Preparing current threats and score context.</div>
         </div>
       </div>
+      <script id="overview-initial-stats" type="application/json" set:html={initialStatsJson}></script>
     </div>
     <div class="resize-handle" id="sidebar-resize-handle"></div>
     <div class="sidebar" id="overview-sidebar" style="width:260px;min-width:160px;max-width:520px;overflow-y:auto;flex-shrink:0">

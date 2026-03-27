@@ -4,63 +4,81 @@
 
 import type { APIRoute } from 'astro';
 import { runPipeline } from '../../../lib/pipeline.js';
+import { authorizePipelineRunRequest, readPipelineRunInput } from '../../../lib/pipeline-run-request.js';
+
+function jsonResponse(payload: Record<string, unknown>, status = 200) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
+    },
+  });
+}
+
+async function handlePipelineRun(request: Request) {
+  const cronSecret = process.env.CRON_SECRET ?? '';
+  const authorization = authorizePipelineRunRequest(request, cronSecret);
+
+  if (!authorization.ok) {
+    console.warn('[/api/pipeline/run] Request rejected', {
+      method: request.method,
+      status: authorization.status,
+      error: authorization.error,
+      isCronRequest: authorization.isCronRequest,
+    });
+
+    return jsonResponse(
+      {
+        error: authorization.error,
+        isCronRequest: authorization.isCronRequest,
+      },
+      authorization.status,
+    );
+  }
+
+  if (authorization.warning) {
+    console.warn(`[/api/pipeline/run] ${authorization.warning}`);
+  }
+
+  try {
+    const { lookbackDays, forceReclassify } = await readPipelineRunInput(request);
+
+    console.log('[/api/pipeline/run] Starting pipeline run', {
+      method: request.method,
+      authMode: authorization.authMode,
+      isCronRequest: authorization.isCronRequest,
+      lookbackDays,
+      forceReclassify,
+    });
+
+    const run = await runPipeline({ lookbackDays, forceReclassify });
+
+    return jsonResponse({
+      ...run,
+      authMode: authorization.authMode,
+      isCronRequest: authorization.isCronRequest,
+    });
+  } catch (error) {
+    console.error('[/api/pipeline/run] Route failed before pipeline completion', error);
+
+    return jsonResponse(
+      {
+        error: 'Pipeline route failed before completion',
+        detail: error instanceof Error ? error.message : String(error),
+        authMode: authorization.authMode,
+        isCronRequest: authorization.isCronRequest,
+      },
+      500,
+    );
+  }
+}
 
 export const POST: APIRoute = async ({ request }) => {
-  // Auth check — Vercel sends Authorization header for cron jobs
-  const authHeader = request.headers.get('Authorization') ?? '';
-  const cronSecret = process.env.CRON_SECRET ?? '';
-  
-  if (!cronSecret) {
-    return new Response(JSON.stringify({ error: 'CRON_SECRET is not configured' }), {
-      status:  503,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-
-  if (authHeader !== `Bearer ${cronSecret}`) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status:  401,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-
-  const body = await request.json().catch(() => ({})) as Record<string, unknown>;
-  const lookbackDays   = Number(body.lookbackDays   ?? 7);
-  const forceReclassify = Boolean(body.forceReclassify ?? false);
-
-  console.log(`[/api/pipeline/run] Starting pipeline run (lookback: ${lookbackDays}d, force: ${forceReclassify})`);
-
-  // Run async — return immediately with run ID, pipeline continues
-  const runPromise = runPipeline({ lookbackDays, forceReclassify });
-
-  // For Vercel serverless we need to await (max 60s configured in vercel.json)
-  const run = await runPromise;
-
-  return new Response(JSON.stringify(run), {
-    status:  200,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return handlePipelineRun(request);
 };
 
 // Also support GET for easy manual testing from browser
 export const GET: APIRoute = async ({ request }) => {
-  const authHeader = request.headers.get('Authorization') ?? '';
-  const cronSecret = process.env.CRON_SECRET ?? '';
-  if (!cronSecret) {
-    return new Response(JSON.stringify({ error: 'CRON_SECRET is not configured' }), {
-      status: 503,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-  if (authHeader !== `Bearer ${cronSecret}`) {
-    return new Response(JSON.stringify({ error: 'Use POST with Authorization header' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-  const run = await runPipeline({ lookbackDays: 7 });
-  return new Response(JSON.stringify(run), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return handlePipelineRun(request);
 };
