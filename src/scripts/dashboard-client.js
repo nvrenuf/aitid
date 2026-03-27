@@ -534,7 +534,7 @@ function downloadBlob(blob, filename) {
 }
 
 function exportJson() {
-  downloadBlob(new Blob([JSON.stringify(allThreats, null, 2)], { type: 'application/json' }), 'aitid-threats.json');
+  downloadBlob(new Blob([JSON.stringify(allThreats, null, 2)], { type: 'application/json' }), 'threatparallax-threats.json');
 }
 
 function exportCsv() {
@@ -553,7 +553,7 @@ function exportCsv() {
     threat.source,
     threat.publishedAt,
   ]));
-  downloadBlob(new Blob([rows.map((row) => row.join(',')).join('\n')], { type: 'text/csv' }), 'aitid-threats.csv');
+  downloadBlob(new Blob([rows.map((row) => row.join(',')).join('\n')], { type: 'text/csv' }), 'threatparallax-threats.csv');
 }
 
 function exportStix() {
@@ -580,7 +580,7 @@ function exportStix() {
       },
     })),
   };
-  downloadBlob(new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' }), 'aitid-stix.json');
+  downloadBlob(new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' }), 'threatparallax-stix.json');
 }
 
 function saveSiemConfig() {

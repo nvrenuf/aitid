@@ -122,6 +122,9 @@ cp .env.example .env
 # Run without KV
 npm run dev
 
+# Run smoke tests
+npm test
+
 # Seed local data
 npm run pipeline:seed
 
