@@ -1,0 +1,94 @@
+---
+import '../../styles/design-review.css';
+
+const {
+  title = 'ThreatParallax Design Review',
+  pageTitle = 'Design review',
+  pageSummary = 'Static design-direction prototypes for ThreatParallax.',
+  currentPage = 'index',
+} = Astro.props;
+
+const pages = [
+  { id: 'index', href: '/design-review', label: 'Review hub', kicker: 'Context' },
+  { id: 'overview', href: '/design-review/overview', label: 'Overview', kicker: 'Executive surface' },
+  { id: 'threat-map', href: '/design-review/threat-map', label: 'Threat Map', kicker: 'Geography surface' },
+  { id: 'threats', href: '/design-review/threats', label: 'Threats', kicker: 'Operator surface' },
+  { id: 'threat-detail', href: '/design-review/threat-detail', label: 'Threat detail', kicker: 'Record page' },
+];
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={pageSummary} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="review-app">
+    <div class="review-shell">
+      <header class="review-header">
+        <div class="review-brand">
+          <div class="review-brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 14 14" fill="none">
+              <rect x="1" y="1" width="5" height="5" rx="1" fill="#ff7a7a" />
+              <rect x="8" y="1" width="5" height="5" rx="1" fill="#ffb36d" opacity=".78" />
+              <rect x="1" y="8" width="5" height="5" rx="1" fill="#8ec5ff" opacity=".82" />
+              <rect x="8" y="8" width="5" height="5" rx="1" fill="#55d39f" opacity=".74" />
+            </svg>
+          </div>
+          <div class="review-brand-copy">
+            <div class="review-eyebrow">ThreatParallax design review</div>
+            <div class="review-brand-title">Mockups and implementation alignment</div>
+            <div class="review-brand-sub">Static prototypes only. No production routes modified.</div>
+          </div>
+        </div>
+        <div class="review-header-meta">
+          <div class="review-pill"><strong>Mode</strong> static mockups</div>
+          <div class="review-pill"><strong>Intent</strong> executive + analyst polish</div>
+          <div class="review-pill"><strong>Scope</strong> review before build phase</div>
+        </div>
+      </header>
+
+      <div class="review-body">
+        <aside class="review-nav">
+          <div>
+            <div class="review-eyebrow">Prototype pages</div>
+            <div class="review-nav-links">
+              {
+                pages.map((page) => (
+                  <a class:list={['review-nav-link', currentPage === page.id && 'active']} href={page.href}>
+                    <span class="review-kicker">{page.kicker}</span>
+                    <strong>{page.label}</strong>
+                  </a>
+                ))
+              }
+            </div>
+          </div>
+          <div class="review-nav-note">
+            These pages deliberately refine the current ThreatParallax identity rather than replacing it.
+            The goal is a calmer, more deliberate intelligence-product system with stronger composition and less filler.
+          </div>
+        </aside>
+
+        <main class="review-content">
+          <section class="review-page-header">
+            <div>
+              <div class="review-eyebrow">Design pass 1</div>
+              <h1>{pageTitle}</h1>
+              <p>{pageSummary}</p>
+            </div>
+            <div class="review-meta">Seeded content only · isolated review area</div>
+          </section>
+
+          <slot />
+        </main>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

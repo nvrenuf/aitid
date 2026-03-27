@@ -1,0 +1,185 @@
+---
+import ReviewLayout from '../../components/design-review/ReviewLayout.astro';
+
+const kpis = [
+  { label: 'Critical active', value: '4', tone: 'critical', note: 'Noisy but bounded to two active clusters.' },
+  { label: 'New in seven days', value: '9', tone: 'info', note: 'Cadence remains elevated across model supply chain.' },
+  { label: 'Models in scope', value: '11', tone: '', note: 'Tracked families with current exposure relevance.' },
+  { label: 'Collection health', value: 'Healthy', tone: 'low', note: 'Refresh lag within expected collection window.' },
+];
+
+const watchlist = [
+  {
+    title: 'Inference endpoint takeover via poisoned orchestration package',
+    severity: 'critical',
+    type: 'supply chain',
+    score: '9.4',
+    summary: 'Privilege handoff risk remains the highest-confidence issue in the current corpus after new package propagation evidence.',
+  },
+  {
+    title: 'Prompt-chain jailbreak bypassing internal guardrail scaffolding',
+    severity: 'high',
+    type: 'jailbreak',
+    score: '8.1',
+    summary: 'Operational relevance remains high because bypass paths map to widely reused orchestration patterns.',
+  },
+  {
+    title: 'Training artifact leak through model-serving debug residue',
+    severity: 'high',
+    type: 'data exposure',
+    score: '7.8',
+    summary: 'Active because downstream snapshots still expose fragments of sensitive intermediate artifacts.',
+  },
+];
+---
+
+<ReviewLayout
+  title="ThreatParallax Design Review - Overview"
+  currentPage="overview"
+  pageTitle="Overview mockup"
+  pageSummary="A tighter executive-and-analyst landing surface with a compressed header, calmer KPI treatment, and clearer grouping of posture, trend, and active review."
+>
+  <section class="review-hero-card">
+    <div class="review-hero-top">
+      <div class="review-hero-copy">
+        <div class="review-eyebrow">Overview surface</div>
+        <h2 class="review-hero-title">Current AI threat posture without the oversized intro block.</h2>
+        <p>
+          The hero is reduced to one decisive sentence, two utility chips, and an immediate posture statement.
+          KPI cards become part of the same composition instead of feeling like a separate dashboard band.
+        </p>
+        <div class="review-chip-row">
+          <span class="review-chip">collection healthy</span>
+          <span class="review-chip">updated 14m ago</span>
+          <span class="review-chip">executive + analyst workspace</span>
+        </div>
+      </div>
+
+      <div class="review-hero-rail">
+        <div class="review-summary-card">
+          <div class="review-label">Priority posture</div>
+          <div class="review-stat-value">Guarded</div>
+          <p class="review-summary-copy">Critical pressure is narrow but the surrounding supply-chain context still warrants elevated review discipline.</p>
+        </div>
+        <div class="review-summary-card">
+          <div class="review-label">Primary question</div>
+          <p class="review-summary-copy">Which active items can change defensive posture this week, and which belong in deeper analyst follow-up only?</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-grid kpi-grid">
+      {
+        kpis.map((kpi) => (
+          <div class:list={['review-kpi', kpi.tone]}>
+            <div class="review-stat-label">{kpi.label}</div>
+            <div class="review-kpi-value">{kpi.value}</div>
+            <p class="review-summary-copy">{kpi.note}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="review-grid two-col">
+    <div class="review-band">
+      <div class="review-band-header">
+        <div>
+          <div class="review-label">Posture trend</div>
+          <h2 class="review-section-title">Pressure stays elevated, but concentrated.</h2>
+        </div>
+        <div class="review-meta">8 week volume with critical overlay</div>
+      </div>
+      <div class="review-chart">
+        <div class="review-chart-bars">
+          <div class="review-chart-bar" style="height:33%;"></div>
+          <div class="review-chart-bar" style="height:48%;"></div>
+          <div class="review-chart-bar" style="height:42%;"></div>
+          <div class="review-chart-bar critical" style="height:72%;"></div>
+          <div class="review-chart-bar" style="height:58%;"></div>
+          <div class="review-chart-bar" style="height:54%;"></div>
+          <div class="review-chart-bar critical" style="height:80%;"></div>
+          <div class="review-chart-bar" style="height:61%;"></div>
+        </div>
+      </div>
+      <div class="review-intel-grid">
+        <div class="review-mini-card">
+          <div class="review-mini-label">Dominant vector</div>
+          <strong>Supply chain / model extension path</strong>
+          <p class="review-summary-copy">The most impactful current items involve software or orchestration layers around the models, not just direct prompt abuse.</p>
+        </div>
+        <div class="review-mini-card">
+          <div class="review-mini-label">Leadership framing</div>
+          <strong>Escalate only posture-changing items</strong>
+          <p class="review-summary-copy">Low-value narrative copy is removed. The page now says what matters and gets out of the way.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-sidebar-card">
+      <div class="review-card-header">
+        <div>
+          <div class="review-label">Watchlist</div>
+          <h2 class="review-card-title">Active items worth immediate review</h2>
+        </div>
+      </div>
+      <div class="review-list">
+        {
+          watchlist.map((item) => (
+            <div class="review-feed-item">
+              <div class="review-feed-head">
+                <div>
+                  <div class="review-badge-row">
+                    <span class:list={['review-badge', item.severity]}>{item.severity}</span>
+                    <span class="review-badge neutral">{item.type}</span>
+                  </div>
+                  <div class="review-feed-title" style="margin-top:10px;">{item.title}</div>
+                </div>
+                <div class="review-score">
+                  <div class="review-mini-label">score</div>
+                  <div class="review-score-value">{item.score}</div>
+                </div>
+              </div>
+              <p class="review-card-copy">{item.summary}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="review-split">
+    <div class="review-stage-card">
+      <div class="review-card-header">
+        <div>
+          <div class="review-label">Analyst lane</div>
+          <h2 class="review-card-title">Grouped evidence panels instead of floating blocks</h2>
+        </div>
+        <div class="review-meta">Trend, vectors, and model pressure align to one grid</div>
+      </div>
+      <div class="review-detail-grid">
+        <div class="review-mini-card">
+          <div class="review-mini-label">Model concentration</div>
+          <strong>OpenAI, Claude, and OSS serve most of the current attention load.</strong>
+          <p class="review-summary-copy">The composition moves from scattered utility blocks toward one intentional scan path.</p>
+        </div>
+        <div class="review-mini-card">
+          <div class="review-mini-label">Collection note</div>
+          <strong>Uncorroborated geography stays off-map.</strong>
+          <p class="review-summary-copy">Scope boundaries are kept visible, but phrased more tightly and with less helper noise.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-note">
+      <div class="review-label">Design intent</div>
+      <p class="review-summary-copy">
+        The overview mockup turns the top of the page into a compact leadership read, then hands off to analyst context.
+        It keeps density, but stops asking the user to parse multiple explanatory paragraphs before seeing the product state.
+      </p>
+      <p class="review-footer-note">
+        The live overview currently has the right information categories. This mockup mostly changes hierarchy, spacing, copy discipline, and component orchestration.
+      </p>
+    </div>
+  </section>
+</ReviewLayout>

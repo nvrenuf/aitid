@@ -1,0 +1,106 @@
+---
+import ReviewLayout from '../../components/design-review/ReviewLayout.astro';
+---
+
+<ReviewLayout
+  title="ThreatParallax Design Review Hub"
+  currentPage="index"
+  pageTitle="ThreatParallax design review hub"
+  pageSummary="A self-contained area for reviewing the new visual direction, page compositions, and implementation intent before any production redesign work begins."
+>
+  <section class="review-grid two-col">
+    <div class="review-hero-card">
+      <div class="review-hero-top">
+        <div class="review-hero-copy">
+          <div class="review-eyebrow">Purpose</div>
+          <h2 class="review-hero-title">Professionalize the product without losing its threat-intelligence identity.</h2>
+          <p>
+            This pass tightens hierarchy, spacing, and component discipline across the four key surfaces.
+            It keeps the ThreatParallax palette and route structure, but treats the product more like a serious
+            intelligence platform than an organically growing internal dashboard.
+          </p>
+          <div class="review-chip-row">
+            <span class="review-chip">compressed top composition</span>
+            <span class="review-chip">premium KPI treatment</span>
+            <span class="review-chip">faster operator scanning</span>
+            <span class="review-chip">more trustworthy map language</span>
+          </div>
+        </div>
+        <div class="review-hero-rail">
+          <div class="review-summary-card">
+            <div class="review-label">Artifacts</div>
+            <div class="review-stat-value">6</div>
+            <p class="review-summary-copy">Two review docs plus four static route mockups under `src/pages/design-review/*`.</p>
+          </div>
+          <div class="review-summary-card">
+            <div class="review-label">Implementation posture</div>
+            <div class="review-stat-value">0</div>
+            <p class="review-summary-copy">No live route wiring, no backend changes, and no production component redesign in this pass.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-sidebar-card">
+      <div class="review-card-header">
+        <div>
+          <div class="review-label">Review flow</div>
+          <h2 class="review-card-title">What to inspect first</h2>
+        </div>
+      </div>
+      <div class="review-list">
+        <div class="review-list-item" style="padding:14px;">
+          <strong>DESIGN_REVIEW_BRIEF.md</strong>
+          <p class="review-list-copy">Direction, priorities, simplifications, and implementation rules.</p>
+        </div>
+        <div class="review-list-item" style="padding:14px;">
+          <strong><a href="/design-review/overview">Overview mockup</a></strong>
+          <p class="review-list-copy">Best single page to evaluate the new hierarchy and density model.</p>
+        </div>
+        <div class="review-list-item" style="padding:14px;">
+          <strong><a href="/design-review/threat-map">Threat Map mockup</a></strong>
+          <p class="review-list-copy">Tests whether the product can present geography with more trust and restraint.</p>
+        </div>
+        <div class="review-list-item" style="padding:14px;">
+          <strong>REVIEW_NOTES.md</strong>
+          <p class="review-list-copy">Explains the deltas from the current app and the recommended order of implementation.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="review-grid three-col">
+    <div class="review-card">
+      <div class="review-label">Overview</div>
+      <h2 class="review-card-title">Compressed executive posture</h2>
+      <p class="review-card-copy">Shorter top block, calmer KPI strip, and clearer grouping between posture, trend, and active watchlist.</p>
+      <a class="review-filter-action" href="/design-review/overview">Open overview mockup</a>
+    </div>
+    <div class="review-card">
+      <div class="review-label">Threat Map</div>
+      <h2 class="review-card-title">Trustworthy geography surface</h2>
+      <p class="review-card-copy">A more sober map stage, stronger regional detail rail, and fewer decorative affordances that read like demo UI.</p>
+      <a class="review-filter-action" href="/design-review/threat-map">Open threat map mockup</a>
+    </div>
+    <div class="review-card">
+      <div class="review-label">Threats</div>
+      <h2 class="review-card-title">Operator-first scanability</h2>
+      <p class="review-card-copy">Integrated filters, denser results, and more legible record structure for rapid triage.</p>
+      <a class="review-filter-action" href="/design-review/threats">Open threats mockup</a>
+    </div>
+  </section>
+
+  <section class="review-card">
+    <div class="review-card-header">
+      <div>
+        <div class="review-label">Threat detail</div>
+        <h2 class="review-card-title">Link-worthy intelligence record</h2>
+      </div>
+      <a class="review-filter-action" href="/design-review/threat-detail">Open threat detail mockup</a>
+    </div>
+    <p class="review-card-copy">
+      The detail page mockup reframes evidence, source transparency, methodology, and response guidance into
+      a more buyer-safe record page with stronger legal and operational credibility.
+    </p>
+  </section>
+</ReviewLayout>
