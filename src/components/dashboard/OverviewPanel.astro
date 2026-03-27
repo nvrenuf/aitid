@@ -73,7 +73,46 @@ const overviewStats = [
         }
       </div>
       <div class="shdr"><span>Live threat feed</span><span>blended CVSS + ATLAS score</span></div>
-      <div id="overview-feed"><div class="loading"><span class="spinner"></span>Loading threats...</div></div>
+      <div id="overview-feed">
+        <div class="loading-shell" aria-live="polite" aria-label="Loading threat feed">
+          <div class="loading-card">
+            <div class="loading-card-head">
+              <div class="loading-pill-row">
+                <span class="loading-pill"></span>
+                <span class="loading-pill"></span>
+                <span class="loading-pill loading-pill-wide"></span>
+              </div>
+              <span class="loading-mini-card"></span>
+            </div>
+            <div class="loading-stack">
+              <span class="loading-line loading-line-lg"></span>
+              <span class="loading-line loading-line-md"></span>
+            </div>
+            <div class="loading-grid">
+              <span class="loading-panel"></span>
+              <span class="loading-panel"></span>
+            </div>
+          </div>
+          <div class="loading-card">
+            <div class="loading-card-head">
+              <div class="loading-pill-row">
+                <span class="loading-pill"></span>
+                <span class="loading-pill"></span>
+              </div>
+              <span class="loading-mini-card"></span>
+            </div>
+            <div class="loading-stack">
+              <span class="loading-line loading-line-lg"></span>
+              <span class="loading-line loading-line-sm"></span>
+            </div>
+            <div class="loading-grid">
+              <span class="loading-panel"></span>
+              <span class="loading-panel"></span>
+            </div>
+          </div>
+          <div class="loading-copy">Preparing current threats and score context.</div>
+        </div>
+      </div>
     </div>
     <div class="resize-handle" id="sidebar-resize-handle"></div>
     <div class="sidebar" id="overview-sidebar" style="width:260px;min-width:160px;max-width:520px;overflow-y:auto;flex-shrink:0">

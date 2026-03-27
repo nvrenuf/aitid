@@ -13,6 +13,27 @@ const { panel } = Astro.props;
     }
   </div>
   <div class="panel-scroll">
-    <div id={`feed-${panel.id}`}><div class="loading"><span class="spinner"></span>Loading...</div></div>
+    <div id={`feed-${panel.id}`}>
+      <div class="loading-shell loading-shell-compact" aria-live="polite" aria-label={`Loading ${panel.label} threats`}>
+        <div class="loading-card">
+          <div class="loading-card-head">
+            <div class="loading-pill-row">
+              <span class="loading-pill"></span>
+              <span class="loading-pill"></span>
+            </div>
+            <span class="loading-mini-card"></span>
+          </div>
+          <div class="loading-stack">
+            <span class="loading-line loading-line-lg"></span>
+            <span class="loading-line loading-line-md"></span>
+          </div>
+          <div class="loading-grid">
+            <span class="loading-panel"></span>
+            <span class="loading-panel"></span>
+          </div>
+        </div>
+        <div class="loading-copy">Preparing model-specific feed.</div>
+      </div>
+    </div>
   </div>
 </div>
