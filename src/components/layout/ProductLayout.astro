@@ -28,8 +28,10 @@ const routeMeta = getRouteMeta(currentPath);
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <style is:global>
     #app { display: flex; flex-direction: column; min-height: 100vh; overflow: hidden; padding: 16px; gap: 16px; }
-    .hdr { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; min-height: 76px; border: 1px solid var(--border); border-radius: var(--radius-lg); flex-shrink: 0; gap: 12px; background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.02)); box-shadow: var(--shadow-panel); }
-    .hdr-logo { display: flex; align-items: center; gap: 14px; }
+    .hdr { display: flex; align-items: flex-start; justify-content: space-between; padding: 20px 22px; min-height: 76px; border: 1px solid var(--border); border-radius: var(--radius-lg); flex-shrink: 0; gap: 18px; background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.02)); box-shadow: var(--shadow-panel); }
+    .hdr-home-link { display: flex; align-items: center; gap: 14px; margin-top: 2px; padding: 8px 10px; margin-left: -10px; border-radius: 16px; text-decoration: none; color: inherit; transition: background .12s ease, border-color .12s ease, transform .12s ease; border: 1px solid transparent; }
+    .hdr-home-link:hover { background: rgba(255,255,255,.04); border-color: rgba(139, 162, 191, 0.24); transform: translateY(-1px); }
+    .hdr-home-link:focus-visible { outline: none; border-color: rgba(125,196,255,.34); box-shadow: 0 0 0 3px rgba(125,196,255,.12); }
     .logo-mark { width: 38px; height: 38px; background: linear-gradient(135deg, rgba(125, 196, 255, 0.22), rgba(77, 213, 153, 0.18)); border: 1px solid var(--border2); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
     .logo-mark svg { width: 18px; height: 18px; }
     .logo-title { font-size: 18px; font-weight: 600; text-transform: none; }
@@ -39,8 +41,8 @@ const routeMeta = getRouteMeta(currentPath);
     .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--low); animation: pulse 2s ease-in-out infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
     .hdr-time { font-size: 11px; color: var(--txt2); font-weight: 600; }
-    .hdr-main { display: flex; align-items: flex-start; gap: 18px; }
-    .hdr-copy { display: grid; gap: 8px; max-width: 560px; }
+    .hdr-main { display: flex; align-items: flex-start; gap: 16px; }
+    .hdr-copy { display: grid; gap: 10px; max-width: 560px; padding-top: 4px; }
     .hdr-kicker, .shell-label, .page-kicker { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--txt3); font-weight: 700; }
     .hdr-headline { font-family: var(--font-display); font-size: clamp(24px, 3vw, 38px); line-height: 1.02; letter-spacing: -0.05em; max-width: 14ch; }
     .hdr-copy p { color: var(--txt2); line-height: 1.65; max-width: 58ch; }
@@ -65,10 +67,10 @@ const routeMeta = getRouteMeta(currentPath);
     .tbadge { font-size: 10px; font-family: var(--font-sans); padding: 1px 5px; border-radius: 3px; background: var(--bg2); color: var(--txt3); transition: background .1s; }
     .tab.active .tbadge { background: var(--txt); color: var(--bg); }
     .tbadge.warn { background: var(--crit-bg); color: var(--crit); }
-    .metrics { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; flex-shrink: 0; }
-    .metric { grid-column: span 3; padding: 18px 20px 20px; display: grid; gap: 14px; position: relative; overflow: hidden; }
+    .metrics { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; flex-shrink: 0; align-items: stretch; }
+    .metric { grid-column: span 4; min-height: 188px; padding: 18px 20px 20px; display: grid; gap: 14px; position: relative; overflow: hidden; }
     .metric::before { content: ''; position: absolute; inset: 0 0 auto; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent); opacity: .8; }
-    .metric.primary { grid-column: span 6; padding: 22px 24px 24px; background: linear-gradient(180deg, rgba(255,107,107,.12), rgba(255,107,107,.04) 52%, rgba(255,255,255,.02)); border-color: rgba(255,107,107,.18); box-shadow: 0 18px 40px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.06); }
+    .metric.primary { grid-column: 1 / -1; min-height: 214px; padding: 22px 24px 24px; background: linear-gradient(180deg, rgba(255,107,107,.12), rgba(255,107,107,.04) 52%, rgba(255,255,255,.02)); border-color: rgba(255,107,107,.18); box-shadow: 0 18px 40px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.06); }
     .metric.primary::after { content: 'Priority'; position: absolute; top: 16px; right: 18px; padding: 5px 9px; border-radius: 999px; border: 1px solid rgba(255,107,107,.24); background: rgba(255,107,107,.08); color: var(--crit); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
     .metric-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
     .metric-top .m-label { margin-bottom: 6px; }
@@ -78,7 +80,7 @@ const routeMeta = getRouteMeta(currentPath);
     .metric-accent.crit { color: var(--crit); background: rgba(255,107,107,.08); border-color: var(--crit-border); }
     .metric-accent.amber { color: var(--med); background: rgba(255,211,105,.08); border-color: var(--med-border); }
     .metric-accent.info { color: var(--info); background: rgba(125,196,255,.08); border-color: var(--info-border); }
-    .metric-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+    .metric-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-top: auto; }
     .m-label { margin-bottom: 8px; }
     .m-val { font-size: clamp(32px, 4vw, 40px); font-weight: 600; font-family: var(--font-display); line-height: .95; margin-bottom: 6px; letter-spacing: -0.05em; }
     .metric.primary .m-val { font-size: clamp(42px, 5vw, 56px); margin-bottom: 8px; }
@@ -103,9 +105,9 @@ const routeMeta = getRouteMeta(currentPath);
     .page-list-item strong { display: block; margin-bottom: 6px; }
     .page-list-item p { font-size: 13px; }
     .page-eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,.03); color: var(--txt2); font-size: 11px; font-weight: 700; }
-    .overview-frame { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr); gap: 16px; padding: 18px 20px; border-bottom: 0.5px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.028), rgba(255,255,255,.012)); }
-    .overview-stage { display: grid; gap: 14px; }
-    .overview-copy { display: grid; gap: 10px; max-width: 60ch; }
+    .overview-frame { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr); gap: 18px; padding: 20px 20px 18px; border-bottom: 0.5px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.028), rgba(255,255,255,.012)); }
+    .overview-stage { display: grid; gap: 16px; align-content: start; }
+    .overview-copy { display: grid; gap: 12px; max-width: 60ch; }
     .overview-kicker { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--info); font-weight: 800; }
     .overview-title { font-family: var(--font-display); font-size: clamp(24px, 3vw, 36px); line-height: 1.02; letter-spacing: -0.05em; max-width: 15ch; }
     .overview-copy p { color: var(--txt2); line-height: 1.65; }
@@ -265,6 +267,7 @@ const routeMeta = getRouteMeta(currentPath);
     @media (max-width: 960px) {
       .hdr { flex-direction: column; align-items: stretch; }
       .hdr-main { flex-direction: column; }
+      .hdr-home-link { margin-left: 0; }
       .hdr-right { align-items: flex-start; }
       .status-cluster { flex-wrap: wrap; }
       .shell-nav { flex-direction: column; align-items: stretch; }

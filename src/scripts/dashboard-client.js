@@ -416,11 +416,11 @@ async function loadStats() {
     safeSetText('m-total', stats.totalThreats);
     safeSetText('m-crit', stats.activeCritical);
     safeSetText('m-week', stats.newThisWeek);
-    safeSetText('m-models', `${stats.modelsAffected} / 5`);
+    safeSetText('m-models', stats.modelsAffected);
     safeSetText('m-total-d', stats.totalThreats > 0 ? `+ ${Math.max(1, Math.floor(stats.totalThreats * 0.25))} vs last week` : '');
     safeSetText('m-crit-d', stats.activeCritical > 0 ? `+ ${stats.activeCritical} new today` : 'no active criticals');
     safeSetText('m-week-d', 'steady vs prior');
-    safeSetText('m-models-d', stats.modelsAffected >= 5 ? 'all tracked models affected' : 'Gemini currently clear');
+    safeSetText('m-models-d', 'distinct model tags in current corpus');
     safeSetText('overview-status', statusText);
     safeSetText('overview-updated', updatedText);
     safeSetText('overview-critical', stats.activeCritical);
