@@ -43,73 +43,6 @@ const initialThreats = JSON.stringify(threats);
   </div>
 
   <div class="threats-workspace">
-    <aside class="threats-controls">
-      <div class="page-kicker">Operator workflow</div>
-      <div class="threats-filter-stack">
-        <label class="threats-field">
-          <span>Search corpus</span>
-          <input
-            id="threats-search"
-            class="threats-input"
-            type="search"
-            placeholder="Search title, source, TTP, IOC, model, vector"
-          />
-        </label>
-
-        <label class="threats-field">
-          <span>Severity</span>
-          <select id="threats-severity" class="threats-select">
-            <option value="">All severities</option>
-            {filters.severities.map((severity) => <option value={severity}>{severity}</option>)}
-          </select>
-        </label>
-
-        <label class="threats-field">
-          <span>Model</span>
-          <select id="threats-model" class="threats-select">
-            <option value="">All models</option>
-            {
-              filters.models.map((model) => (
-                <option value={model}>{shortModel(model)}</option>
-              ))
-            }
-          </select>
-        </label>
-
-        <label class="threats-field">
-          <span>Vector</span>
-          <select id="threats-vector" class="threats-select">
-            <option value="">All vectors</option>
-            {filters.vectors.map((vector) => <option value={vector}>{vector}</option>)}
-          </select>
-        </label>
-
-        <label class="threats-field">
-          <span>Status</span>
-          <select id="threats-status" class="threats-select">
-            <option value="">All statuses</option>
-            {filters.statuses.map((status) => <option value={status}>{status}</option>)}
-          </select>
-        </label>
-
-        <label class="threats-field">
-          <span>Sort</span>
-          <select id="threats-sort" class="threats-select">
-            {THREAT_SORT_OPTIONS.map((option) => <option value={option.value}>{option.label}</option>)}
-          </select>
-        </label>
-      </div>
-
-      <div class="info-card threats-note">
-        <span>What this route does</span>
-        <p>
-          Filters are intentionally practical: severity, model, vector, status, and text search on the
-          current data model. Saved views, bulk actions, and account-specific state stay out of scope for
-          Phase III.
-        </p>
-      </div>
-    </aside>
-
     <div class="threats-results-shell">
       <div class="threats-results-head">
         <div>
@@ -120,6 +53,80 @@ const initialThreats = JSON.stringify(threats);
           <span class="future-chip">All threats</span>
         </div>
       </div>
+
+      <section class="threats-controls">
+        <div class="threats-controls-head">
+          <div>
+            <div class="page-kicker">Operator workflow</div>
+            <p class="threats-controls-copy">
+              Filters sit directly above the corpus so search, scoping, and prioritization happen in the
+              same visual lane as the feed.
+            </p>
+          </div>
+          <div class="info-card threats-note">
+            <span>Workflow guardrails</span>
+            <p>
+              Filters stay intentionally practical: severity, model, vector, status, and text search on
+              the current data model only.
+            </p>
+          </div>
+        </div>
+
+        <div class="threats-filter-stack">
+          <label class="threats-field threats-field-search">
+            <span>Search corpus</span>
+            <input
+              id="threats-search"
+              class="threats-input"
+              type="search"
+              placeholder="Search title, source, TTP, IOC, model, vector"
+            />
+          </label>
+
+          <label class="threats-field">
+            <span>Severity</span>
+            <select id="threats-severity" class="threats-select">
+              <option value="">All severities</option>
+              {filters.severities.map((severity) => <option value={severity}>{severity}</option>)}
+            </select>
+          </label>
+
+          <label class="threats-field">
+            <span>Model</span>
+            <select id="threats-model" class="threats-select">
+              <option value="">All models</option>
+              {
+                filters.models.map((model) => (
+                  <option value={model}>{shortModel(model)}</option>
+                ))
+              }
+            </select>
+          </label>
+
+          <label class="threats-field">
+            <span>Vector</span>
+            <select id="threats-vector" class="threats-select">
+              <option value="">All vectors</option>
+              {filters.vectors.map((vector) => <option value={vector}>{vector}</option>)}
+            </select>
+          </label>
+
+          <label class="threats-field">
+            <span>Status</span>
+            <select id="threats-status" class="threats-select">
+              <option value="">All statuses</option>
+              {filters.statuses.map((status) => <option value={status}>{status}</option>)}
+            </select>
+          </label>
+
+          <label class="threats-field">
+            <span>Sort</span>
+            <select id="threats-sort" class="threats-select">
+              {THREAT_SORT_OPTIONS.map((option) => <option value={option.value}>{option.label}</option>)}
+            </select>
+          </label>
+        </div>
+      </section>
 
       <div class="threats-results-meta">
         <div class="info-card">
@@ -157,9 +164,7 @@ const initialThreats = JSON.stringify(threats);
 
   .threats-workspace {
     display: grid;
-    grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
     gap: 18px;
-    align-items: start;
   }
 
   .threats-controls,
@@ -173,13 +178,35 @@ const initialThreats = JSON.stringify(threats);
     padding: 18px;
     display: grid;
     gap: 18px;
-    position: sticky;
-    top: 16px;
+    background:
+      linear-gradient(180deg, rgba(125, 196, 255, 0.08), rgba(125, 196, 255, 0.02)),
+      rgba(255, 255, 255, 0.02);
+  }
+
+  .threats-controls-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .threats-controls-copy {
+    margin-top: 8px;
+    max-width: 58ch;
+    color: var(--txt2);
+    font-size: 13px;
+    line-height: 1.65;
   }
 
   .threats-filter-stack {
     display: grid;
     gap: 12px;
+    grid-template-columns: minmax(0, 1.8fr) repeat(5, minmax(0, 1fr));
+    align-items: end;
+  }
+
+  .threats-field-search {
+    grid-column: span 1;
   }
 
   .threats-field {
@@ -243,6 +270,14 @@ const initialThreats = JSON.stringify(threats);
     gap: 14px;
   }
 
+  .threat-row-eyebrow {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: start;
+    flex-wrap: wrap;
+  }
+
   .threat-row-head,
   .threat-row-meta,
   .threat-row-foot {
@@ -272,6 +307,42 @@ const initialThreats = JSON.stringify(threats);
     color: var(--txt2);
     font-size: 13px;
     line-height: 1.65;
+  }
+
+  .threat-row-scan {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .threat-row-scan-item {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: rgba(255,255,255,.025);
+    padding: 12px 13px;
+    display: grid;
+    gap: 6px;
+    min-height: 84px;
+  }
+
+  .threat-row-scan-item span {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--txt3);
+    font-weight: 700;
+  }
+
+  .threat-row-scan-item strong {
+    font-size: 15px;
+    line-height: 1.25;
+    color: var(--txt);
+  }
+
+  .threat-row-scan-item p {
+    color: var(--txt2);
+    font-size: 12px;
+    line-height: 1.5;
   }
 
   .threat-row-groups {
@@ -306,6 +377,18 @@ const initialThreats = JSON.stringify(threats);
     font-weight: 700;
   }
 
+  .threat-row-date {
+    color: var(--txt3);
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: right;
+  }
+
+  .threats-note {
+    min-width: min(320px, 100%);
+    max-width: 360px;
+  }
+
   .threat-empty {
     padding: 28px;
     border: 1px dashed var(--border);
@@ -321,13 +404,33 @@ const initialThreats = JSON.stringify(threats);
       grid-template-columns: 1fr;
     }
 
-    .threats-controls {
-      position: static;
+    .threats-controls-head,
+    .threat-row-scan {
+      grid-template-columns: 1fr;
+      display: grid;
+    }
+
+    .threats-filter-stack {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .threats-field-search {
+      grid-column: 1 / -1;
     }
 
     .threats-kpis,
     .threat-row-groups {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .threats-filter-stack {
+      grid-template-columns: 1fr;
+    }
+
+    .threat-row-date {
+      text-align: left;
     }
   }
 </style>
