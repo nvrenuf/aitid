@@ -1,0 +1,107 @@
+---
+import ModelFeedPanel from './ModelFeedPanel.astro';
+
+const modelPanels = [
+  {
+    id: 'openai',
+    filters: [
+      { value: 'all', label: 'All' },
+      { value: 'jailbreak', label: 'Jailbreaks' },
+      { value: 'prompt-injection', label: 'Prompt injection' },
+      { value: 'plugin-abuse', label: 'Plugin / MCP' },
+      { value: 'data-exfil', label: 'Data exfil' },
+      { value: 'supply-chain', label: 'Supply chain' },
+    ],
+  },
+  {
+    id: 'claude',
+    filters: [
+      { value: 'all', label: 'All' },
+      { value: 'mcp-abuse', label: 'MCP abuse' },
+      { value: 'jailbreak', label: 'Jailbreaks' },
+      { value: 'prompt-injection', label: 'Prompt injection' },
+      { value: 'skill-file-abuse', label: 'SKILL.md' },
+    ],
+  },
+  {
+    id: 'copilot',
+    filters: [
+      { value: 'all', label: 'All' },
+      { value: 'data-exfil', label: 'Data exfil' },
+      { value: 'prompt-injection', label: 'Prompt injection' },
+      { value: 'supply-chain', label: 'Supply chain' },
+    ],
+  },
+  {
+    id: 'oss',
+    filters: [
+      { value: 'all', label: 'All' },
+      { value: 'model-poisoning', label: 'Model poisoning' },
+      { value: 'supply-chain', label: 'Supply chain' },
+      { value: 'skill-file-abuse', label: 'SKILL.md / agent' },
+    ],
+  },
+];
+---
+
+{
+  modelPanels.map((panel) => <ModelFeedPanel panel={panel} />)
+}
+
+<div class="panel" id="panel-vectors">
+  <div class="shdr">
+    <span>Distribution vector tracking</span>
+    <div class="vtoggle">
+      <button class="vtbtn active" id="vt-threats">Threats per vector</button>
+      <button class="vtbtn" id="vt-matrix">Vector × model matrix</button>
+    </div>
+  </div>
+  <div class="panel-scroll">
+    <div id="vec-threats-view"></div>
+    <div id="vec-matrix-view" style="display:none;padding:16px 20px;"></div>
+  </div>
+</div>
+
+<div class="panel" id="panel-siem">
+  <div class="panel-scroll">
+    <div class="siem-stub">
+      <div class="siem-stub-title">SIEM / SOAR Integration</div>
+      <div class="siem-stub-body">
+        Connect your SIEM to receive structured threat events. Each event includes severity, blended
+        CVSS+ATLAS score, affected models, vectors, IOCs, and STIX 2.1 object.
+        <br /><br />
+        Supported targets: Microsoft Sentinel, Splunk HEC, Elastic, CrowdStrike Falcon, generic
+        webhook.
+      </div>
+      <div class="siem-config-rows">
+        <div class="siem-row">
+          <label>SIEM type</label>
+          <select id="sc-type">
+            <option value="">— select —</option>
+            <option>sentinel</option>
+            <option>splunk</option>
+            <option>elastic</option>
+            <option>crowdstrike</option>
+            <option>webhook</option>
+          </select>
+        </div>
+        <div class="siem-row"><label>Webhook / HEC URL</label><input type="url" id="sc-url" placeholder="https://..." /></div>
+        <div class="siem-row"><label>Secret / token</label><input type="password" id="sc-secret" placeholder="•••••••••" /></div>
+        <div class="siem-row">
+          <label>Min severity</label>
+          <select id="sc-minsev">
+            <option value="critical">Critical only</option>
+            <option value="high" selected>High+</option>
+            <option value="medium">Medium+</option>
+          </select>
+        </div>
+      </div>
+      <div class="siem-export-btns">
+        <button class="export-btn" onclick="exportStix()">Export STIX 2.1 bundle</button>
+        <button class="export-btn" onclick="exportCsv()">Export CSV</button>
+        <button class="export-btn" onclick="exportJson()">Export JSON</button>
+        <button class="export-btn" style="color:var(--info)" onclick="saveSiemConfig()">Save config →</button>
+      </div>
+    </div>
+  </div>
+</div>

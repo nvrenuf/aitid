@@ -1,0 +1,109 @@
+---
+const {
+  initialStats,
+  overviewPosture,
+  overviewPriority,
+  overviewStatus,
+  overviewUpdated,
+} = Astro.props;
+
+const overviewFilters = [
+  { value: 'all', label: 'All', active: true },
+  { value: 'critical', label: 'Critical' },
+  { value: 'high', label: 'High' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'supply-chain', label: 'Supply chain' },
+  { value: 'jailbreak', label: 'Jailbreak' },
+  { value: 'data-exfil', label: 'Data exfil' },
+];
+
+const overviewStats = [
+  { label: 'Critical active', id: 'overview-critical', value: initialStats.activeCritical },
+  { label: 'Models in scope', id: 'overview-models', value: initialStats.modelsAffected },
+  { label: 'New this week', id: 'overview-week', value: initialStats.newThisWeek },
+  { label: 'Tracked items', id: 'overview-total', value: initialStats.totalThreats },
+];
+---
+
+<div class="panel active" id="panel-overview">
+  <div id="overview-layout" style="display:flex;flex:1;min-height:0;overflow:hidden">
+    <div class="feed-col" id="overview-feed-col" style="flex:1;min-width:0;overflow-y:auto;border-right:none">
+      <section class="overview-frame">
+        <div class="overview-stage">
+          <div class="overview-copy">
+            <div class="overview-kicker">Overview</div>
+            <div class="overview-title">Executive scanning with analyst-ready context.</div>
+            <p>
+              The overview keeps leadership posture, operational pressure, and the active feed in a
+              single control-center surface without inventing extra telemetry or changing the current
+              deployment model.
+            </p>
+          </div>
+          <div class="overview-pills">
+            <span class="overview-pill"><strong>Status</strong> <span id="overview-status">{overviewStatus}</span></span>
+            <span class="overview-pill"><strong>Updated</strong> <span id="overview-updated">{overviewUpdated}</span></span>
+            <span class="overview-pill"><strong>Audience</strong> security leaders + analysts</span>
+          </div>
+        </div>
+        <div class="overview-summary">
+          <div class="overview-card primary">
+            <div class="sb-title">Posture</div>
+            <p>{overviewPosture}</p>
+          </div>
+          <div class="overview-grid">
+            {
+              overviewStats.map((stat) => (
+                <div class="overview-stat">
+                  <div class="m-label">{stat.label}</div>
+                  <span id={stat.id}>{stat.value}</span>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+      <div class="filterbar">
+        <span class="fl">Filter:</span>
+        {
+          overviewFilters.map((filter) => (
+            <button class:list={['fpill', filter.active && 'active']} data-f={filter.value}>
+              {filter.label}
+            </button>
+          ))
+        }
+      </div>
+      <div class="shdr"><span>Live threat feed</span><span>blended CVSS + ATLAS score</span></div>
+      <div id="overview-feed"><div class="loading"><span class="spinner"></span>Loading threats...</div></div>
+    </div>
+    <div class="resize-handle" id="sidebar-resize-handle"></div>
+    <div class="sidebar" id="overview-sidebar" style="width:260px;min-width:160px;max-width:520px;overflow-y:auto;flex-shrink:0">
+      <div class="sb-block executive">
+        <div class="sb-title">Executive readout</div>
+        <div class="sb-copy">{overviewPriority}</div>
+        <div class="sb-list">
+          <div class="sb-list-item">
+            <strong>{overviewStatus}</strong>
+            <span>Pipeline health and the current non-prod feed remain visible from the same shell.</span>
+          </div>
+          <div class="sb-list-item">
+            <strong>{initialStats.modelsAffected} model families in scope</strong>
+            <span>The overview remains tuned for breadth first, with deeper per-model review pushed into the tabs.</span>
+          </div>
+        </div>
+      </div>
+      <div class="sb-block">
+        <div class="sb-title">Threat volume · 8w</div>
+        <div class="tl" id="sb-tl"></div>
+        <div class="tll" id="sb-tll"></div>
+      </div>
+      <div class="sb-block">
+        <div class="sb-title">Exposure by model</div>
+        <div id="sb-models"></div>
+      </div>
+      <div class="sb-block">
+        <div class="sb-title">Vector × model</div>
+        <div id="sb-matrix"></div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,82 @@
+---
+const { now } = Astro.props;
+
+const shellTabs = [
+  { id: 'overview', label: 'Overview', badgeId: 'badge-overview', badge: '—', active: true },
+  { id: 'openai', label: 'OpenAI', badgeId: 'badge-openai', badge: '—', badgeClass: 'warn' },
+  { id: 'claude', label: 'Claude', badgeId: 'badge-claude', badge: '—' },
+  { id: 'copilot', label: 'Copilot', badgeId: 'badge-copilot', badge: '—' },
+  { id: 'oss', label: 'OSS / HuggingFace', badgeId: 'badge-oss', badge: '—' },
+  { id: 'vectors', label: 'Vectors', badgeId: 'badge-vectors', badge: '—' },
+  {
+    id: 'siem',
+    label: 'SIEM Config',
+    badgeId: 'badge-siem',
+    badge: 'stub',
+    badgeStyle: 'background:var(--info-bg);color:var(--info)',
+  },
+];
+---
+
+<header class="hdr">
+  <div class="hdr-main">
+    <div class="hdr-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 14 14" fill="none">
+          <rect x="1" y="1" width="5" height="5" rx="1" fill="#ef4444" />
+          <rect x="8" y="1" width="5" height="5" rx="1" fill="#f97316" opacity=".7" />
+          <rect x="1" y="8" width="5" height="5" rx="1" fill="#f97316" opacity=".7" />
+          <rect x="8" y="8" width="5" height="5" rx="1" fill="#facc15" opacity=".5" />
+        </svg>
+      </div>
+      <div>
+        <div class="logo-title">ThreatParallax</div>
+        <div class="logo-sub">AI Threat Intelligence Platform</div>
+      </div>
+    </div>
+    <div class="hdr-copy">
+      <div class="hdr-kicker">Security leader and analyst workspace</div>
+      <div class="hdr-headline">Track model-linked threats with a shell built for serious review.</div>
+      <p>
+        ThreatParallax organizes vendor, vector, and severity signals into a buyer-safe control surface
+        that can grow into Threat Map and Research workflows without changing the current deployment
+        model.
+      </p>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="status-cluster">
+      <div class="live-pill"><div class="pulse"></div>Live feed active &nbsp;·&nbsp; Updated:</div>
+      <div class="hdr-time" id="hdr-time">{now}</div>
+    </div>
+    <div class="future-nav">
+      <span class="future-chip"><strong>Threat Map</strong> · Phase II</span>
+      <span class="future-chip"><strong>Research</strong> · Phase II</span>
+    </div>
+  </div>
+</header>
+
+<div class="shell-nav">
+  <div class="shell-nav-meta">
+    <div class="shell-label">Workspace</div>
+    <div class="shell-note">
+      Current panels stay live while the shell is prepared for later Threat Map and Research expansion.
+    </div>
+  </div>
+  <nav class="tabbar" id="tabbar">
+    {
+      shellTabs.map((tab) => (
+        <button class:list={['tab', tab.active && 'active']} data-tab={tab.id}>
+          {tab.label}
+          <span class:list={['tbadge', tab.badgeClass]} id={tab.badgeId} style={tab.badgeStyle}>
+            {tab.badge}
+          </span>
+        </button>
+      ))
+    }
+  </nav>
+  <div class="shell-future">
+    <span class="future-chip">Threat Map navigation reserved</span>
+    <span class="future-chip">Research disclosures reserved</span>
+  </div>
+</div>

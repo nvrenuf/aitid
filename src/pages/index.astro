@@ -1,8 +1,13 @@
 ---
 // src/pages/index.astro
-// Server-rendered shell â€” stats fetched at request time, threats loaded client-side
-import { getStats } from '../lib/store.js';
+// Server-rendered shell — stats fetched at request time, threats loaded client-side
+import DashboardShell from '../components/dashboard/DashboardShell.astro';
+import MetricsStrip from '../components/dashboard/MetricsStrip.astro';
+import OverviewPanel from '../components/dashboard/OverviewPanel.astro';
+import SecondaryPanels from '../components/dashboard/SecondaryPanels.astro';
+import ThreatDetailDrawer from '../components/dashboard/ThreatDetailDrawer.astro';
 import { SEED_THREATS } from '../lib/seed.js';
+import { getStats } from '../lib/store.js';
 import '../styles/threatparallax.css';
 
 let stats;
@@ -11,10 +16,12 @@ try {
 } catch {
   stats = null;
 }
+
 const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 const seedModelCount = new Set(
-  SEED_THREATS.flatMap((threat) => threat.models).filter((model) => model !== 'multi-model')
+  SEED_THREATS.flatMap((threat) => threat.models).filter((model) => model !== 'multi-model'),
 ).size;
+
 const fallbackStats = {
   totalThreats: SEED_THREATS.length,
   activeCritical: SEED_THREATS.filter((threat) => threat.severity === 'critical' && threat.status === 'active').length,
@@ -24,6 +31,7 @@ const fallbackStats = {
   lastUpdated: new Date().toISOString(),
   pipelineStatus: 'healthy',
 };
+
 const initialStats = stats ?? fallbackStats;
 const overviewPosture =
   initialStats.activeCritical > 0
@@ -44,8 +52,8 @@ const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ThreatParallax | AI Threat Intelligence Platform</title>
   <meta
     name="description"
@@ -53,14 +61,14 @@ const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US
   />
   <meta name="application-name" content="ThreatParallax" />
   <meta name="theme-color" content="#111110" />
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <style is:global>
-    /* â”€â”€ layout â”€â”€ */
+    /* layout */
     #app { display: flex; flex-direction: column; min-height: 100vh; overflow: hidden; padding: 16px; gap: 16px; }
 
-    /* â”€â”€ header â”€â”€ */
+    /* header */
     .hdr { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; min-height: 76px; border: 1px solid var(--border); border-radius: var(--radius-lg); flex-shrink: 0; gap: 12px; background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.02)); box-shadow: var(--shadow-panel); }
     .hdr-logo { display: flex; align-items: center; gap: 14px; }
     .logo-mark { width: 38px; height: 38px; background: linear-gradient(135deg, rgba(125, 196, 255, 0.22), rgba(77, 213, 153, 0.18)); border: 1px solid var(--border2); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
@@ -83,7 +91,7 @@ const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US
     .future-chip strong { color: var(--txt); font-weight: 700; }
     .shell-note { color: var(--txt2); font-size: 13px; line-height: 1.45; max-width: 26ch; }
 
-    /* â”€â”€ tab bar â”€â”€ */
+    /* tab bar */
     .shell-nav { display: flex; align-items: center; gap: 18px; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 18px; background: rgba(9,19,29,.74); box-shadow: var(--shadow-soft); }
     .shell-nav-meta { display: grid; gap: 4px; min-width: 220px; }
     .tabbar { display: flex; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 6px; flex-shrink: 0; overflow-x: auto; background: rgba(9,19,29,.78); }
@@ -95,7 +103,7 @@ const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US
     .tab.active .tbadge { background: var(--txt); color: var(--bg); }
     .tbadge.warn { background: var(--crit-bg); color: var(--crit); }
 
-    /* â”€â”€ metrics â”€â”€ */
+    /* metrics */
     .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; flex-shrink: 0; }
     .metric { padding: 18px 20px 20px; display: grid; gap: 14px; position: relative; overflow: hidden; }
     .metric::before { content: ''; position: absolute; inset: 0 0 auto; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent); opacity: .8; }
@@ -133,12 +141,12 @@ const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US
     .overview-stat { padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: rgba(7,16,24,.44); }
     .overview-stat span { display: block; margin-top: 6px; color: var(--txt); font-size: 17px; font-weight: 700; letter-spacing: -0.03em; }
 
-    /* â”€â”€ body â”€â”€ */
+    /* body */
     .body { display: grid; grid-template-columns: 1fr 260px; flex: 1; min-height: 0; }
     .feed-col { overflow-y: auto; }
     .sidebar { overflow-y: auto; }
 
-    /* â”€â”€ resize handle â”€â”€ */
+    /* resize handle */
     .resize-handle {
       width: 4px;
       cursor: col-resize;
@@ -153,18 +161,20 @@ const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US
     .resize-handle::after {
       content: '';
       position: absolute;
-      top: 0; bottom: 0;
-      left: -4px; right: -4px; /* widen the hit target */
+      top: 0;
+      bottom: 0;
+      left: -4px;
+      right: -4px;
     }
 
-    /* â”€â”€ filter bar â”€â”€ */
+    /* filter bar */
     .filterbar { padding: 10px 20px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; position: sticky; top: 0; background: rgba(9,19,29,.8); z-index: 10; }
     .fl { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--txt3); font-family: var(--font-sans); }
     .fpill { font-size: 10px; font-family: var(--font-sans); padding: 3px 9px; border-radius: 20px; border: 0.5px solid var(--border2); color: var(--txt2); cursor: pointer; user-select: none; transition: all .1s; background: transparent; }
     .fpill:hover { background: var(--bg2); }
     .fpill.active { background: var(--txt); color: var(--bg); border-color: var(--txt); }
 
-    /* â”€â”€ section header â”€â”€ */
+    /* section header */
     .shdr { padding: 10px 20px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 44px; background: rgba(9,19,29,.88); z-index: 9; }
 
     /* threat card */
@@ -190,33 +200,30 @@ const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US
     .tc-footer-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .tc-foot-item { font-size: 11px; color: var(--txt3); }
     .expand-btn { cursor: pointer; padding: 7px 12px; margin-top: 0; }
-    
 
-    /* â”€â”€ badges â”€â”€ */
+    /* badges */
     .badge { font-size: 10px; }
     .b-crit { background: var(--crit-bg); color: var(--crit); border: 0.5px solid var(--crit-border); }
     .b-high { background: var(--high-bg); color: var(--high); border: 0.5px solid var(--high-border); }
     .b-med  { background: var(--med-bg);  color: var(--med);  border: 0.5px solid var(--med-border); }
     .b-low  { background: var(--low-bg);  color: var(--low);  border: 0.5px solid var(--low-border); }
     .b-info { background: var(--info-bg); color: var(--info); border: 0.5px solid var(--info-border); }
-    
-    
     .ttp-tag { font-size: 10px; background: rgba(255,255,255,.045); color: var(--txt3); }
     .score { font-size: 24px; font-weight: 700; letter-spacing: -0.04em; }
 
-    /* â”€â”€ model sub-nav â”€â”€ */
+    /* model sub-nav */
     .msubnav { display: flex; border-bottom: 0.5px solid var(--border); padding: 0 20px; overflow-x: auto; background: rgba(9,19,29,.8); position: sticky; top: 0; z-index: 10; }
     .msubnav::-webkit-scrollbar { display: none; }
     .mstab { padding: 0 12px; height: 36px; display: flex; align-items: center; font-size: 12px; color: var(--txt3); cursor: pointer; border-bottom: 1.5px solid transparent; margin-bottom: -0.5px; white-space: nowrap; user-select: none; transition: color .1s; background: none; border-left: none; border-right: none; border-top: none; font-weight: 700; }
     .mstab:hover { color: var(--txt2); }
     .mstab.active { color: var(--txt); border-bottom-color: var(--txt); }
 
-    /* â”€â”€ vector toggle â”€â”€ */
+    /* vector toggle */
     .vtoggle { display: flex; gap: 6px; border: 0; border-radius: 999px; overflow: visible; }
     .vtbtn { padding: 6px 12px; font-size: 11px; cursor: pointer; color: var(--txt3); border: none; user-select: none; font-weight: 700; }
     .vtbtn.active { background: var(--txt); color: var(--bg); }
 
-    /* â”€â”€ sidebar â”€â”€ */
+    /* sidebar */
     .sb-block { padding: 16px; margin-bottom: 12px; }
     .sb-block.executive { background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); }
     .sb-title { margin-bottom: 12px; }
@@ -230,13 +237,11 @@ const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US
     .mbar-wrap { flex: 1; height: 5px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
     .mbar { height: 100%; border-radius: 3px; }
     .mbar-n { font-size: 11px; color: var(--txt3); width: 16px; text-align: right; font-weight: 700; }
-    /* timeline */
     .tl { display: flex; align-items: flex-end; gap: 3px; height: 44px; }
     .tlb { flex: 1; border-radius: 2px 2px 0 0; min-height: 3px; cursor: pointer; transition: opacity .1s; }
     .tlb:hover { opacity: .7; }
     .tll { display: flex; gap: 3px; margin-top: 4px; }
     .tllb { flex: 1; font-size: 9px; color: var(--txt3); text-align: center; font-weight: 600; }
-    /* matrix */
     .matrix-tbl { width: 100%; border-collapse: collapse; }
     .matrix-tbl th { font-size: 8px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--txt3); padding: 3px 3px; text-align: center; border-bottom: 0.5px solid var(--border); }
     .matrix-tbl th:first-child { text-align: left; font-size: 8px; }
@@ -247,7 +252,8 @@ const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US
     .md-high { background: var(--high); opacity: .85; }
     .md-med  { background: var(--med);  opacity: .8; }
     .md-none { background: var(--bg3); }
-    /* â”€â”€ panels â”€â”€ */
+
+    /* panels */
     .workspace-shell { display: flex; flex-direction: column; gap: 16px; flex: 1; min-height: 0; }
     .panel { display: none; flex: 1; overflow: hidden; flex-direction: column; }
     .panel.active { display: flex; }
@@ -265,8 +271,8 @@ const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US
     .siem-row input, .siem-row select { flex: 1; background: rgba(255,255,255,.03); border: 0.5px solid var(--border2); color: var(--txt); padding: 8px 10px; border-radius: 10px; font-family: var(--font-sans); font-size: 12px; }
     .siem-export-btns { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; justify-content: center; }
     .export-btn { padding: 8px 14px; }
-    
-    /* panels */
+
+    /* drawer */
     .drawer-scrim { position: fixed; inset: 0; background: rgba(3,8,13,.62); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 40; backdrop-filter: blur(4px); }
     .drawer-scrim.open { opacity: 1; pointer-events: auto; }
     .drawer { position: fixed; top: 0; right: 0; width: min(560px, 100vw); height: 100vh; background: linear-gradient(180deg, rgba(7,16,24,.98), rgba(9,19,29,.98)); border-left: 1px solid var(--border); transform: translateX(100%); transition: transform .2s ease; z-index: 41; display: flex; flex-direction: column; box-shadow: -26px 0 60px rgba(0,0,0,.34); }
@@ -293,6 +299,7 @@ const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US
     .drawer-link { color: var(--info); text-decoration: none; font-weight: 700; }
     .drawer-link:hover { text-decoration: underline; }
     body.drawer-open { overflow: hidden; }
+
     @media (max-width: 780px) {
       #app { padding: 12px; }
       .hdr { flex-direction: column; align-items: stretch; }
@@ -311,875 +318,28 @@ const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US
       .drawer-grid { grid-template-columns: 1fr; }
     }
   </style>
-  <!-- HEADER -->
-  <header class="hdr">
-    <div class="hdr-main">
-      <div class="hdr-logo">
-        <div class="logo-mark">
-          <svg viewBox="0 0 14 14" fill="none">
-            <rect x="1" y="1" width="5" height="5" rx="1" fill="#ef4444"/>
-            <rect x="8" y="1" width="5" height="5" rx="1" fill="#f97316" opacity=".7"/>
-            <rect x="1" y="8" width="5" height="5" rx="1" fill="#f97316" opacity=".7"/>
-            <rect x="8" y="8" width="5" height="5" rx="1" fill="#facc15" opacity=".5"/>
-          </svg>
-        </div>
-        <div>
-          <div class="logo-title">ThreatParallax</div>
-          <div class="logo-sub">AI Threat Intelligence Platform</div>
-        </div>
-      </div>
-      <div class="hdr-copy">
-        <div class="hdr-kicker">Security leader and analyst workspace</div>
-        <div class="hdr-headline">Track model-linked threats with a shell built for serious review.</div>
-        <p>ThreatParallax organizes vendor, vector, and severity signals into a buyer-safe control surface that can grow into Threat Map and Research workflows without changing the current deployment model.</p>
-      </div>
-    </div>
-    <div class="hdr-right">
-      <div class="status-cluster">
-        <div class="live-pill"><div class="pulse"></div>Live feed active &nbsp;Â·&nbsp; Updated:</div>
-        <div class="hdr-time" id="hdr-time">{now}</div>
-      </div>
-      <div class="future-nav">
-        <span class="future-chip"><strong>Threat Map</strong> · Phase II</span>
-        <span class="future-chip"><strong>Research</strong> · Phase II</span>
-      </div>
-    </div>
-  </header>
+</head>
+<body>
+  <div id="app">
+    <DashboardShell now={now} />
 
-  <!-- TAB BAR -->
-  <div class="shell-nav">
-    <div class="shell-nav-meta">
-      <div class="shell-label">Workspace</div>
-      <div class="shell-note">Current panels stay live while the shell is prepared for later Threat Map and Research expansion.</div>
+    <div class="workspace-shell">
+      <MetricsStrip initialStats={initialStats} />
+      <OverviewPanel
+        initialStats={initialStats}
+        overviewPosture={overviewPosture}
+        overviewPriority={overviewPriority}
+        overviewStatus={overviewStatus}
+        overviewUpdated={overviewUpdated}
+      />
+      <SecondaryPanels />
     </div>
-    <nav class="tabbar" id="tabbar">
-      <button class="tab active" data-tab="overview">Overview <span class="tbadge" id="badge-overview">â€”</span></button>
-      <button class="tab" data-tab="openai">OpenAI <span class="tbadge warn" id="badge-openai">â€”</span></button>
-      <button class="tab" data-tab="claude">Claude <span class="tbadge" id="badge-claude">â€”</span></button>
-      <button class="tab" data-tab="copilot">Copilot <span class="tbadge" id="badge-copilot">â€”</span></button>
-      <button class="tab" data-tab="oss">OSS / HuggingFace <span class="tbadge" id="badge-oss">â€”</span></button>
-      <button class="tab" data-tab="vectors">Vectors <span class="tbadge" id="badge-vectors">â€”</span></button>
-      <button class="tab" data-tab="siem">SIEM Config <span class="tbadge" style="background:var(--info-bg);color:var(--info)">stub</span></button>
-    </nav>
-    <div class="shell-future">
-      <span class="future-chip">Threat Map navigation reserved</span>
-      <span class="future-chip">Research disclosures reserved</span>
-    </div>
+
+    <ThreatDetailDrawer />
   </div>
 
-  <div class="workspace-shell">
-  <!-- METRICS -->
-  <div class="metrics" id="metrics-strip">
-    <div class="metric">
-      <div class="metric-top">
-        <div>
-          <div class="m-label">Active campaigns</div>
-          <p>Current threat records requiring ongoing monitoring in the platform queue.</p>
-        </div>
-        <div class="metric-accent">ACT</div>
-      </div>
-      <div class="metric-bottom">
-        <div>
-          <div class="m-val" id="m-total">{initialStats.totalThreats}</div>
-          <div class="m-context">Across the current tracked set</div>
-        </div>
-        <div class="m-delta" id="m-total-d"></div>
-      </div>
-    </div>
-    <div class="metric">
-      <div class="metric-top">
-        <div>
-          <div class="m-label">Critical severity</div>
-          <p>Highest-priority issues still active and likely to drive escalation decisions.</p>
-        </div>
-        <div class="metric-accent crit">CRI</div>
-      </div>
-      <div class="metric-bottom">
-        <div>
-          <div class="m-val crit" id="m-crit">{initialStats.activeCritical}</div>
-          <div class="m-context">Immediate attention window</div>
-        </div>
-        <div class="m-delta up" id="m-crit-d"></div>
-      </div>
-    </div>
-    <div class="metric">
-      <div class="metric-top">
-        <div>
-          <div class="m-label">New this week</div>
-          <p>Fresh entries added during the current seven-day review cycle.</p>
-        </div>
-        <div class="metric-accent amber">NEW</div>
-      </div>
-      <div class="metric-bottom">
-        <div>
-          <div class="m-val amber" id="m-week">{initialStats.newThisWeek}</div>
-          <div class="m-context">Recent change pressure</div>
-        </div>
-        <div class="m-delta" id="m-week-d"></div>
-      </div>
-    </div>
-    <div class="metric">
-      <div class="metric-top">
-        <div>
-          <div class="m-label">Models affected</div>
-          <p>Distinct model families showing exposure in the current feed.</p>
-        </div>
-        <div class="metric-accent info">MOD</div>
-      </div>
-      <div class="metric-bottom">
-        <div>
-          <div class="m-val" id="m-models">{initialStats.modelsAffected} / 5</div>
-          <div class="m-context">Coverage breadth in scope</div>
-        </div>
-        <div class="m-delta dn" id="m-models-d"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PANELS -->
-
-  <!-- OVERVIEW -->
-  <!-- OVERVIEW -->
-  <div class="panel active" id="panel-overview">
-    <div id="overview-layout" style="display:flex;flex:1;min-height:0;overflow:hidden">
-      <div class="feed-col" id="overview-feed-col" style="flex:1;min-width:0;overflow-y:auto;border-right:none">
-        <section class="overview-frame">
-          <div class="overview-stage">
-            <div class="overview-copy">
-              <div class="overview-kicker">Overview</div>
-              <div class="overview-title">Executive scanning with analyst-ready context.</div>
-              <p>The overview keeps leadership posture, operational pressure, and the active feed in a single control-center surface without inventing extra telemetry or changing the current deployment model.</p>
-            </div>
-            <div class="overview-pills">
-              <span class="overview-pill"><strong>Status</strong> <span id="overview-status">{overviewStatus}</span></span>
-              <span class="overview-pill"><strong>Updated</strong> <span id="overview-updated">{overviewUpdated}</span></span>
-              <span class="overview-pill"><strong>Audience</strong> security leaders + analysts</span>
-            </div>
-          </div>
-          <div class="overview-summary">
-            <div class="overview-card primary">
-              <div class="sb-title">Posture</div>
-              <p>{overviewPosture}</p>
-            </div>
-            <div class="overview-grid">
-              <div class="overview-stat"><div class="m-label">Critical active</div><span id="overview-critical">{initialStats.activeCritical}</span></div>
-              <div class="overview-stat"><div class="m-label">Models in scope</div><span id="overview-models">{initialStats.modelsAffected}</span></div>
-              <div class="overview-stat"><div class="m-label">New this week</div><span id="overview-week">{initialStats.newThisWeek}</span></div>
-              <div class="overview-stat"><div class="m-label">Tracked items</div><span id="overview-total">{initialStats.totalThreats}</span></div>
-            </div>
-          </div>
-        </section>
-        <div class="filterbar">
-          <span class="fl">Filter:</span>
-          <button class="fpill active" data-f="all">All</button>
-          <button class="fpill" data-f="critical">Critical</button>
-          <button class="fpill" data-f="high">High</button>
-          <button class="fpill" data-f="medium">Medium</button>
-          <button class="fpill" data-f="supply-chain">Supply chain</button>
-          <button class="fpill" data-f="jailbreak">Jailbreak</button>
-          <button class="fpill" data-f="data-exfil">Data exfil</button>
-        </div>
-        <div class="shdr"><span>Live threat feed</span><span>blended CVSS + ATLAS score</span></div>
-        <div id="overview-feed"><div class="loading"><span class="spinner"></span>Loading threats...</div></div>
-      </div>
-      <div class="resize-handle" id="sidebar-resize-handle"></div>
-      <div class="sidebar" id="overview-sidebar" style="width:260px;min-width:160px;max-width:520px;overflow-y:auto;flex-shrink:0">
-        <div class="sb-block executive">
-          <div class="sb-title">Executive readout</div>
-          <div class="sb-copy">{overviewPriority}</div>
-          <div class="sb-list">
-            <div class="sb-list-item">
-              <strong>{overviewStatus}</strong>
-              <span>Pipeline health and the current non-prod feed remain visible from the same shell.</span>
-            </div>
-            <div class="sb-list-item">
-              <strong>{initialStats.modelsAffected} model families in scope</strong>
-              <span>The overview remains tuned for breadth first, with deeper per-model review pushed into the tabs.</span>
-            </div>
-          </div>
-        </div>
-        <div class="sb-block">
-          <div class="sb-title">Threat volume Â· 8w</div>
-          <div class="tl" id="sb-tl"></div>
-          <div class="tll" id="sb-tll"></div>
-        </div>
-        <div class="sb-block">
-          <div class="sb-title">Exposure by model</div>
-          <div id="sb-models"></div>
-        </div>
-        <div class="sb-block">
-          <div class="sb-title">Vector Ã— model</div>
-          <div id="sb-matrix"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODEL PANELS -->
-  <div class="panel" id="panel-openai">
-    <div class="msubnav" id="msubnav-openai">
-      <button class="mstab active" data-mf="all">All</button>
-      <button class="mstab" data-mf="jailbreak">Jailbreaks</button>
-      <button class="mstab" data-mf="prompt-injection">Prompt injection</button>
-      <button class="mstab" data-mf="plugin-abuse">Plugin / MCP</button>
-      <button class="mstab" data-mf="data-exfil">Data exfil</button>
-      <button class="mstab" data-mf="supply-chain">Supply chain</button>
-    </div>
-    <div class="panel-scroll"><div id="feed-openai"><div class="loading"><span class="spinner"></span>Loading...</div></div></div>
-  </div>
-
-  <div class="panel" id="panel-claude">
-    <div class="msubnav" id="msubnav-claude">
-      <button class="mstab active" data-mf="all">All</button>
-      <button class="mstab" data-mf="mcp-abuse">MCP abuse</button>
-      <button class="mstab" data-mf="jailbreak">Jailbreaks</button>
-      <button class="mstab" data-mf="prompt-injection">Prompt injection</button>
-      <button class="mstab" data-mf="skill-file-abuse">SKILL.md</button>
-    </div>
-    <div class="panel-scroll"><div id="feed-claude"><div class="loading"><span class="spinner"></span>Loading...</div></div></div>
-  </div>
-
-  <div class="panel" id="panel-copilot">
-    <div class="msubnav" id="msubnav-copilot">
-      <button class="mstab active" data-mf="all">All</button>
-      <button class="mstab" data-mf="data-exfil">Data exfil</button>
-      <button class="mstab" data-mf="prompt-injection">Prompt injection</button>
-      <button class="mstab" data-mf="supply-chain">Supply chain</button>
-    </div>
-    <div class="panel-scroll"><div id="feed-copilot"><div class="loading"><span class="spinner"></span>Loading...</div></div></div>
-  </div>
-  </div>
-
-  <div class="panel" id="panel-oss">
-    <div class="msubnav" id="msubnav-oss">
-      <button class="mstab active" data-mf="all">All</button>
-      <button class="mstab" data-mf="model-poisoning">Model poisoning</button>
-      <button class="mstab" data-mf="supply-chain">Supply chain</button>
-      <button class="mstab" data-mf="skill-file-abuse">SKILL.md / agent</button>
-    </div>
-    <div class="panel-scroll"><div id="feed-oss"><div class="loading"><span class="spinner"></span>Loading...</div></div></div>
-  </div>
-
-  <!-- VECTORS PANEL -->
-  <div class="panel" id="panel-vectors">
-    <div class="shdr">
-      <span>Distribution vector tracking</span>
-      <div class="vtoggle">
-        <button class="vtbtn active" id="vt-threats">Threats per vector</button>
-        <button class="vtbtn" id="vt-matrix">Vector Ã— model matrix</button>
-      </div>
-    </div>
-    <div class="panel-scroll">
-      <div id="vec-threats-view"></div>
-      <div id="vec-matrix-view" style="display:none;padding:16px 20px;"></div>
-    </div>
-  </div>
-
-  <!-- SIEM PANEL -->
-  <div class="panel" id="panel-siem">
-    <div class="panel-scroll">
-      <div class="siem-stub">
-        <div class="siem-stub-title">SIEM / SOAR Integration</div>
-        <div class="siem-stub-body">
-          Connect your SIEM to receive structured threat events. Each event includes severity, blended CVSS+ATLAS score, affected models, vectors, IOCs, and STIX 2.1 object.
-          <br/><br/>
-          Supported targets: Microsoft Sentinel, Splunk HEC, Elastic, CrowdStrike Falcon, generic webhook.
-        </div>
-        <div class="siem-config-rows">
-          <div class="siem-row"><label>SIEM type</label><select id="sc-type"><option value="">â€” select â€”</option><option>sentinel</option><option>splunk</option><option>elastic</option><option>crowdstrike</option><option>webhook</option></select></div>
-          <div class="siem-row"><label>Webhook / HEC URL</label><input type="url" id="sc-url" placeholder="https://..." /></div>
-          <div class="siem-row"><label>Secret / token</label><input type="password" id="sc-secret" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" /></div>
-          <div class="siem-row"><label>Min severity</label><select id="sc-minsev"><option value="critical">Critical only</option><option value="high" selected>High+</option><option value="medium">Medium+</option></select></div>
-        </div>
-        <div class="siem-export-btns">
-          <button class="export-btn" onclick="exportStix()">Export STIX 2.1 bundle</button>
-          <button class="export-btn" onclick="exportCsv()">Export CSV</button>
-          <button class="export-btn" onclick="exportJson()">Export JSON</button>
-          <button class="export-btn" style="color:var(--info)" onclick="saveSiemConfig()">Save config â†’</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<div class="drawer-scrim" id="detail-scrim"></div>
-<aside class="drawer" id="detail-drawer" aria-hidden="true">
-  <div class="drawer-hdr">
-    <div>
-      <div class="drawer-title" id="drawer-title">Threat detail</div>
-      <div class="drawer-sub" id="drawer-sub"></div>
-    </div>
-    <button class="drawer-close" id="drawer-close" aria-label="Close detail drawer">Ã—</button>
-  </div>
-  <div class="drawer-body" id="drawer-body"></div>
-</aside>
-
-<script>
-// â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-let ALL_THREATS = [];
-let currentTab  = 'overview';
-let overviewFilter = 'all';
-let selectedThreatId = null;
-
-// â”€â”€ Fetch threats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-async function loadThreats() {
-  try {
-    const res = await fetch('/api/threats');
-    const data = await res.json();
-    ALL_THREATS = data.threats ?? [];
-  } catch {
-    ALL_THREATS = [];
-  }
-  renderAll();
-}
-
-async function loadStats() {
-  try {
-    const res = await fetch('/api/stats');
-    const s = await res.json();
-    const statusText = s.pipelineStatus === 'healthy' ? 'Collection healthy' : 'Collection needs review';
-    const updatedText = new Date(s.lastUpdated).toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-    });
-    document.getElementById('m-total').textContent    = s.totalThreats;
-    document.getElementById('m-crit').textContent     = s.activeCritical;
-    document.getElementById('m-week').textContent     = s.newThisWeek;
-    document.getElementById('m-models').textContent   = s.modelsAffected + ' / 5';
-    document.getElementById('m-total-d').textContent  = s.totalThreats > 0 ? '+ ' + Math.max(1, Math.floor(s.totalThreats * 0.25)) + ' vs last week' : '';
-    document.getElementById('m-crit-d').textContent   = s.activeCritical > 0 ? '+ ' + s.activeCritical + ' new today' : 'no active criticals';
-    document.getElementById('m-week-d').textContent   = 'steady vs prior';
-    document.getElementById('m-models-d').textContent = s.modelsAffected >= 5 ? 'all tracked models affected' : 'Gemini currently clear';
-    document.getElementById('overview-status').textContent = statusText;
-    document.getElementById('overview-updated').textContent = updatedText;
-    document.getElementById('overview-critical').textContent = s.activeCritical;
-    document.getElementById('overview-models').textContent = s.modelsAffected;
-    document.getElementById('overview-week').textContent = s.newThisWeek;
-    document.getElementById('overview-total').textContent = s.totalThreats;
-  } catch { /* use defaults */ }
-}
-
-// Badge helpers
-const SEV_CLS = { critical:'b-crit', high:'b-high', medium:'b-med', low:'b-low', info:'b-info' };
-const STATUS_CLS = { active:'b-high', investigating:'b-med', mitigated:'b-low', patched:'b-low', disputed:'b-gray' };
-const SEV_ORDER = { critical:0, high:1, medium:2, low:3, info:4 };
-
-function badge(text, cls) { return `<span class="badge ${cls}">${text}</span>`; }
-function sevBadge(s) { return badge(s.toUpperCase(), SEV_CLS[s] ?? 'b-gray'); }
-function statusBadge(s) { return badge(s, STATUS_CLS[s] ?? 'b-gray'); }
-
-function shortModel(m) {
-  return m.replace('openai-','').replace('anthropic-','').replace('microsoft-','').replace('huggingface-','').replace('meta-','');
-}
-
-function formatDate(iso) {
-  return new Date(iso).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-}
-
-function escapeHtml(value) {
-  return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
-
-function findThreat(id) {
-  return ALL_THREATS.find(t => t.id === id) ?? null;
-}
-
-function arraySection(label, items) {
-  if (!items?.length) return '';
-  return `<section class="drawer-section">
-    <div class="drawer-label">${label}</div>
-    <div class="drawer-list">${items.map(item => `<div class="drawer-item">${escapeHtml(item)}</div>`).join('')}</div>
-  </section>`;
-}
-
-function threatDrawerHtml(threat) {
-  const facts = [
-    ['Severity', threat.severity.toUpperCase()],
-    ['Status', threat.status],
-    ['Published', formatDate(threat.publishedAt)],
-    ['Source', threat.source],
-    ['Patch', threat.patchVersion ?? 'None listed'],
-    ['Threat type', threat.type],
-  ];
-  const modelBadges = threat.models.map(m => `<span class="badge b-model">${escapeHtml(shortModel(m))}</span>`).join('');
-  const vectorBadges = threat.vectors.map(v => `<span class="badge b-gray">${escapeHtml(v)}</span>`).join('');
-  const ttpBadges = threat.ttps.map(p => `<span class="ttp-tag">${escapeHtml(p.id)}</span>`).join('');
-  const sourceHref = /^https?:\/\//.test(threat.sourceUrl ?? '') ? threat.sourceUrl : null;
-
-  return `
-    <section class="drawer-hero">
-      <div class="drawer-band">
-        <div class="drawer-label">Incident summary</div>
-        <div class="drawer-copy">${escapeHtml(threat.description)}</div>
-        <div class="tc-meta">
-          ${sevBadge(threat.severity)}
-          ${statusBadge(threat.status)}
-          <span class="badge b-gray">${escapeHtml(threat.type)}</span>
-        </div>
-      </div>
-      <div class="drawer-hero-rail">
-        <div class="drawer-score-card">
-          <div class="drawer-label">Blended score</div>
-          <span class="score">${threat.score.blended.toFixed(1)}</span>
-        </div>
-        <div class="drawer-band-title">Review focus</div>
-        <div class="drawer-copy">Model impact, distribution vectors, and mitigation readiness are grouped below for faster analyst review.</div>
-      </div>
-    </section>
-    <section class="drawer-section">
-      <div class="drawer-label">Coverage</div>
-      <div class="drawer-pill-grid">
-        <div class="drawer-band">
-          <div class="drawer-band-title">Models</div>
-          <div class="tc-meta">${modelBadges}</div>
-        </div>
-        <div class="drawer-band">
-          <div class="drawer-band-title">Vectors and TTPs</div>
-          <div class="tc-meta">
-            ${vectorBadges}
-            ${ttpBadges}
-            ${threat.cve ? `<span class="ttp-tag">${escapeHtml(threat.cve)}</span>` : ''}
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="drawer-section">
-      <div class="drawer-label">Key facts</div>
-      <div class="drawer-grid">
-        ${facts.map(([label, value]) => `<div class="drawer-stat"><div class="drawer-stat-k">${escapeHtml(label)}</div><div class="drawer-stat-v">${escapeHtml(value)}</div></div>`).join('')}
-      </div>
-    </section>
-    ${arraySection('Mitigations', threat.mitigations)}
-    ${arraySection('IOCs', threat.iocs)}
-    ${sourceHref ? `<section class="drawer-section"><div class="drawer-label">Reference</div><a class="drawer-link" href="${escapeHtml(sourceHref)}" target="_blank" rel="noreferrer">Open source advisory</a></section>` : ''}
-  `;
-}
-
-function updateActiveCard() {
-  document.querySelectorAll('.tcard').forEach(card => {
-    card.classList.toggle('active', card.dataset.threatId === selectedThreatId);
-  });
-}
-
-function openThreatDetail(id) {
-  const threat = findThreat(id);
-  if (!threat) return;
-  selectedThreatId = threat.id;
-  document.getElementById('drawer-title').textContent = threat.title;
-  document.getElementById('drawer-sub').textContent = `${threat.type} â€¢ ${threat.severity.toUpperCase()} â€¢ ${threat.score.blended.toFixed(1)}`;
-  document.getElementById('drawer-body').innerHTML = threatDrawerHtml(threat);
-  document.getElementById('detail-scrim').classList.add('open');
-  const drawer = document.getElementById('detail-drawer');
-  drawer.classList.add('open');
-  drawer.setAttribute('aria-hidden', 'false');
-  document.body.classList.add('drawer-open');
-  updateActiveCard();
-}
-
-function closeThreatDetail() {
-  selectedThreatId = null;
-  document.getElementById('detail-scrim').classList.remove('open');
-  const drawer = document.getElementById('detail-drawer');
-  drawer.classList.remove('open');
-  drawer.setAttribute('aria-hidden', 'true');
-  document.body.classList.remove('drawer-open');
-  updateActiveCard();
-}
-
-// â”€â”€ Threat card HTML â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function cardHtml(t) {
-  const cve = t.cve ? `<span class="ttp-tag">${escapeHtml(t.cve)}</span>` : '';
-  const patchLabel = t.patchVersion ? `Patch ${escapeHtml(t.patchVersion)}` : 'Patch not listed';
-  const modelBadges = t.models.map(m => `<span class="badge b-model">${shortModel(m)}</span>`).join('');
-  const vectorBadges = t.vectors.map(v => `<span class="badge b-gray">${escapeHtml(v)}</span>`).join('');
-  const ttpBadges = t.ttps.map(p => `<span class="ttp-tag">${escapeHtml(p.id)}</span>`).join('');
-
-  return `<article class="tcard" id="card-${t.id}" data-threat-id="${t.id}" tabindex="0" role="button" aria-label="Open details for ${escapeHtml(t.title)}">
-    <div class="tc-kicker">
-      <div class="tc-kicker-main">
-        ${sevBadge(t.severity)}
-        ${statusBadge(t.status)}
-        <span class="badge b-gray">${escapeHtml(t.type)}</span>
-      </div>
-      <span class="tc-date">${formatDate(t.publishedAt)}</span>
-    </div>
-    <div class="tc-top">
-      <div>
-        <div class="tc-title">${escapeHtml(t.title)}</div>
-        <div class="tc-meta-line">Source ${escapeHtml(t.source)} | ${t.models.length} model targets | ${t.vectors.length} vectors</div>
-      </div>
-      <div class="tc-right">
-        <div class="tc-score-card">
-          <span class="tc-score-label">Blended score</span>
-          <span class="score">${t.score.blended.toFixed(1)}</span>
-        </div>
-      </div>
-    </div>
-    <div class="tc-band">
-      <div class="tc-group">
-        <div class="tc-group-label">Models</div>
-        <div class="tc-meta">${modelBadges}</div>
-      </div>
-      <div class="tc-group">
-        <div class="tc-group-label">Vectors and TTPs</div>
-        <div class="tc-meta">${vectorBadges}${ttpBadges}${cve}</div>
-      </div>
-    </div>
-    <div class="tc-desc clamp">${escapeHtml(t.description)}</div>
-    <div class="tc-footer">
-      <div class="tc-footer-meta">
-        <span class="tc-foot-item">${patchLabel}</span>
-      </div>
-      <button class="expand-btn" type="button" data-open-detail="${t.id}">Open detail</button>
-    </div>
-  </article>`;
-}
-
-function filtered(threats, f) {
-  if (!f || f === 'all') return threats;
-  return threats.filter(t => t.severity === f || t.type === f || t.vectors.includes(f));
-}
-
-function sortedThreats(threats) {
-  return [...threats].sort((a, b) => {
-    const sd = SEV_ORDER[a.severity] - SEV_ORDER[b.severity];
-    return sd !== 0 ? sd : b.score.blended - a.score.blended;
-  });
-}
-
-function renderFeed(elId, threats) {
-  const el = document.getElementById(elId);
-  if (!el) return;
-  const sorted = sortedThreats(threats);
-  el.innerHTML = sorted.length
-    ? `<div class="feed-stack">${sorted.map(cardHtml).join('')}</div>`
-    : '<div class="empty">No threats matching this filter.</div>';
-  updateActiveCard();
-}
-
-// â”€â”€ Model filter helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-const MODEL_FILTERS = {
-  openai:  t => t.models.some(m => ['openai-gpt4o','openai-o3','openai-o4','openai-gpt41'].includes(m)),
-  claude:  t => t.models.some(m => m === 'anthropic-claude'),
-  copilot: t => t.models.some(m => ['microsoft-copilot-github','microsoft-copilot-m365'].includes(m)),
-  oss:     t => t.models.some(m => ['huggingface-oss','meta-llama','mistral'].includes(m)) || t.vectors.includes('huggingface'),
-};
-
-// â”€â”€ Vector tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-const VECTOR_GROUPS = [
-  { key:'skill-md',       label:'SKILL.md / AI agent file abuse',       vectors:['skill-md'] },
-  { key:'supply-chain',   label:'npm / PyPI / GitHub supply chain',      vectors:['npm','pypi','github-repo','github-advisory'] },
-  { key:'mcp',            label:'MCP server abuse',                      vectors:['mcp-server'] },
-  { key:'ide-plugin',     label:'IDE extension / plugin store',          vectors:['vs-code-ext','ide','plugin-store','browser-ext'] },
-  { key:'model-weights',  label:'Model weights / HuggingFace Hub',       vectors:['huggingface'] },
-  { key:'api-prompt',     label:'API abuse / prompt injection',          vectors:['api'] },
-];
-
-function renderVectorThreats() {
-  const el = document.getElementById('vec-threats-view');
-  if (!el) return;
-  el.innerHTML = VECTOR_GROUPS.map(g => {
-    const threats = ALL_THREATS.filter(t => t.vectors.some(v => g.vectors.includes(v)));
-    if (!threats.length) return '';
-    return `<div>
-      <div class="shdr">${g.label}<span>${threats.length} threat${threats.length>1?'s':''}</span></div>
-      <div class="feed-stack">${sortedThreats(threats).map(cardHtml).join('')}</div>
-    </div>`;
-  }).join('');
-}
-
-function renderVectorMatrix() {
-  const el = document.getElementById('vec-matrix-view');
-  if (!el) return;
-  const vectors = ['SKILL.md','npm/PyPI','GitHub','VS Code','MCP','HF Hub','API/Prompt'];
-  const vecKeys  = [['skill-md'],['npm','pypi'],['github-repo','github-advisory'],['vs-code-ext','ide'],['mcp-server'],['huggingface'],['api']];
-  const mods = [
-    { label:'OpenAI',   fn: MODEL_FILTERS.openai },
-    { label:'Copilot',  fn: MODEL_FILTERS.copilot },
-    { label:'Claude',   fn: MODEL_FILTERS.claude },
-    { label:'OSS/HF',   fn: MODEL_FILTERS.oss },
-  ];
-
-  const cell = (vkeys, mfn) => {
-    const ts = ALL_THREATS.filter(t => t.vectors.some(v => vkeys.includes(v)) && (mfn(t) || t.models.includes('multi-model')));
-    if (!ts.length) return `<div class="mdot md-none"></div>`;
-    const top = sortedThreats(ts)[0];
-    const cls = { critical:'md-crit', high:'md-high', medium:'md-med', low:'md-none' }[top.severity] ?? 'md-none';
-    return `<div class="mdot ${cls}" title="${top.severity.toUpperCase()}: ${top.title}"></div>`;
-  };
-
-  el.innerHTML = `
-    <table class="matrix-tbl">
-      <tr><th>Vector</th>${mods.map(m=>`<th>${m.label}</th>`).join('')}</tr>
-      ${vectors.map((v,i)=>`<tr><td>${v}</td>${mods.map(m=>`<td>${cell(vecKeys[i],m.fn)}</td>`).join('')}</tr>`).join('')}
-    </table>
-    <div style="display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap">
-      ${[['CRITICAL','md-crit'],['HIGH','md-high'],['MEDIUM','md-med'],['NONE','md-none']].map(([l,c])=>`<div style="display:flex;align-items:center;gap:4px"><div class="mdot ${c}" style="cursor:default"></div><span style="font-size:8px;font-family:var(--font-sans);color:var(--txt3)">${l}</span></div>`).join('')}
-    </div>`;
-}
-
-// â”€â”€ Sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function renderSidebar() {
-  // Timeline (mock data â€” replace with real per-week aggregates from store)
-  const weeks  = ['W1','W2','W3','W4','W5','W6','W7','W8'];
-  const counts = [3,5,4,7,6,9,8,ALL_THREATS.length||12];
-  const maxC   = Math.max(...counts);
-  const tlEl   = document.getElementById('sb-tl');
-  const tllEl  = document.getElementById('sb-tll');
-  if (tlEl) tlEl.innerHTML = counts.map((c,i)=>{
-    const h = Math.round((c/maxC)*40)+2;
-    const col = c>=10?'var(--crit)':c>=7?'var(--high)':c>=5?'var(--med)':'var(--low)';
-    return `<div class="tlb" style="height:${h}px;background:${col}" title="Week ${i+1}: ${c}"></div>`;
-  }).join('');
-  if (tllEl) tllEl.innerHTML = weeks.map(w=>`<div class="tllb">${w}</div>`).join('');
-
-  // Model bars
-  const models = [
-    { name:'OpenAI',  fn:MODEL_FILTERS.openai  },
-    { name:'Copilot', fn:MODEL_FILTERS.copilot },
-    { name:'OSS/HF',  fn:MODEL_FILTERS.oss     },
-    { name:'Claude',  fn:MODEL_FILTERS.claude  },
-  ];
-  const mEl = document.getElementById('sb-models');
-  if (mEl) {
-    const counts2 = models.map(m => ALL_THREATS.filter(m.fn).length);
-    const maxM = Math.max(...counts2, 1);
-    mEl.innerHTML = models.map((m,i)=>{
-      const pct = Math.round((counts2[i]/maxM)*100);
-      const col = counts2[i]>=6?'var(--crit)':counts2[i]>=4?'var(--high)':counts2[i]>=2?'var(--med)':'var(--low)';
-      return `<div class="mbar-row"><span class="mbar-name">${m.name}</span><div class="mbar-wrap"><div class="mbar" style="width:${pct}%;background:${col}"></div></div><span class="mbar-n">${counts2[i]}</span></div>`;
-    }).join('');
-  }
-
-  // Matrix (mini)
-  const matEl = document.getElementById('sb-matrix');
-  if (matEl) {
-    const rows = [
-      { v:'SKILL.md', keys:['skill-md'] },
-      { v:'npm/PyPI', keys:['npm','pypi'] },
-      { v:'VS Code',  keys:['vs-code-ext','ide'] },
-      { v:'MCP',      keys:['mcp-server'] },
-      { v:'HF Hub',   keys:['huggingface'] },
-    ];
-    const mods2 = [
-      { h:'OAI', fn:MODEL_FILTERS.openai  },
-      { h:'CPL', fn:MODEL_FILTERS.copilot },
-      { h:'CLD', fn:MODEL_FILTERS.claude  },
-      { h:'OSS', fn:MODEL_FILTERS.oss     },
-    ];
-    matEl.innerHTML = `<table class="matrix-tbl">
-      <tr><th></th>${mods2.map(m=>`<th>${m.h}</th>`).join('')}</tr>
-      ${rows.map(r=>`<tr><td>${r.v}</td>${mods2.map(m=>{
-        const ts = ALL_THREATS.filter(t=>t.vectors.some(v=>r.keys.includes(v))&&(m.fn(t)||t.models.includes('multi-model')));
-        if(!ts.length) return `<td><div class="mdot md-none"></div></td>`;
-        const top = sortedThreats(ts)[0];
-        const cls = {critical:'md-crit',high:'md-high',medium:'md-med'}[top.severity]??'md-none';
-        return `<td><div class="mdot ${cls}" title="${top.severity}"></div></td>`;
-      }).join('')}</tr>`).join('')}
-    </table>`;
-  }
-}
-
-// â”€â”€ Update tab badges â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function updateBadges() {
-  document.getElementById('badge-overview').textContent = ALL_THREATS.length;
-  document.getElementById('badge-openai').textContent  = ALL_THREATS.filter(MODEL_FILTERS.openai).length;
-  document.getElementById('badge-claude').textContent  = ALL_THREATS.filter(MODEL_FILTERS.claude).length;
-  document.getElementById('badge-copilot').textContent = ALL_THREATS.filter(MODEL_FILTERS.copilot).length;
-  document.getElementById('badge-oss').textContent     = ALL_THREATS.filter(MODEL_FILTERS.oss).length;
-  const vecThreats = ALL_THREATS.filter(t => VECTOR_GROUPS.some(g => t.vectors.some(v => g.vectors.includes(v))));
-  document.getElementById('badge-vectors').textContent = vecThreats.length;
-}
-
-// â”€â”€ Render all panels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function renderAll() {
-  renderFeed('overview-feed', filtered(ALL_THREATS, overviewFilter));
-  renderFeed('feed-openai',   ALL_THREATS.filter(MODEL_FILTERS.openai));
-  renderFeed('feed-claude',   ALL_THREATS.filter(MODEL_FILTERS.claude));
-  renderFeed('feed-copilot',  ALL_THREATS.filter(MODEL_FILTERS.copilot));
-  renderFeed('feed-oss',      ALL_THREATS.filter(MODEL_FILTERS.oss));
-  renderVectorThreats();
-  renderVectorMatrix();
-  renderSidebar();
-  updateBadges();
-}
-
-// â”€â”€ Tab switching â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-document.getElementById('tabbar').addEventListener('click', e => {
-  const btn = e.target.closest('.tab');
-  if (!btn) return;
-  const tab = btn.dataset.tab;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById(`panel-${tab}`)?.classList.add('active');
-  currentTab = tab;
-});
-
-// â”€â”€ Filter pills â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-document.querySelector('.filterbar').addEventListener('click', e => {
-  const pill = e.target.closest('.fpill');
-  if (!pill) return;
-  overviewFilter = pill.dataset.f;
-  document.querySelectorAll('.fpill').forEach(p => p.classList.remove('active'));
-  pill.classList.add('active');
-  renderFeed('overview-feed', filtered(ALL_THREATS, overviewFilter));
-});
-
-document.body.addEventListener('click', e => {
-  const btn = e.target.closest('[data-open-detail]');
-  if (btn) {
-    e.stopPropagation();
-    openThreatDetail(btn.dataset.openDetail);
-    return;
-  }
-
-  const card = e.target.closest('.tcard');
-  if (card) {
-    openThreatDetail(card.dataset.threatId);
-  }
-});
-
-document.body.addEventListener('keydown', e => {
-  const card = e.target.closest('.tcard');
-  if (!card) return;
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    openThreatDetail(card.dataset.threatId);
-  }
-});
-
-document.getElementById('detail-scrim').addEventListener('click', closeThreatDetail);
-document.getElementById('drawer-close').addEventListener('click', closeThreatDetail);
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeThreatDetail();
-});
-
-// â”€â”€ Model sub-navs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-['openai','claude','copilot','oss'].forEach(model => {
-  const nav = document.getElementById(`msubnav-${model}`);
-  if (!nav) return;
-  nav.addEventListener('click', e => {
-    const btn = e.target.closest('.mstab');
-    if (!btn) return;
-    nav.querySelectorAll('.mstab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    const mf = btn.dataset.mf;
-    let base = ALL_THREATS.filter(MODEL_FILTERS[model]);
-    if (mf !== 'all') base = base.filter(t => t.type === mf);
-    renderFeed(`feed-${model}`, base);
-  });
-});
-
-// â”€â”€ Vector view toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-document.getElementById('vt-threats').addEventListener('click', function() {
-  this.classList.add('active');
-  document.getElementById('vt-matrix').classList.remove('active');
-  document.getElementById('vec-threats-view').style.display = 'block';
-  document.getElementById('vec-matrix-view').style.display = 'none';
-});
-document.getElementById('vt-matrix').addEventListener('click', function() {
-  this.classList.add('active');
-  document.getElementById('vt-threats').classList.remove('active');
-  document.getElementById('vec-threats-view').style.display = 'none';
-  document.getElementById('vec-matrix-view').style.display = 'block';
-});
-
-// â”€â”€ SIEM export stubs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function exportJson() {
-  const blob = new Blob([JSON.stringify(ALL_THREATS, null, 2)], { type:'application/json' });
-  const a = Object.assign(document.createElement('a'), { href:URL.createObjectURL(blob), download:'aitid-threats.json' });
-  a.click();
-}
-function exportCsv() {
-  const rows = [['id','title','severity','blended_score','status','type','models','vectors','ttps','cve','source','publishedAt']];
-  ALL_THREATS.forEach(t => rows.push([
-    t.id, `"${t.title}"`, t.severity, t.score.blended, t.status, t.type,
-    t.models.join('|'), t.vectors.join('|'), t.ttps.map(p=>p.id).join('|'),
-    t.cve??'', t.source, t.publishedAt,
-  ]));
-  const blob = new Blob([rows.map(r=>r.join(',')).join('\n')], { type:'text/csv' });
-  const a = Object.assign(document.createElement('a'), { href:URL.createObjectURL(blob), download:'aitid-threats.csv' });
-  a.click();
-}
-function exportStix() {
-  const bundle = {
-    type:'bundle', id:`bundle--aitid-${Date.now()}`, spec_version:'2.1',
-    objects: ALL_THREATS.map(t=>({
-      type:'vulnerability', spec_version:'2.1', id:`vulnerability--${t.id}`,
-      created:t.publishedAt, modified:t.updatedAt, name:t.title, description:t.description,
-      labels:[...t.models,...t.vectors,t.type],
-      x_aitid:{ severity:t.severity, score:t.score, atlas_ttps:t.ttps.map(p=>p.id), iocs:t.iocs, status:t.status, mitigations:t.mitigations },
-    })),
-  };
-  const blob = new Blob([JSON.stringify(bundle, null, 2)], { type:'application/json' });
-  const a = Object.assign(document.createElement('a'), { href:URL.createObjectURL(blob), download:'aitid-stix.json' });
-  a.click();
-}
-function saveSiemConfig() {
-  alert('SIEM config saved. Set SIEM_TYPE, SIEM_WEBHOOK_URL, SIEM_SECRET, and SIEM_MIN_SEVERITY in your Vercel environment variables to activate live forwarding.');
-}
-
-// â”€â”€ Clock update â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-setInterval(() => {
-  document.getElementById('hdr-time').textContent =
-    new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-}, 30000);
-
-// â”€â”€ Sidebar resize â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-(function initResize() {
-  const handle  = document.getElementById('sidebar-resize-handle');
-  const sidebar = document.getElementById('overview-sidebar');
-  const layout  = document.getElementById('overview-layout');
-  if (!handle || !sidebar || !layout) return;
-
-  // Restore saved width
-  const saved = localStorage.getItem('aitid-sidebar-width');
-  if (saved) sidebar.style.width = saved + 'px';
-
-  let startX = 0;
-  let startW = 0;
-
-  handle.addEventListener('mousedown', (e) => {
-    startX = e.clientX;
-    startW = sidebar.offsetWidth;
-    handle.classList.add('dragging');
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-
-    function onMove(e) {
-      // Dragging left â†’ larger sidebar; dragging right â†’ smaller
-      const delta = startX - e.clientX;
-      const newW  = Math.min(520, Math.max(160, startW + delta));
-      sidebar.style.width = newW + 'px';
-    }
-
-    function onUp() {
-      handle.classList.remove('dragging');
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-      localStorage.setItem('aitid-sidebar-width', sidebar.offsetWidth);
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
-    }
-
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
-    e.preventDefault();
-  });
-})();
-
-// â”€â”€ Boot â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-loadStats();
-loadThreats();
-</script>
+  <script>
+    import '../scripts/dashboard-client.js';
+  </script>
 </body>
 </html>
