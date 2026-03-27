@@ -1,0 +1,209 @@
+---
+import ReviewLayout from '../../components/design-review/ReviewLayout.astro';
+
+const regions = [
+  { name: 'Western Europe', threats: '6', observations: '14', dominant: 'supply chain, credential theft' },
+  { name: 'US East', threats: '5', observations: '11', dominant: 'jailbreak, data exposure' },
+  { name: 'Singapore', threats: '3', observations: '5', dominant: 'infrastructure abuse' },
+];
+---
+
+<ReviewLayout
+  title="ThreatParallax Design Review - Threat Map"
+  currentPage="threat-map"
+  pageTitle="Threat Map mockup"
+  pageSummary="A more restrained geography surface that feels like a serious intelligence product: fewer decorative cues, stronger regional detail composition, and clearer trust boundaries."
+>
+  <section class="review-grid two-col">
+    <div class="review-hero-card">
+      <div class="review-hero-copy">
+        <div class="review-eyebrow">Threat Map surface</div>
+        <h2 class="review-hero-title">Observed geography presented like analysis, not like a demo globe.</h2>
+        <p>
+          The map becomes a sober projection panel with clean node treatment, reduced ornament, and a bottom caption
+          that clarifies meaning without over-explaining it. Filters are integrated into the same surface band.
+        </p>
+        <div class="review-chip-row">
+          <span class="review-chip">observed infrastructure only</span>
+          <span class="review-chip">coarse regional anchors</span>
+          <span class="review-chip">unmapped records kept explicit</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-grid three-col">
+      <div class="review-map-metric">
+        <div class="review-label">Mapped regions</div>
+        <strong>12</strong>
+        <span class="review-summary-copy">Conservative grouping, not exhaustive actor geography.</span>
+      </div>
+      <div class="review-map-metric">
+        <div class="review-label">Mapped threats</div>
+        <strong>18</strong>
+        <span class="review-summary-copy">Only records with defensible location evidence.</span>
+      </div>
+      <div class="review-map-metric">
+        <div class="review-label">Unmapped retained</div>
+        <strong>9</strong>
+        <span class="review-summary-copy">Coverage gaps stay visible instead of faked on the map.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="review-band">
+    <div class="review-band-header">
+      <div>
+        <div class="review-label">Filter rail</div>
+        <h2 class="review-section-title">Operational filters sit inside the map workflow.</h2>
+      </div>
+      <div class="review-chip-row">
+        <span class="review-chip">critical</span>
+        <span class="review-chip">OpenAI + OSS</span>
+        <span class="review-chip">supply chain</span>
+      </div>
+    </div>
+    <div class="review-filter-grid">
+      <label class="review-filter-card">
+        <span class="review-filter-label">Search region or threat</span>
+        <input type="search" value="supply chain" />
+      </label>
+      <label class="review-filter-card">
+        <span class="review-filter-label">Severity</span>
+        <select><option>Critical</option></select>
+      </label>
+      <label class="review-filter-card">
+        <span class="review-filter-label">Model</span>
+        <select><option>OpenAI + OSS</option></select>
+      </label>
+      <label class="review-filter-card">
+        <span class="review-filter-label">Vector</span>
+        <select><option>Supply chain</option></select>
+      </label>
+      <label class="review-filter-card">
+        <span class="review-filter-label">Window</span>
+        <select><option>Current corpus</option></select>
+      </label>
+      <button class="review-filter-action" type="button">Reset</button>
+    </div>
+  </section>
+
+  <section class="review-map-layout">
+    <div class="review-map-card">
+      <div class="review-map-stage">
+        <svg viewBox="0 0 960 520" aria-label="Threat map mockup">
+          <g opacity="0.34" stroke="rgba(153, 178, 206, 0.16)" stroke-width="1">
+            <line x1="40" y1="120" x2="920" y2="120"></line>
+            <line x1="40" y1="220" x2="920" y2="220"></line>
+            <line x1="40" y1="320" x2="920" y2="320"></line>
+            <line x1="160" y1="60" x2="160" y2="420"></line>
+            <line x1="340" y1="60" x2="340" y2="420"></line>
+            <line x1="520" y1="60" x2="520" y2="420"></line>
+            <line x1="700" y1="60" x2="700" y2="420"></line>
+          </g>
+          <g fill="rgba(168, 202, 233, 0.14)" stroke="rgba(214, 228, 244, 0.16)" stroke-width="1.2">
+            <path d="M122 152c42-41 104-56 179-48 42 4 56 30 62 65-10 20-41 30-66 28-24-3-52 14-69 29-17 14-58 11-91-9-36-22-45-45-15-65z"></path>
+            <path d="M380 140c25-14 71-26 133-20 39 4 74 20 95 51-18 28-44 34-68 34-28 1-55 15-80 33-31 21-66 24-102 8-24-10-45-36-41-55 9-18 31-36 63-51z"></path>
+            <path d="M625 176c29-18 57-25 93-22 44 4 77 19 110 54-19 18-42 25-61 24-31-1-57 8-76 25-29 25-69 24-105 5-25-13-39-31-36-49 6-16 33-28 75-37z"></path>
+            <path d="M734 296c26-12 54-15 83-10 27 5 55 18 85 41-16 14-34 18-48 17-20-1-38 4-55 16-20 14-47 17-74 9-21-6-37-20-39-35 5-14 18-28 48-38z"></path>
+            <path d="M238 296c17-12 45-22 75-22 31 0 54 11 72 30-12 18-28 24-44 24-21 0-41 8-56 20-18 14-43 15-67 8-17-5-32-19-32-33 2-10 19-20 52-27z"></path>
+          </g>
+          <g>
+            <circle class="review-map-node risk" cx="308" cy="184" r="10"></circle>
+            <circle class="review-map-node" cx="247" cy="180" r="7"></circle>
+            <circle class="review-map-node risk" cx="598" cy="196" r="9"></circle>
+            <circle class="review-map-node" cx="702" cy="188" r="8"></circle>
+            <circle class="review-map-node" cx="808" cy="318" r="8"></circle>
+            <circle class="review-map-node risk" cx="214" cy="314" r="8"></circle>
+          </g>
+          <g stroke="rgba(142, 197, 255, 0.32)" stroke-width="1.5" fill="none" opacity="0.9">
+            <path d="M308 184C390 192 496 188 598 196"></path>
+            <path d="M598 196C636 188 676 186 702 188"></path>
+            <path d="M702 188C748 212 780 254 808 318"></path>
+            <path d="M214 314C254 260 270 214 308 184"></path>
+          </g>
+        </svg>
+
+        <div class="review-map-caption">
+          <div>
+            <div class="review-label">Map meaning</div>
+            <strong>Regional infrastructure and exposure observations</strong>
+            <p>Not actor origin, not customer geography, and not live attack telemetry.</p>
+          </div>
+          <div class="review-map-legend">
+            <span><span class="review-dot critical"></span>highest-pressure cluster</span>
+            <span><span class="review-dot info"></span>supporting observation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-rail">
+      <div class="review-detail-panel">
+        <div class="review-detail-head">
+          <div>
+            <div class="review-label">Regional brief</div>
+            <h2 class="review-detail-title">Western Europe</h2>
+          </div>
+          <div class="review-score">
+            <div class="review-mini-label">tracked threats</div>
+            <div class="review-score-value">6</div>
+          </div>
+        </div>
+        <p class="review-detail-copy">
+          The mockup shifts the detail panel toward a concise intelligence brief. The region summary, dominant vectors,
+          and top records align into one compact side rail rather than many similarly weighted boxes.
+        </p>
+        <div class="review-intel-grid">
+          <div class="review-mini-card">
+            <div class="review-mini-label">Anchor precision</div>
+            <strong>Regional only</strong>
+            <p class="review-summary-copy">Large-scale infrastructure concentration inferred from source material.</p>
+          </div>
+          <div class="review-mini-card">
+            <div class="review-mini-label">Dominant vectors</div>
+            <strong>Supply chain, credential theft</strong>
+            <p class="review-summary-copy">Vector labels are concise and kept in analyst vocabulary.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-list-card">
+        <div class="review-list-head">
+          <div>
+            <div class="review-label">Top records</div>
+            <h2 class="review-card-title">Regional exposure leaders</h2>
+          </div>
+        </div>
+        <div class="review-list">
+          {
+            regions.map((region) => (
+              <div class="review-feed-item">
+                <div class="review-feed-head">
+                  <div>
+                    <div class="review-feed-title">{region.name}</div>
+                    <div class="review-badge-row" style="margin-top:8px;">
+                      <span class="review-badge neutral">{region.observations} observations</span>
+                    </div>
+                  </div>
+                  <div class="review-score">
+                    <div class="review-mini-label">threats</div>
+                    <div class="review-score-value">{region.threats}</div>
+                  </div>
+                </div>
+                <p class="review-card-copy">{region.dominant}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="review-note">
+        <div class="review-label">Coverage note</div>
+        <p class="review-summary-copy">
+          Unmapped records still stay explicit, but the language becomes tighter: "kept off-map pending defensible geography"
+          is more credible than longer helper copy explaining what the page is not.
+        </p>
+      </div>
+    </div>
+  </section>
+</ReviewLayout>

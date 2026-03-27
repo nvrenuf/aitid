@@ -1,0 +1,184 @@
+---
+import ReviewLayout from '../../components/design-review/ReviewLayout.astro';
+
+const sources = [
+  {
+    title: 'Primary advisory',
+    detail: 'Vendor advisory with affected versions, remediation guidance, and package trust-path details.',
+  },
+  {
+    title: 'Independent validation',
+    detail: 'Research follow-up confirming the orchestration-layer privilege handoff and credential capture pathway.',
+  },
+  {
+    title: 'Internal normalization',
+    detail: 'ThreatParallax record mapping into severity, vectors, TTPs, patch posture, and confidence framing.',
+  },
+];
+
+const methods = [
+  {
+    title: 'Evidence standard',
+    detail: 'Only direct source material and defensible follow-up evidence are included. Uncorroborated geography and actor claims stay out.',
+  },
+  {
+    title: 'Score context',
+    detail: 'The blended score is treated as prioritization support, not a substitute for source review or operational judgment.',
+  },
+  {
+    title: 'Confidence framing',
+    detail: 'The page distinguishes between what is directly supported, what is normalized, and what remains unknown.',
+  },
+];
+---
+
+<ReviewLayout
+  title="ThreatParallax Design Review - Threat Detail"
+  currentPage="threat-detail"
+  pageTitle="Threat detail mockup"
+  pageSummary="A more serious record page with stronger source transparency, tighter metadata, and clearer separation between evidence, methodology, and action."
+>
+  <section class="review-detail-hero">
+    <div class="review-hero-card">
+      <div class="review-record-head">
+        <div>
+          <div class="review-eyebrow">Canonical threat record</div>
+          <h2 class="review-record-title">Inference endpoint takeover via poisoned orchestration package</h2>
+          <p class="review-card-copy" style="margin-top:12px;">
+            The record page is recast as a trustworthy intelligence artifact. It trims filler phrases and puts
+            evidence, source discipline, and operational takeaways into explicit, link-worthy sections.
+          </p>
+        </div>
+        <div class="review-score">
+          <div class="review-mini-label">blended score</div>
+          <div class="review-score-value">9.4</div>
+        </div>
+      </div>
+
+      <div class="review-badge-row">
+        <span class="review-badge critical">critical</span>
+        <span class="review-badge neutral">active</span>
+        <span class="review-badge neutral">supply chain</span>
+        <span class="review-badge neutral">CVE-2026-1442</span>
+      </div>
+
+      <div class="review-metadata-grid">
+        <div class="review-metadata-item">
+          <div class="review-mini-label">Published</div>
+          <p>March 24, 2026</p>
+        </div>
+        <div class="review-metadata-item">
+          <div class="review-mini-label">Source</div>
+          <p>JFrog advisory</p>
+        </div>
+        <div class="review-metadata-item">
+          <div class="review-mini-label">Patch posture</div>
+          <p>Patched in 4.2.1</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-record-rail">
+      <div class="review-summary-card">
+        <div class="review-label">Review framing</div>
+        <p class="review-summary-copy">This is a buyer-safe record page: direct enough to share internally, restrained enough to stand behind externally.</p>
+      </div>
+      <div class="review-summary-card">
+        <div class="review-label">Affected scope</div>
+        <p class="review-summary-copy">OpenAI, Claude, and OSS deployment workflows where the orchestration package sits in the model-serving path.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="review-grid two-col">
+    <div class="review-detail-panel">
+      <div class="review-detail-head">
+        <div>
+          <div class="review-label">Source transparency</div>
+          <h2 class="review-detail-title">Evidence is first-class, not buried.</h2>
+        </div>
+      </div>
+      <div class="review-source-list">
+        {
+          sources.map((source) => (
+            <div class="review-source-item">
+              <strong>{source.title}</strong>
+              <p>{source.detail}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="review-detail-panel">
+      <div class="review-detail-head">
+        <div>
+          <div class="review-label">Operational read</div>
+          <h2 class="review-detail-title">What matters now</h2>
+        </div>
+      </div>
+      <div class="review-intel-grid">
+        <div class="review-mini-card">
+          <div class="review-mini-label">Immediate action</div>
+          <strong>Review orchestration dependencies and rotate compromised credentials.</strong>
+        </div>
+        <div class="review-mini-card">
+          <div class="review-mini-label">Exposure vector</div>
+          <strong>Package trust-path abuse near model-serving systems.</strong>
+        </div>
+        <div class="review-mini-card">
+          <div class="review-mini-label">Observed limits</div>
+          <strong>No actor-origin claim and no customer-telemetry assertion.</strong>
+        </div>
+        <div class="review-mini-card">
+          <div class="review-mini-label">Canonical route</div>
+          <strong>/threats/inference-endpoint-takeover</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="review-grid two-col">
+    <div class="review-detail-panel">
+      <div class="review-detail-head">
+        <div>
+          <div class="review-label">Methodology</div>
+          <h2 class="review-detail-title">Normalization notes stay explicit</h2>
+        </div>
+      </div>
+      <div class="review-method-list">
+        {
+          methods.map((method) => (
+            <div class="review-method-item">
+              <strong>{method.title}</strong>
+              <p>{method.detail}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="review-detail-panel">
+      <div class="review-detail-head">
+        <div>
+          <div class="review-label">Response guidance</div>
+          <h2 class="review-detail-title">Action and constraints separated cleanly</h2>
+        </div>
+      </div>
+      <div class="review-source-list">
+        <div class="review-source-item">
+          <strong>Mitigation</strong>
+          <p>Move to the patched package line, invalidate recently issued tokens, and inspect orchestration runners for unauthorized package replacement.</p>
+        </div>
+        <div class="review-source-item">
+          <strong>Residual risk</strong>
+          <p>Long-lived credentials and copied CI templates can keep this issue active after package remediation unless explicitly reviewed.</p>
+        </div>
+        <div class="review-source-item">
+          <strong>Confidence framing</strong>
+          <p>High confidence in the package abuse path, moderate confidence in total downstream spread, low confidence in broader geography conclusions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</ReviewLayout>

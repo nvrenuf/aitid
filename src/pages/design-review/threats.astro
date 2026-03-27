@@ -1,0 +1,177 @@
+---
+import ReviewLayout from '../../components/design-review/ReviewLayout.astro';
+
+const rows = [
+  {
+    title: 'Inference endpoint takeover via poisoned orchestration package',
+    severity: 'critical',
+    status: 'active',
+    score: '9.4',
+    models: 'OpenAI, Claude, OSS',
+    vector: 'supply chain',
+    summary: 'Maintainer trust was abused to move a credential-harvesting package into an orchestration workflow used near model-serving paths.',
+    source: 'JFrog advisory + maintainer follow-up',
+    published: 'Mar 24',
+  },
+  {
+    title: 'Prompt-chain jailbreak bypassing internal guardrail scaffolding',
+    severity: 'high',
+    status: 'investigating',
+    score: '8.1',
+    models: 'OpenAI, Claude',
+    vector: 'jailbreak',
+    summary: 'The pattern chains instruction redirection and retrieval abuse to escape a wrapper layer rather than the base model alone.',
+    source: 'Vendor disclosure + independent repro',
+    published: 'Mar 22',
+  },
+  {
+    title: 'Training artifact leak through model-serving debug residue',
+    severity: 'high',
+    status: 'active',
+    score: '7.8',
+    models: 'OSS / HuggingFace',
+    vector: 'data exposure',
+    summary: 'Residual debug output exposed training-adjacent artifacts to unauthenticated retrieval in a commonly cloned deployment pattern.',
+    source: 'Community report',
+    published: 'Mar 19',
+  },
+];
+---
+
+<ReviewLayout
+  title="ThreatParallax Design Review - Threats"
+  currentPage="threats"
+  pageTitle="Threats mockup"
+  pageSummary="A more integrated operator surface where filters, result context, and record structure support fast triage instead of feeling like separate layers."
+>
+  <section class="review-band">
+    <div class="review-band-header">
+      <div>
+        <div class="review-label">Operator surface</div>
+        <h2 class="review-section-title">Filters are treated like part of the workbench, not a separate explainer section.</h2>
+      </div>
+      <div class="review-chip-row">
+        <span class="review-chip">27 threats in scope</span>
+        <span class="review-chip">3 active filters</span>
+        <span class="review-chip">sorted by score</span>
+      </div>
+    </div>
+
+    <div class="review-filter-grid">
+      <label class="review-filter-card">
+        <span class="review-filter-label">Search corpus</span>
+        <input type="search" value="supply chain" />
+      </label>
+      <label class="review-filter-card">
+        <span class="review-filter-label">Severity</span>
+        <select><option>Critical + High</option></select>
+      </label>
+      <label class="review-filter-card">
+        <span class="review-filter-label">Model</span>
+        <select><option>All models</option></select>
+      </label>
+      <label class="review-filter-card">
+        <span class="review-filter-label">Vector</span>
+        <select><option>Supply chain</option></select>
+      </label>
+      <label class="review-filter-card">
+        <span class="review-filter-label">Status</span>
+        <select><option>Active + investigating</option></select>
+      </label>
+      <button class="review-filter-action" type="button">Clear</button>
+    </div>
+  </section>
+
+  <section class="review-grid two-col">
+    <div class="review-table">
+      <div class="review-table-head">
+        <div>
+          <div class="review-label">Threat results</div>
+          <h2 class="review-table-title">Professional operator scanning</h2>
+        </div>
+        <div class="review-meta">Compact metadata, stronger title emphasis, and tighter summary control</div>
+      </div>
+
+      {
+        rows.map((row) => (
+          <article class="review-table-row">
+            <div class="review-operator-head">
+              <div>
+                <div class="review-badge-row">
+                  <span class:list={['review-badge', row.severity]}>{row.severity}</span>
+                  <span class="review-badge neutral">{row.status}</span>
+                  <span class="review-badge neutral">{row.vector}</span>
+                </div>
+                <div class="review-feed-title" style="margin-top:12px;">{row.title}</div>
+              </div>
+              <div class="review-score">
+                <div class="review-mini-label">blended score</div>
+                <div class="review-score-value">{row.score}</div>
+              </div>
+            </div>
+            <p class="review-card-copy">{row.summary}</p>
+            <div class="review-scan-grid">
+              <div class="review-mini-card">
+                <div class="review-mini-label">Models</div>
+                <strong>{row.models}</strong>
+              </div>
+              <div class="review-mini-card">
+                <div class="review-mini-label">Source</div>
+                <strong>{row.source}</strong>
+              </div>
+              <div class="review-mini-card">
+                <div class="review-mini-label">Published</div>
+                <strong>{row.published}</strong>
+              </div>
+              <div class="review-mini-card">
+                <div class="review-mini-label">Next action</div>
+                <strong>Open canonical record</strong>
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    <div class="review-rail">
+      <div class="review-sidebar-card">
+        <div class="review-card-header">
+          <div>
+            <div class="review-label">Result summary</div>
+            <h2 class="review-card-title">Active queue stays visible</h2>
+          </div>
+        </div>
+        <div class="review-detail-grid">
+          <div class="review-mini-card">
+            <div class="review-mini-label">Matching threats</div>
+            <strong>27</strong>
+            <p class="review-summary-copy">Current query returns a narrow but still meaningful queue.</p>
+          </div>
+          <div class="review-mini-card">
+            <div class="review-mini-label">Newest item</div>
+            <strong>Mar 24</strong>
+            <p class="review-summary-copy">Recent enough to justify the current sort order.</p>
+          </div>
+          <div class="review-mini-card">
+            <div class="review-mini-label">Critical in queue</div>
+            <strong>4</strong>
+            <p class="review-summary-copy">Count treatment is stronger, but still restrained.</p>
+          </div>
+          <div class="review-mini-card">
+            <div class="review-mini-label">Model families</div>
+            <strong>8</strong>
+            <p class="review-summary-copy">Enough spread to keep model tags visually important.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-note">
+        <div class="review-label">Why it scans faster</div>
+        <p class="review-summary-copy">
+          The mockup removes redundant helper text and uses a cleaner title-to-metadata rhythm. Each row says:
+          what it is, how bad it is, why it matters, and where to go next.
+        </p>
+      </div>
+    </div>
+  </section>
+</ReviewLayout>
