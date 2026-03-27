@@ -1,0 +1,12 @@
+---
+import ProductLayout from '../components/layout/ProductLayout.astro';
+import ThreatMapSurface from '../components/threat-map/ThreatMapSurface.astro';
+import { getThreatMapDataset } from '../lib/threat-map.js';
+
+const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const dataset = await getThreatMapDataset();
+---
+
+<ProductLayout now={now} currentPath="/threat-map">
+  <ThreatMapSurface dataset={dataset} />
+</ProductLayout>

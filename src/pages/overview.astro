@@ -1,0 +1,17 @@
+---
+import ProductLayout from '../components/layout/ProductLayout.astro';
+import OverviewWorkspace from '../components/dashboard/OverviewWorkspace.astro';
+import ThreatDetailDrawer from '../components/dashboard/ThreatDetailDrawer.astro';
+import { getOverviewPageData } from '../lib/overview-data.js';
+
+const overviewData = await getOverviewPageData();
+---
+
+<ProductLayout now={overviewData.now} currentPath="/overview" showWorkspaceNav={true}>
+  <OverviewWorkspace {...overviewData} />
+  <ThreatDetailDrawer />
+
+  <script>
+    import '../scripts/dashboard-client.js';
+  </script>
+</ProductLayout>

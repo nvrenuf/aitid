@@ -25,3 +25,16 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Added a lightweight `node:test` smoke suite around shared dashboard helper logic and introduced a real `npm test` entrypoint so Phase 1.5 work is no longer validated by build alone.
 4. P1.5-04 [#11](https://github.com/nvrenuf/aitid/issues/11) Final regression sweep and PR polish - completed
    Note: Ran the final build and smoke-test pass, refreshed README usage notes for the new test entrypoint, updated user-facing export filenames to ThreatParallax, and appended the Phase 1.5 addendum to draft PR #7.
+
+## Phase II Execution Order
+
+1. P2-01 [#13](https://github.com/nvrenuf/aitid/issues/13) Route structure and navigation transition - completed
+   Note: Split the dashboard into route-based Overview, Threat Map, and Research surfaces, redirected `/` into the Overview route, and kept the existing workspace tabs active inside the Overview page.
+2. P2-02 [#14](https://github.com/nvrenuf/aitid/issues/14) Threat Map data contract and geographic aggregation model - completed
+   Note: Added an explicit Threat Map observation contract, conservative regional aggregation logic, unmapped coverage tracking, and a dedicated API payload that keeps map meaning limited to observed infrastructure and exposure geography.
+3. P2-03 [#15](https://github.com/nvrenuf/aitid/issues/15) Threat Map UI and regional detail experience - completed
+   Note: Replaced the placeholder route with a restrained interactive Threat Map page that exposes regional counts, top threats, dominant vectors, affected models, and unmapped coverage without overstating coordinate precision.
+4. P2-04 [#16](https://github.com/nvrenuf/aitid/issues/16) Research landing surface and methodology placeholder - completed
+   Note: Upgraded the Research route into a credible landing surface with current direction, methodology, and source/cadence framing while keeping the page intentionally lighter than a full advisories portal.
+5. P2-05 [#17](https://github.com/nvrenuf/aitid/issues/17) Final regression sweep, documentation touch-up, and PR polish - completed
+   Note: Ran the final build and smoke-test pass again, updated README for the new route structure and Threat Map API surface, and prepared the branch as the single draft PR review surface for Phase II.

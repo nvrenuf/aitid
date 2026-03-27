@@ -1,0 +1,10 @@
+---
+import ProductLayout from '../components/layout/ProductLayout.astro';
+import ResearchSurface from '../components/research/ResearchSurface.astro';
+
+const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+---
+
+<ProductLayout now={now} currentPath="/research">
+  <ResearchSurface />
+</ProductLayout>

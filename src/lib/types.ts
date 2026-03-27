@@ -108,3 +108,79 @@ export interface DashboardStats {
   lastUpdated: string;
   pipelineStatus: 'healthy' | 'stale' | 'degraded' | 'failed' | 'error';
 }
+
+export type ThreatMapScope = 'observed-infrastructure' | 'observed-exposure';
+export type ThreatMapPrecision = 'macro-region' | 'country' | 'subregion' | 'city';
+export type ThreatMapSourceQuality = 'analyst-curated' | 'source-reported' | 'ioc-derived';
+
+export interface ThreatMapAnchor {
+  lat: number;
+  lng: number;
+  isApproximate: boolean;
+  label: string;
+}
+
+export interface ThreatMapObservation {
+  id: string;
+  threatId: string;
+  scope: ThreatMapScope;
+  regionKey: string;
+  regionName: string;
+  countryCode?: string;
+  precision: ThreatMapPrecision;
+  sourceQuality: ThreatMapSourceQuality;
+  summary: string;
+  anchor: ThreatMapAnchor;
+}
+
+export interface ThreatMapPoint {
+  id: string;
+  threatId: string;
+  threatTitle: string;
+  severity: Severity;
+  status: ThreatStatus;
+  score: number;
+  scope: ThreatMapScope;
+  regionKey: string;
+  regionName: string;
+  precision: ThreatMapPrecision;
+  sourceQuality: ThreatMapSourceQuality;
+  summary: string;
+  anchor: ThreatMapAnchor;
+  vectors: VectorTag[];
+  models: ModelTag[];
+  publishedAt: string;
+}
+
+export interface ThreatMapRegionSummary {
+  regionKey: string;
+  regionName: string;
+  anchor: ThreatMapAnchor;
+  threatCount: number;
+  pointCount: number;
+  topThreats: Array<{
+    id: string;
+    title: string;
+    severity: Severity;
+    score: number;
+  }>;
+  dominantVectors: VectorTag[];
+  affectedModels: ModelTag[];
+  precisions: ThreatMapPrecision[];
+}
+
+export interface ThreatMapCoverage {
+  mappedThreatCount: number;
+  unmappedThreatCount: number;
+  mappedRegionCount: number;
+  pointCount: number;
+}
+
+export interface ThreatMapDataset {
+  meaning: string;
+  limitations: string[];
+  coverage: ThreatMapCoverage;
+  points: ThreatMapPoint[];
+  regions: ThreatMapRegionSummary[];
+  unmappedThreatIds: string[];
+}

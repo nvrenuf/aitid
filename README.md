@@ -1,8 +1,14 @@
 # ThreatParallax
 
-ThreatParallax is an AI Threat Intelligence Platform for security leaders and analysts tracking model-linked threats, distribution vectors, and operational exposure across the current non-production deployment.
+ThreatParallax is an AI Threat Intelligence Platform for security leaders and analysts tracking model-linked threats, distribution vectors, operational exposure, and conservative regional map context across the current non-production deployment.
 
-Phase I keeps the existing Vercel deployment model and current repo name in place while rebranding the product surface, tightening the visual system, and modernizing the overview and feed experience. Domain cutover and a production threat map remain deferred to Phase II.
+Phase II keeps the existing Vercel deployment model and current repo name in place while moving the product into route-based surfaces for Overview, Threat Map, and Research. Domain cutover remains out of scope.
+
+## Product surfaces
+
+- `/overview`: primary leadership and analyst workspace, including the existing dashboard/feed internals
+- `/threat-map`: conservative map surface for observed infrastructure and exposure geography
+- `/research`: light methodology, source, and cadence framing
 
 ## Stack
 
@@ -90,6 +96,7 @@ curl -X POST https://your-aitid.vercel.app/api/pipeline/run \
 | `/api/threats?type=supply-chain` | GET | Filter by threat type |
 | `/api/threats?q=mcp` | GET | Full-text search |
 | `/api/stats` | GET | Dashboard metrics |
+| `/api/threat-map` | GET | Threat Map dataset, regional aggregation, and coverage limits |
 | `/api/pipeline/run` | POST | Trigger pipeline, requires authorization |
 
 ## SIEM integration
@@ -146,7 +153,10 @@ Vercel Cron (daily at 8:00 AM EST / 13:00 UTC)
   +-- computeAndSaveStats()
 
 Dashboard (Astro SSR)
-  +-- /
+  +-- /overview
+  +-- /threat-map
+  +-- /research
   +-- /api/threats
   +-- /api/stats
+  +-- /api/threat-map
 ```

@@ -1,13 +1,15 @@
 ---
-const { now } = Astro.props;
+import { PRODUCT_ROUTES } from '../../lib/product-navigation.js';
+
+const { now, currentPath, routeMeta, showWorkspaceNav = false } = Astro.props;
 
 const shellTabs = [
-  { id: 'overview', label: 'Overview', badgeId: 'badge-overview', badge: '—', active: true },
-  { id: 'openai', label: 'OpenAI', badgeId: 'badge-openai', badge: '—', badgeClass: 'warn' },
-  { id: 'claude', label: 'Claude', badgeId: 'badge-claude', badge: '—' },
-  { id: 'copilot', label: 'Copilot', badgeId: 'badge-copilot', badge: '—' },
-  { id: 'oss', label: 'OSS / HuggingFace', badgeId: 'badge-oss', badge: '—' },
-  { id: 'vectors', label: 'Vectors', badgeId: 'badge-vectors', badge: '—' },
+  { id: 'overview', label: 'Overview workspace', badgeId: 'badge-overview', badge: '--', active: true },
+  { id: 'openai', label: 'OpenAI', badgeId: 'badge-openai', badge: '--', badgeClass: 'warn' },
+  { id: 'claude', label: 'Claude', badgeId: 'badge-claude', badge: '--' },
+  { id: 'copilot', label: 'Copilot', badgeId: 'badge-copilot', badge: '--' },
+  { id: 'oss', label: 'OSS / HuggingFace', badgeId: 'badge-oss', badge: '--' },
+  { id: 'vectors', label: 'Vectors', badgeId: 'badge-vectors', badge: '--' },
   {
     id: 'siem',
     label: 'SIEM Config',
@@ -36,47 +38,74 @@ const shellTabs = [
     </div>
     <div class="hdr-copy">
       <div class="hdr-kicker">Security leader and analyst workspace</div>
-      <div class="hdr-headline">Track model-linked threats with a shell built for serious review.</div>
+      <div class="hdr-headline">Track model-linked threats with product surfaces built for serious review.</div>
       <p>
-        ThreatParallax organizes vendor, vector, and severity signals into a buyer-safe control surface
-        that can grow into Threat Map and Research workflows without changing the current deployment
-        model.
+        ThreatParallax now separates operational overview, observed geography, and research framing into
+        route-based surfaces while keeping the active dashboard workspace intact for analyst follow-up.
       </p>
     </div>
   </div>
   <div class="hdr-right">
     <div class="status-cluster">
-      <div class="live-pill"><div class="pulse"></div>Live feed active &nbsp;·&nbsp; Updated:</div>
+      <div class="live-pill"><div class="pulse"></div>Live feed active · Updated:</div>
       <div class="hdr-time" id="hdr-time">{now}</div>
     </div>
-    <div class="future-nav">
-      <span class="future-chip"><strong>Threat Map</strong> · Phase II</span>
-      <span class="future-chip"><strong>Research</strong> · Phase II</span>
+    <div class="surface-chips">
+      <span class="future-chip"><strong>{routeMeta.label}</strong> · {routeMeta.kicker}</span>
+      <span class="future-chip">Audience · security leaders + analysts</span>
     </div>
   </div>
 </header>
 
 <div class="shell-nav">
   <div class="shell-nav-meta">
-    <div class="shell-label">Workspace</div>
+    <div class="shell-label">Primary surfaces</div>
     <div class="shell-note">
-      Current panels stay live while the shell is prepared for later Threat Map and Research expansion.
+      {routeMeta.description}
     </div>
   </div>
-  <nav class="tabbar" id="tabbar">
+  <nav class="surface-nav" aria-label="ThreatParallax product surfaces">
     {
-      shellTabs.map((tab) => (
-        <button class:list={['tab', tab.active && 'active']} data-tab={tab.id}>
-          {tab.label}
-          <span class:list={['tbadge', tab.badgeClass]} id={tab.badgeId} style={tab.badgeStyle}>
-            {tab.badge}
-          </span>
-        </button>
+      PRODUCT_ROUTES.map((route) => (
+        <a class:list={['surface-link', route.href === currentPath && 'active']} href={route.href}>
+          <div class="page-kicker">{route.kicker}</div>
+          <strong>{route.label}</strong>
+          <span>{route.description}</span>
+        </a>
       ))
     }
   </nav>
   <div class="shell-future">
-    <span class="future-chip">Threat Map navigation reserved</span>
-    <span class="future-chip">Research disclosures reserved</span>
+    <span class="future-chip">Map meaning limited to observed geography</span>
+    <span class="future-chip">Research remains intentionally light</span>
   </div>
 </div>
+
+{
+  showWorkspaceNav && (
+    <div class="shell-nav">
+      <div class="shell-nav-meta">
+        <div class="shell-label">Overview workspace</div>
+        <div class="shell-note">
+          Existing feed, model, vector, and SIEM panels stay live inside the Overview surface.
+        </div>
+      </div>
+      <nav class="tabbar" id="tabbar" aria-label="Overview workspace views">
+        {
+          shellTabs.map((tab) => (
+            <button class:list={['tab', tab.active && 'active']} data-tab={tab.id}>
+              {tab.label}
+              <span class:list={['tbadge', tab.badgeClass]} id={tab.badgeId} style={tab.badgeStyle}>
+                {tab.badge}
+              </span>
+            </button>
+          ))
+        }
+      </nav>
+      <div class="shell-future">
+        <span class="future-chip">Dashboard internals preserved</span>
+        <span class="future-chip">Route shell ready for deeper pages</span>
+      </div>
+    </div>
+  )
+}
