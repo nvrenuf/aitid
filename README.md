@@ -2,11 +2,13 @@
 
 ThreatParallax is an AI Threat Intelligence Platform for security leaders and analysts tracking model-linked threats, distribution vectors, operational exposure, and conservative regional map context across the current non-production deployment.
 
-Phase II keeps the existing Vercel deployment model and current repo name in place while moving the product into route-based surfaces for Overview, Threat Map, and Research. Domain cutover remains out of scope.
+Phase III keeps the existing Vercel deployment model and current repo name in place while extending the route-based product with a dedicated Threats workflow, canonical threat detail pages, clearer evidence framing, and more operational Threat Map drilldowns. Domain cutover remains out of scope.
 
 ## Product surfaces
 
 - `/overview`: primary leadership and analyst workspace, including the existing dashboard/feed internals
+- `/threats`: operator-oriented corpus scanning with search, filters, and sort controls
+- `/threats/[slug]`: canonical threat detail pages for direct review and deep linking
 - `/threat-map`: conservative map surface for observed infrastructure and exposure geography
 - `/research`: light methodology, source, and cadence framing
 
@@ -154,6 +156,8 @@ Vercel Cron (daily at 8:00 AM EST / 13:00 UTC)
 
 Dashboard (Astro SSR)
   +-- /overview
+  +-- /threats
+  +-- /threats/[slug]
   +-- /threat-map
   +-- /research
   +-- /api/threats
