@@ -82,5 +82,5 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
 
 1. RF-01 [#38](https://github.com/nvrenuf/aitid/issues/38) Pipeline cron reliability and explicit route error handling - completed
    Note: Reworked `/api/pipeline/run` around shared cron/manual request parsing, added explicit JSON responses and route-level error logging, and removed the current 503 path for valid Vercel cron GET requests when `CRON_SECRET` is absent.
-2. RF-02 [#39](https://github.com/nvrenuf/aitid/issues/39) Reduce duplicate overview stats and threats fetches - pending
-   Note: Reduce the confirmed duplicate `/api/stats` and `/api/threats` requests on `/overview` while preserving the current server-rendered route behavior.
+2. RF-02 [#39](https://github.com/nvrenuf/aitid/issues/39) Reduce duplicate overview stats and threats fetches - completed
+   Note: Confirmed that `/overview` was duplicating `/api/stats` work but not `/api/threats`, then hydrated the dashboard from the server-rendered stats payload so the initial stats request is no longer repeated on page load.

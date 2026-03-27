@@ -12,6 +12,17 @@ let allThreats = [];
 let overviewFilter = 'all';
 let selectedThreatId = null;
 
+function readInitialOverviewStats() {
+  const raw = document.getElementById('overview-initial-stats')?.textContent;
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
 const severityClasses = {
   critical: 'b-crit',
   high: 'b-high',
@@ -395,6 +406,26 @@ function renderAll() {
   updateBadges();
 }
 
+function applyOverviewStats(stats) {
+  const statusText = stats.pipelineStatus === 'healthy' ? 'Collection healthy' : 'Collection needs review';
+  const updatedText = formatEasternTimestamp(stats.lastUpdated);
+
+  safeSetText('m-total', stats.totalThreats);
+  safeSetText('m-crit', stats.activeCritical);
+  safeSetText('m-week', stats.newThisWeek);
+  safeSetText('m-models', stats.modelsAffected);
+  safeSetText('m-total-d', stats.totalThreats > 0 ? `+ ${Math.max(1, Math.floor(stats.totalThreats * 0.25))} vs last week` : '');
+  safeSetText('m-crit-d', stats.activeCritical > 0 ? `+ ${stats.activeCritical} new today` : 'no active criticals');
+  safeSetText('m-week-d', 'steady vs prior');
+  safeSetText('m-models-d', 'distinct model tags in current corpus');
+  safeSetText('overview-status', statusText);
+  safeSetText('overview-updated', updatedText);
+  safeSetText('overview-critical', stats.activeCritical);
+  safeSetText('overview-models', stats.modelsAffected);
+  safeSetText('overview-week', stats.newThisWeek);
+  safeSetText('overview-total', stats.totalThreats);
+}
+
 async function loadThreats() {
   try {
     const response = await fetch('/api/threats');
@@ -410,23 +441,7 @@ async function loadStats() {
   try {
     const response = await fetch('/api/stats');
     const stats = await response.json();
-    const statusText = stats.pipelineStatus === 'healthy' ? 'Collection healthy' : 'Collection needs review';
-    const updatedText = formatEasternTimestamp(stats.lastUpdated);
-
-    safeSetText('m-total', stats.totalThreats);
-    safeSetText('m-crit', stats.activeCritical);
-    safeSetText('m-week', stats.newThisWeek);
-    safeSetText('m-models', stats.modelsAffected);
-    safeSetText('m-total-d', stats.totalThreats > 0 ? `+ ${Math.max(1, Math.floor(stats.totalThreats * 0.25))} vs last week` : '');
-    safeSetText('m-crit-d', stats.activeCritical > 0 ? `+ ${stats.activeCritical} new today` : 'no active criticals');
-    safeSetText('m-week-d', 'steady vs prior');
-    safeSetText('m-models-d', 'distinct model tags in current corpus');
-    safeSetText('overview-status', statusText);
-    safeSetText('overview-updated', updatedText);
-    safeSetText('overview-critical', stats.activeCritical);
-    safeSetText('overview-models', stats.modelsAffected);
-    safeSetText('overview-week', stats.newThisWeek);
-    safeSetText('overview-total', stats.totalThreats);
+    applyOverviewStats(stats);
   } catch {
     // Use server-rendered fallback values.
   }
@@ -651,5 +666,10 @@ initModelSubnavs();
 initVectorToggle();
 initClock();
 initResize();
-loadStats();
+const initialOverviewStats = readInitialOverviewStats();
+if (initialOverviewStats) {
+  applyOverviewStats(initialOverviewStats);
+} else {
+  loadStats();
+}
 loadThreats();
