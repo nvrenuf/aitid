@@ -629,6 +629,27 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     gap: 12px;
   }
 
+  @media (max-width: 1280px) {
+    .threat-map-heading,
+    .threat-map-workspace {
+      grid-template-columns: 1fr;
+    }
+
+    .threat-map-detail-stack {
+      position: static;
+    }
+  }
+
+  @media (max-width: 1080px) {
+    .threat-map-filterbar,
+    .threat-map-filter-controls,
+    .threat-map-stats,
+    .threat-map-notes,
+    .threat-map-intel-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
   @media (max-width: 960px) {
     .threat-map-heading,
     .threat-map-workspace,

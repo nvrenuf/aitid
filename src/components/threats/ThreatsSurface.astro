@@ -345,6 +345,29 @@ const initialThreats = JSON.stringify(threats);
     background: rgba(255,255,255,.02);
   }
 
+  @media (max-width: 1280px) {
+    .threats-hero {
+      grid-template-columns: 1fr;
+    }
+
+    .threats-controls-head {
+      display: grid;
+    }
+
+    .threats-active-filters {
+      justify-content: flex-start;
+      max-width: none;
+    }
+
+    .threats-filter-stack {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .threats-field-search {
+      grid-column: 1 / -1;
+    }
+  }
+
   @media (max-width: 960px) {
     .threats-hero,
     .threats-controls-head,

@@ -368,6 +368,16 @@ const detailContext = buildThreatDetailContext(threat);
     align-items: start;
   }
 
+  @media (max-width: 1280px) {
+    .threat-detail-hero {
+      grid-template-columns: 1fr;
+    }
+
+    .threat-detail-rail {
+      position: static;
+    }
+  }
+
   @media (max-width: 960px) {
     .threat-detail-hero,
     .threat-detail-grid,

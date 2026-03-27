@@ -164,7 +164,7 @@ const initialStatsJson = JSON.stringify(initialStats);
   .overview-hero {
     display: grid;
     gap: 16px;
-    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+    grid-template-columns: minmax(0, 1.18fr) minmax(260px, 0.82fr);
     align-items: start;
   }
 
@@ -188,6 +188,36 @@ const initialStatsJson = JSON.stringify(initialStats);
 
   .sb-block.executive {
     background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+  }
+
+  @media (max-width: 1380px) {
+    #overview-layout {
+      flex-direction: column;
+      overflow: visible;
+    }
+
+    #overview-feed-col {
+      overflow-y: visible !important;
+    }
+
+    #overview-sidebar {
+      width: auto !important;
+      min-width: 0 !important;
+      max-width: none !important;
+      overflow-y: visible !important;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+
+    #sidebar-resize-handle {
+      display: none;
+    }
+  }
+
+  @media (max-width: 1180px) {
+    .overview-hero {
+      grid-template-columns: 1fr;
+    }
   }
 
   @media (max-width: 960px) {
