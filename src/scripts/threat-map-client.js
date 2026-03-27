@@ -92,10 +92,15 @@ function renderStageFallback(title, copy, regions = dataset.regions) {
   if (copyNode) copyNode.textContent = copy;
   if (listNode) {
     listNode.innerHTML = regions.length
-      ? regions.slice(0, 4).map((region) => `<div class="page-list-item">
+      ? regions
+          .slice(0, 4)
+          .map(
+            (region) => `<div class="page-list-item">
           <strong>${escapeHtml(region.regionName)}</strong>
-          <p>${region.threatCount} tracked threats · ${region.pointCount} mapped observations · ${escapeHtml(region.anchor.label)}</p>
-        </div>`).join('')
+          <p>${region.threatCount} tracked threats &middot; ${region.pointCount} mapped observations &middot; ${escapeHtml(region.anchor.label)}</p>
+        </div>`,
+          )
+          .join('')
       : `<div class="page-list-item">
           <strong>No regional summary available</strong>
           <p>The current dataset does not contain any defensible regional observations to display.</p>
@@ -123,9 +128,9 @@ function renderRegionDetails(points, regions) {
     container.innerHTML = `<section class="threat-map-detail active">
       <div class="threat-map-detail-head">
         <div>
-          <div class="page-kicker">Regional detail</div>
+          <div class="page-kicker">Regional brief</div>
           <h2>No mapped regions match the current filters</h2>
-          <p class="threat-map-detail-copy">Adjust the current filters to restore mapped regional posture in the detail panel.</p>
+          <p class="threat-map-detail-copy">Adjust the current filters to restore mapped regional posture.</p>
         </div>
       </div>
       <div class="page-list">
@@ -142,9 +147,9 @@ function renderRegionDetails(points, regions) {
   container.innerHTML = `<section class="threat-map-detail active">
     <div class="threat-map-detail-head">
       <div>
-        <div class="page-kicker">Regional detail</div>
+        <div class="page-kicker">Regional brief</div>
         <h2>${escapeHtml(activeRegion.regionName)}</h2>
-        <p class="threat-map-detail-copy">Approximate regional posture based on the mapped observations currently in scope.</p>
+        <p class="threat-map-detail-copy">Approximate posture based on the mapped observations currently in scope.</p>
       </div>
       <div class="threat-map-detail-stat">
         <span>Tracked threats</span>
@@ -153,50 +158,46 @@ function renderRegionDetails(points, regions) {
       </div>
     </div>
 
-    <div class="info-card-grid threat-map-detail-grid">
+    <div class="info-card-grid threat-map-intel-grid">
       <div class="info-card">
-        <span>Precision</span>
+        <span>Anchor precision</span>
         <strong>${escapeHtml(activeRegion.precisions.join(', '))}</strong>
-        <p>${escapeHtml(activeRegion.anchor.label)} is an approximate map anchor for this region.</p>
+        <p>${escapeHtml(activeRegion.anchor.label)}</p>
       </div>
       <div class="info-card">
         <span>Dominant vectors</span>
         <strong>${escapeHtml(activeRegion.dominantVectors.join(', '))}</strong>
-        <p>Vectors reflect the mapped threats that remain after the current filters are applied.</p>
-      </div>
-      <div class="info-card">
-        <span>Affected models</span>
-        <strong>${escapeHtml(activeRegion.affectedModels.join(', '))}</strong>
-        <p>Model tags are pulled directly from the filtered mapped threats in this region.</p>
-      </div>
-      <div class="info-card">
-        <span>Observation count</span>
-        <strong>${activeRegion.pointCount}</strong>
-        <p>Multiple observations can still roll up into the same region when the signal remains coarse.</p>
+        <p>Vector labels remain tied to the filtered mapped threats.</p>
       </div>
     </div>
 
-    <div class="threat-map-detail-columns">
-      <section class="threat-map-section-card">
-        <div class="page-kicker">Top threats</div>
-        <div class="page-list">
-          ${activeRegion.topThreats.map((threat) => `<div class="page-list-item">
+    <section class="threat-map-section-card">
+      <div class="page-kicker">Regional exposure leaders</div>
+      <div class="page-list">
+        ${activeRegion.topThreats
+          .map(
+            (threat) => `<div class="page-list-item">
             <strong><a class="drawer-link" href="${getThreatDetailHref({ title: threat.title })}">${escapeHtml(threat.title)}</a></strong>
-            <p>Severity ${escapeHtml(threat.severity)} · blended score ${threat.score.toFixed(1)}</p>
-          </div>`).join('')}
-        </div>
-      </section>
+            <p>Severity ${escapeHtml(threat.severity)} &middot; blended score ${threat.score.toFixed(1)}</p>
+          </div>`,
+          )
+          .join('')}
+      </div>
+    </section>
 
-      <section class="threat-map-section-card">
-        <div class="page-kicker">Observation notes</div>
-        <div class="page-list">
-          ${regionPoints.map((point) => `<div class="page-list-item">
+    <section class="threat-map-section-card">
+      <div class="page-kicker">Observation notes</div>
+      <div class="page-list">
+        ${regionPoints
+          .map(
+            (point) => `<div class="page-list-item">
             <strong><a class="drawer-link" href="${getThreatDetailHref({ title: point.threatTitle })}">${escapeHtml(point.threatTitle)}</a></strong>
-            <p>${escapeHtml(point.summary)}<br />Scope: ${escapeHtml(point.scope)} · Quality: ${escapeHtml(point.sourceQuality)}</p>
-          </div>`).join('')}
-        </div>
-      </section>
-    </div>
+            <p>${escapeHtml(point.summary)}<br />Scope: ${escapeHtml(point.scope)} &middot; Quality: ${escapeHtml(point.sourceQuality)}</p>
+          </div>`,
+          )
+          .join('')}
+      </div>
+    </section>
   </section>`;
 }
 
@@ -216,18 +217,26 @@ function renderUnmapped(unmappedThreats) {
   container.innerHTML = `<div class="page-kicker">Unmapped coverage</div>
     <div class="page-list-item">
       <strong>${unmappedThreats.length} threats remain off-map after filters</strong>
-      <p>Threats stay off the map until observed infrastructure or exposure geography can be stated defensibly. The categories below explain why the current records remain unmapped.</p>
+      <p>Threats stay off-map until observed infrastructure or exposure geography can be stated defensibly. The categories below explain why the current records remain unmapped.</p>
     </div>
-    ${groups.map(([category, threats]) => `<div class="page-list-item">
+    ${groups
+      .map(
+        ([category, threats]) => `<div class="page-list-item">
       <strong>${escapeHtml(category)} (${threats.length})</strong>
       <p>${escapeHtml(threats[0].reasonDetail)}</p>
       <div class="page-list threat-map-unmapped-group">
-        ${threats.map((threat) => `<div class="page-list-item">
+        ${threats
+          .map(
+            (threat) => `<div class="page-list-item">
           <strong><a class="drawer-link" href="${getThreatDetailHref({ title: threat.threatTitle })}">${escapeHtml(threat.threatTitle)}</a></strong>
-          <p>Severity ${escapeHtml(threat.severity)} · Status ${escapeHtml(threat.status)}</p>
-        </div>`).join('')}
+          <p>Severity ${escapeHtml(threat.severity)} &middot; Status ${escapeHtml(threat.status)}</p>
+        </div>`,
+          )
+          .join('')}
       </div>
-    </div>`).join('')}`;
+    </div>`,
+      )
+      .join('')}`;
 }
 
 function renderFilterSummary(points, unmappedThreats) {

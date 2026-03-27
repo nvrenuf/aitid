@@ -27,172 +27,166 @@ const detailContext = buildThreatDetailContext(threat);
 
 <section class="page-panel threat-detail-shell">
   <div class="threat-detail-hero">
-    <div class="page-copy">
-      <span class="page-eyebrow">Canonical threat record</span>
-      <div>
-        <div class="page-kicker">Threat detail</div>
-        <h1 class="page-headline">{threat.title}</h1>
-      </div>
-      <p>{threat.description}</p>
+    <div class="threat-detail-record">
+      <div class="threat-detail-record-head">
+        <div class="page-copy">
+          <span class="page-eyebrow">Canonical threat record</span>
+          <div>
+            <div class="page-kicker">Threat detail</div>
+            <h1 class="page-headline">{threat.title}</h1>
+          </div>
+          <p>{threat.description}</p>
+        </div>
 
-      <div class="tc-meta">
+        <div class="drawer-score-card threat-detail-score">
+          <div class="drawer-label">Blended score</div>
+          <span class="score">{threat.score.blended.toFixed(1)}</span>
+        </div>
+      </div>
+
+      <div class="tc-meta threat-detail-badges">
         <span class:list={['badge', severityClasses[threat.severity] ?? 'b-gray']}>{threat.severity.toUpperCase()}</span>
         <span class:list={['badge', statusClasses[threat.status] ?? 'b-gray']}>{threat.status}</span>
         <span class="badge b-gray">{threat.type}</span>
         {threat.cve ? <span class="ttp-tag">{threat.cve}</span> : null}
       </div>
+
+      <div class="threat-detail-meta-grid">
+        <div class="threat-detail-meta-item">
+          <span>Published</span>
+          <strong>{formatEasternDate(threat.publishedAt)}</strong>
+          <p>Updated {formatEasternDate(threat.updatedAt)}</p>
+        </div>
+        <div class="threat-detail-meta-item">
+          <span>Source</span>
+          <strong>{threat.source}</strong>
+          <p>{threat.sourceUrl ? 'Direct source link available in references.' : 'Named source retained without a direct URL in the current record.'}</p>
+        </div>
+        <div class="threat-detail-meta-item">
+          <span>Patch posture</span>
+          <strong>{threat.patchVersion ?? 'Not listed'}</strong>
+          <p>{threat.affectedVersions ?? 'Affected versions are not explicitly listed in the current record.'}</p>
+        </div>
+      </div>
     </div>
 
-    <div class="threat-detail-hero-rail">
-      <div class="drawer-score-card">
-        <div class="drawer-label">Blended score</div>
-        <span class="score">{threat.score.blended.toFixed(1)}</span>
-      </div>
-
-      <div class="info-card">
+    <div class="threat-detail-rail">
+      <div class="info-card threat-detail-summary">
         <span>Review framing</span>
         <strong>{buildDrawerSubtitle(threat)}</strong>
-        <p>This page is the canonical reference route for this tracked threat within the current product corpus.</p>
+        <p>Structured for direct review, internal linking, and source-backed prioritization.</p>
+      </div>
+
+      <div class="info-card threat-detail-summary">
+        <span>Affected scope</span>
+        <strong>{threat.models.map(shortModel).join(', ')}</strong>
+        <p>{threat.vectors.join(', ')}</p>
       </div>
     </div>
   </div>
 
-  <div class="info-card-grid threat-detail-grid">
-    <div class="info-card">
-      <span>Published</span>
-      <strong>{formatEasternDate(threat.publishedAt)}</strong>
-      <p>Last updated {formatEasternDate(threat.updatedAt)}</p>
-    </div>
-    <div class="info-card">
-      <span>Source</span>
-      <strong>{threat.source}</strong>
-      <p>Linked directly from the current corpus entry.</p>
-    </div>
-    <div class="info-card">
-      <span>Patch posture</span>
-      <strong>{threat.patchVersion ?? 'Patch not listed'}</strong>
-      <p>{threat.affectedVersions ?? 'Affected versions are not explicitly listed in the current record.'}</p>
-    </div>
-    <div class="info-card">
-      <span>Canonical route</span>
-      <strong>{getThreatDetailHref(threat)}</strong>
-      <p>Use this URL for direct review and internal linking instead of relying only on the overview drawer.</p>
-    </div>
-  </div>
-
-  <div class="threat-detail-sections">
-    <section class="threat-detail-section">
-      <div class="page-kicker">Evidence and source transparency</div>
-      <div class="threat-detail-section two-column">
+  <div class="threat-detail-grid">
+    <section class="threat-detail-panel">
+      <div class="threat-detail-panel-head">
         <div>
-          <div class="page-kicker">Source references</div>
-          <div class="page-list">
-            {detailContext.sourceReferences.map((reference) => (
-              <div class="page-list-item">
-                <strong>{reference.title}</strong>
-                <p>
-                  {reference.href ? <a class="drawer-link" href={reference.href} target="_blank" rel="noreferrer">{reference.detail}</a> : reference.detail}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <div class="page-kicker">Evidence and support</div>
-          <div class="page-list">
-            {detailContext.evidenceHighlights.map((item) => (
-              <div class="page-list-item">
-                <strong>{item.title}</strong>
-                <p>{item.detail}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="threat-detail-section">
-      <div class="page-kicker">Exposure coverage</div>
-      <div class="threat-detail-bands">
-        <div class="threat-detail-band">
-          <strong>Models</strong>
-          <div class="tc-meta">
-            {threat.models.map((model) => <span class="badge b-model">{shortModel(model)}</span>)}
-          </div>
-        </div>
-        <div class="threat-detail-band">
-          <strong>Vectors and TTPs</strong>
-          <div class="tc-meta">
-            {threat.vectors.map((vector) => <span class="badge b-gray">{vector}</span>)}
-            {threat.ttps.map((ttp) => <span class="ttp-tag">{ttp.id}</span>)}
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="threat-detail-section">
-      <div class="page-kicker">Methodology and score context</div>
-      <div class="threat-detail-section two-column">
-        <div class="page-list">
-          {detailContext.scoreContext.map((item) => (
-            <div class="page-list-item">
-              <strong>{item.title}</strong>
-              <p>{item.detail}</p>
-            </div>
-          ))}
-        </div>
-        <div class="page-list">
-          {detailContext.methodologyNotes.map((note) => (
-            <div class="page-list-item">
-              <strong>Normalization note</strong>
-              <p>{note}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    <section class="threat-detail-section two-column">
-      <div>
-        <div class="page-kicker">Indicators and references</div>
-        <div class="page-list">
-          {threat.iocs.length ? threat.iocs.map((ioc) => (
-            <div class="page-list-item">
-              <strong>{ioc.type}: {ioc.value}</strong>
-              <p>{ioc.context ?? 'No additional IOC context provided in the current record.'}</p>
-            </div>
-          )) : (
-            <div class="page-list-item">
-              <strong>No IOCs listed</strong>
-              <p>The current corpus entry does not include indicators for this record.</p>
-            </div>
-          )}
+          <div class="page-kicker">Source transparency</div>
+          <h2>Evidence is explicit and reviewable.</h2>
         </div>
       </div>
 
-      <div>
-        <div class="page-kicker">Mitigation actions</div>
-        <div class="page-list">
-          {threat.mitigations.map((mitigation) => (
-            <div class="page-list-item">
-              <strong>Recommended action</strong>
-              <p>{mitigation}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    <section class="threat-detail-section">
-      <div class="page-kicker">Limitations and confidence framing</div>
       <div class="page-list">
-        {detailContext.limitations.map((item) => (
+        {detailContext.sourceReferences.map((reference) => (
           <div class="page-list-item">
-            <strong>Limitation</strong>
-            <p>{item}</p>
+            <strong>{reference.title}</strong>
+            <p>
+              {reference.href ? <a class="drawer-link" href={reference.href} target="_blank" rel="noreferrer">{reference.detail}</a> : reference.detail}
+            </p>
           </div>
         ))}
+
+        {detailContext.evidenceHighlights.map((item) => (
+          <div class="page-list-item">
+            <strong>{item.title}</strong>
+            <p>{item.detail}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="threat-detail-panel">
+      <div class="threat-detail-panel-head">
+        <div>
+          <div class="page-kicker">Operational read</div>
+          <h2>What matters now</h2>
+        </div>
+      </div>
+
+      <div class="threat-detail-intel-grid">
+        <div class="threat-detail-intel-card">
+          <span>Immediate action</span>
+          <strong>{threat.mitigations[0] ?? 'Review the linked source and validate remediation posture.'}</strong>
+        </div>
+        <div class="threat-detail-intel-card">
+          <span>Exposure vector</span>
+          <strong>{threat.vectors.join(', ')}</strong>
+        </div>
+        <div class="threat-detail-intel-card">
+          <span>Observed limits</span>
+          <strong>{detailContext.limitations[0] ?? 'Coverage remains bounded by the current normalized record.'}</strong>
+        </div>
+        <div class="threat-detail-intel-card">
+          <span>Canonical route</span>
+          <strong>{getThreatDetailHref(threat)}</strong>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="threat-detail-grid">
+    <section class="threat-detail-panel">
+      <div class="threat-detail-panel-head">
+        <div>
+          <div class="page-kicker">Methodology</div>
+          <h2>Normalization notes remain visible.</h2>
+        </div>
+      </div>
+
+      <div class="page-list">
+        {detailContext.scoreContext.map((item) => (
+          <div class="page-list-item">
+            <strong>{item.title}</strong>
+            <p>{item.detail}</p>
+          </div>
+        ))}
+        {detailContext.methodologyNotes.map((note) => (
+          <div class="page-list-item">
+            <strong>Method note</strong>
+            <p>{note}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="threat-detail-panel">
+      <div class="threat-detail-panel-head">
+        <div>
+          <div class="page-kicker">Response guidance</div>
+          <h2>Action, indicators, and constraints are separated cleanly.</h2>
+        </div>
+      </div>
+
+      <div class="page-list">
+        <div class="page-list-item">
+          <strong>Mitigation</strong>
+          <p>{threat.mitigations.join(' ')}</p>
+        </div>
+        <div class="page-list-item">
+          <strong>Coverage</strong>
+          <p>
+            Models: {threat.models.map(shortModel).join(', ')}. Vectors: {threat.vectors.join(', ')}.
+            {' '}TTPs: {threat.ttps.length ? threat.ttps.map((ttp) => ttp.id).join(', ') : 'not listed'}.
+          </p>
+        </div>
         <div class="page-list-item">
           <strong>Confidence framing</strong>
           <p>{detailContext.confidenceFraming}</p>
@@ -200,57 +194,183 @@ const detailContext = buildThreatDetailContext(threat);
       </div>
     </section>
   </div>
+
+  <div class="threat-detail-grid threat-detail-grid-wide">
+    <section class="threat-detail-panel">
+      <div class="threat-detail-panel-head">
+        <div>
+          <div class="page-kicker">Indicators and references</div>
+          <h2>Linked source material and technical markers</h2>
+        </div>
+      </div>
+
+      <div class="page-list">
+        {threat.iocs.length ? threat.iocs.map((ioc) => (
+          <div class="page-list-item">
+            <strong>{ioc.type}: {ioc.value}</strong>
+            <p>{ioc.context ?? 'No additional IOC context provided in the current record.'}</p>
+          </div>
+        )) : (
+          <div class="page-list-item">
+            <strong>No IOCs listed</strong>
+            <p>The current record does not include technical indicators.</p>
+          </div>
+        )}
+      </div>
+    </section>
+
+    <section class="threat-detail-panel">
+      <div class="threat-detail-panel-head">
+        <div>
+          <div class="page-kicker">Limits and trust boundaries</div>
+          <h2>What this record does and does not claim</h2>
+        </div>
+      </div>
+
+      <div class="page-list">
+        {detailContext.limitations.map((item) => (
+          <div class="page-list-item">
+            <strong>Limitation</strong>
+            <p>{item}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  </div>
 </section>
 
 <style>
-  .threat-detail-shell {
+  .threat-detail-shell,
+  .threat-detail-grid,
+  .threat-detail-rail,
+  .threat-detail-panel,
+  .threat-detail-intel-grid {
     display: grid;
-    gap: 20px;
+    gap: 18px;
   }
 
   .threat-detail-hero {
     display: grid;
     gap: 18px;
-    grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+    grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+    align-items: start;
   }
 
-  .threat-detail-hero-rail,
-  .threat-detail-sections,
-  .threat-detail-section,
-  .threat-detail-band {
+  .threat-detail-record,
+  .threat-detail-panel,
+  .threat-detail-intel-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+    box-shadow: var(--shadow-md);
+  }
+
+  .threat-detail-record {
+    padding: 22px;
     display: grid;
-    gap: 14px;
+    gap: 18px;
+    background:
+      radial-gradient(circle at top right, rgba(125, 196, 255, 0.12), transparent 28%),
+      linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.015));
   }
 
-  .threat-detail-grid,
-  .threat-detail-bands {
+  .threat-detail-record-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .threat-detail-score {
+    min-width: 140px;
+  }
+
+  .threat-detail-badges {
+    margin-top: -2px;
+  }
+
+  .threat-detail-meta-grid,
+  .threat-detail-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .threat-detail-band {
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    background: rgba(255,255,255,.02);
-    padding: 16px;
+  .threat-detail-meta-grid {
+    display: grid;
+    gap: 10px;
   }
 
-  .threat-detail-band strong {
+  .threat-detail-meta-item,
+  .threat-detail-intel-card {
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(125, 196, 255, 0.14);
+    background: rgba(255,255,255,.02);
+  }
+
+  .threat-detail-meta-item span,
+  .threat-detail-intel-card span {
+    display: block;
+    margin-bottom: 6px;
     font-size: 11px;
+    font-weight: 800;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--txt3);
   }
 
-  .threat-detail-section.two-column {
+  .threat-detail-meta-item strong,
+  .threat-detail-intel-card strong {
+    display: block;
+    font-size: 15px;
+    line-height: 1.35;
+  }
+
+  .threat-detail-meta-item p {
+    margin: 6px 0 0;
+    color: var(--txt2);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .threat-detail-summary p {
+    margin: 0;
+  }
+
+  .threat-detail-panel {
+    padding: 18px;
+    align-content: start;
+  }
+
+  .threat-detail-panel-head h2 {
+    margin: 4px 0 0;
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2.4vw, 28px);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .threat-detail-intel-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .threat-detail-grid-wide {
+    align-items: start;
   }
 
   @media (max-width: 960px) {
     .threat-detail-hero,
     .threat-detail-grid,
-    .threat-detail-bands,
-    .threat-detail-section.two-column {
+    .threat-detail-meta-grid,
+    .threat-detail-intel-grid {
       grid-template-columns: 1fr;
+    }
+
+    .threat-detail-record-head {
+      display: grid;
+    }
+
+    .threat-detail-score {
+      min-width: 0;
     }
   }
 </style>

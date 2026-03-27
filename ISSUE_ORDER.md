@@ -93,5 +93,6 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Compressed the `/overview` top composition, integrated the KPI band into the primary posture area, reduced helper copy, and tightened the watchlist framing without changing the feed, filters, or overview interactions.
 3. DI-03 [#44](https://github.com/nvrenuf/aitid/issues/44) Threats workbench redesign implementation - completed
    Note: Reworked `/threats` into a tighter operator workbench, embedded the filter controls into the review surface, and rebuilt the result rows around clearer title, score, metadata, and exposure grouping.
-4. DI-04 [#45](https://github.com/nvrenuf/aitid/issues/45) Threat detail and map redesign implementation - pending
+4. DI-04 [#45](https://github.com/nvrenuf/aitid/issues/45) Threat detail and map redesign implementation - completed
+   Note: Reshaped `/threats/[slug]` into a stronger canonical intelligence record, tightened evidence and methodology framing, and rebuilt `/threat-map` around a calmer map stage and concise regional brief while preserving the current geography model.
 5. DI-05 [#46](https://github.com/nvrenuf/aitid/issues/46) Final regression sweep, docs touch-up, and PR polish - pending

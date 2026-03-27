@@ -16,43 +16,52 @@ const fallbackRegions = dataset.regions.slice(0, 4);
 
 <section class="page-panel threat-map-shell">
   <div class="threat-map-heading">
-    <div class="page-copy">
-      <span class="page-eyebrow">Observed geography only</span>
-      <div>
-        <div class="page-kicker">Threat Map</div>
-        <h1 class="page-headline">Regional posture from observed infrastructure and exposure geography.</h1>
+    <div class="threat-map-lead">
+      <div class="page-copy">
+        <span class="page-eyebrow">Observed geography only</span>
+        <div>
+          <div class="page-kicker">Threat map</div>
+          <h1 class="page-headline">Regional posture framed like analysis, not like a demo surface.</h1>
+        </div>
+        <p>
+          ThreatParallax keeps geography conservative: coarse regional anchors, explicit coverage limits,
+          and no claim about actor origin, customer geography, or live attack traffic.
+        </p>
       </div>
-      <p>
-        Threat Map stays conservative: approximate regional anchors, visible coverage limits, and no claims
-        about actor origin, customer geography, or live attack traffic. Filters only narrow the current
-        mapped corpus; they do not invent new geography.
-      </p>
+
+      <div class="surface-chips threat-map-heading-chips">
+        <span class="future-chip">observed infrastructure only</span>
+        <span class="future-chip">coarse regional anchors</span>
+        <span class="future-chip">unmapped records retained</span>
+      </div>
     </div>
+
     <div class="threat-map-stats">
       <div class="info-card">
         <span>Mapped regions</span>
         <strong>{dataset.coverage.mappedRegionCount}</strong>
-        <p>{dataset.coverage.pointCount} map observations are currently available for this non-production corpus.</p>
+        <p>Conservative grouping only.</p>
       </div>
       <div class="info-card">
         <span>Mapped threats</span>
         <strong>{dataset.coverage.mappedThreatCount}</strong>
-        <p>{dataset.coverage.unmappedThreatCount} tracked threats remain intentionally unmapped until defensible geography exists.</p>
+        <p>Only records with defensible location support.</p>
       </div>
       <div class="info-card">
-        <span>Meaning</span>
-        <strong>Observed infrastructure / exposure</strong>
-        <p>Every map node points to coarse regional context only.</p>
+        <span>Unmapped retained</span>
+        <strong>{dataset.coverage.unmappedThreatCount}</strong>
+        <p>Coverage gaps stay explicit instead of being placed on the map.</p>
       </div>
     </div>
   </div>
 
   <div class="threat-map-filterbar">
     <div class="threat-map-filter-summary">
-      <div class="page-kicker">Operational filters</div>
+      <div class="page-kicker">Filter rail</div>
       <strong id="threat-map-filter-count">{dataset.coverage.pointCount} mapped observations</strong>
-      <p>Use severity, model, and vector together to narrow the current observed-geography corpus without changing map meaning.</p>
+      <p>Severity, model, and vector narrow the current corpus only. They do not change map meaning.</p>
     </div>
+
     <div class="threat-map-filter-controls">
       <label class="threat-map-filter">
         <span>Severity</span>
@@ -76,12 +85,13 @@ const fallbackRegions = dataset.regions.slice(0, 4);
         </select>
       </label>
     </div>
+
     <div class="threat-map-filter-rail">
-      <button type="button" class="expand-btn threat-map-reset-btn" id="threat-map-reset-filters">Reset filters</button>
       <div class="surface-chips" id="threat-map-active-filters">
         <span class="future-chip">All mapped threats</span>
         <span class="future-chip">{dataset.coverage.unmappedThreatCount} unmapped remain</span>
       </div>
+      <button type="button" class="expand-btn threat-map-reset-btn" id="threat-map-reset-filters">Reset filters</button>
     </div>
   </div>
 
@@ -115,14 +125,14 @@ const fallbackRegions = dataset.regions.slice(0, 4);
           <div class="page-kicker">Regional fallback</div>
           <h2 id="threat-map-stage-fallback-title">Regional coverage remains available</h2>
           <p id="threat-map-stage-fallback-copy">
-            If the projected map visualization degrades, the current regional coverage summary stays available here instead of leaving the page blank.
+            If the projected map visualization degrades, the current regional summary remains available here.
           </p>
           <div class="page-list" id="threat-map-stage-fallback-list">
             {
               fallbackRegions.map((region) => (
                 <div class="page-list-item">
                   <strong>{region.regionName}</strong>
-                  <p>{region.threatCount} tracked threats · {region.pointCount} mapped observations · {region.anchor.label}</p>
+                  <p>{region.threatCount} tracked threats &middot; {region.pointCount} mapped observations &middot; {region.anchor.label}</p>
                 </div>
               ))
             }
@@ -131,10 +141,14 @@ const fallbackRegions = dataset.regions.slice(0, 4);
 
         <div class="threat-map-stage-caption">
           <div>
-            <span class="page-kicker">Projected surface</span>
-            <strong>Observed infrastructure / exposure only</strong>
+            <span class="page-kicker">Map meaning</span>
+            <strong>Regional infrastructure and exposure observations</strong>
+            <p>Not actor origin, not customer geography, and not live attack telemetry.</p>
           </div>
-          <p>Approximate regional anchors only. Select a marker to update the regional brief and drill into canonical threat detail pages.</p>
+          <div class="threat-map-legend">
+            <span><span class="threat-map-dot threat-map-dot-critical"></span>higher-pressure cluster</span>
+            <span><span class="threat-map-dot threat-map-dot-info"></span>supporting observation</span>
+          </div>
         </div>
       </div>
 
@@ -157,9 +171,9 @@ const fallbackRegions = dataset.regions.slice(0, 4);
             <section class="threat-map-detail active">
               <div class="threat-map-detail-head">
                 <div>
-                  <div class="page-kicker">Regional detail</div>
+                  <div class="page-kicker">Regional brief</div>
                   <h2>{initialRegion.regionName}</h2>
-                  <p class="threat-map-detail-copy">Approximate regional posture based on the mapped observations currently in scope.</p>
+                  <p class="threat-map-detail-copy">Approximate posture based on the mapped observations currently in scope.</p>
                 </div>
                 <div class="threat-map-detail-stat">
                   <span>Tracked threats</span>
@@ -168,66 +182,52 @@ const fallbackRegions = dataset.regions.slice(0, 4);
                 </div>
               </div>
 
-              <div class="info-card-grid threat-map-detail-grid">
+              <div class="threat-map-intel-grid">
                 <div class="info-card">
-                  <span>Precision</span>
+                  <span>Anchor precision</span>
                   <strong>{initialRegion.precisions.join(', ')}</strong>
-                  <p>{initialRegion.anchor.label} is an approximate map anchor for this region.</p>
+                  <p>{initialRegion.anchor.label}</p>
                 </div>
                 <div class="info-card">
                   <span>Dominant vectors</span>
                   <strong>{initialRegion.dominantVectors.join(', ')}</strong>
-                  <p>Vectors reflect the mapped threats aggregated into this regional summary.</p>
-                </div>
-                <div class="info-card">
-                  <span>Affected models</span>
-                  <strong>{initialRegion.affectedModels.join(', ')}</strong>
-                  <p>Model tags are pulled directly from mapped threats in this region.</p>
-                </div>
-                <div class="info-card">
-                  <span>Observation count</span>
-                  <strong>{initialRegion.pointCount}</strong>
-                  <p>Multiple observations can roll up into the same region when the underlying signal is coarse.</p>
+                  <p>Vector labels remain tied to the filtered mapped threats.</p>
                 </div>
               </div>
 
-              <div class="threat-map-detail-columns">
-                <section class="threat-map-section-card">
-                  <div class="page-kicker">Top threats</div>
-                  <div class="page-list">
-                    {
-                      initialRegion.topThreats.map((threat) => (
+              <section class="threat-map-section-card">
+                <div class="page-kicker">Regional exposure leaders</div>
+                <div class="page-list">
+                  {
+                    initialRegion.topThreats.map((threat) => (
+                      <div class="page-list-item">
+                        <strong><a class="drawer-link" href={getThreatDetailHref({ title: threat.title })}>{threat.title}</a></strong>
+                        <p>Severity {threat.severity} &middot; blended score {threat.score.toFixed(1)}</p>
+                      </div>
+                    ))
+                  }
+                </div>
+              </section>
+
+              <section class="threat-map-section-card">
+                <div class="page-kicker">Observation notes</div>
+                <div class="page-list">
+                  {
+                    dataset.points
+                      .filter((point) => point.regionKey === initialRegion.regionKey)
+                      .map((point) => (
                         <div class="page-list-item">
-                          <strong><a class="drawer-link" href={getThreatDetailHref({ title: threat.title })}>{threat.title}</a></strong>
+                          <strong><a class="drawer-link" href={getThreatDetailHref({ title: point.threatTitle })}>{point.threatTitle}</a></strong>
                           <p>
-                            Severity {threat.severity} · blended score {threat.score.toFixed(1)}
+                            {point.summary}
+                            <br />
+                            Scope: {point.scope} &middot; Quality: {point.sourceQuality}
                           </p>
                         </div>
                       ))
-                    }
-                  </div>
-                </section>
-
-                <section class="threat-map-section-card">
-                  <div class="page-kicker">Observation notes</div>
-                  <div class="page-list">
-                    {
-                      dataset.points
-                        .filter((point) => point.regionKey === initialRegion.regionKey)
-                        .map((point) => (
-                          <div class="page-list-item">
-                            <strong><a class="drawer-link" href={getThreatDetailHref({ title: point.threatTitle })}>{point.threatTitle}</a></strong>
-                            <p>
-                              {point.summary}
-                              <br />
-                              Scope: {point.scope} · Quality: {point.sourceQuality}
-                            </p>
-                          </div>
-                        ))
-                    }
-                  </div>
-                </section>
-              </div>
+                  }
+                </div>
+              </section>
             </section>
           ) : null
         }
@@ -237,10 +237,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
         <div class="page-kicker">Unmapped coverage</div>
         <div class="page-list-item">
           <strong>{dataset.coverage.unmappedThreatCount} threats remain off-map</strong>
-          <p>
-            Threats without a defensible geography observation stay out of the map surface. The reason
-            categories below explain why the current records remain unmapped instead of showing raw IDs alone.
-          </p>
+          <p>Threats stay off-map until defensible geography exists. Reason categories below explain why.</p>
         </div>
         {
           [...new Map(dataset.unmappedThreats.map((threat) => [threat.reasonCategory, threat])).values()].map((threat) => (
@@ -262,31 +259,31 @@ const fallbackRegions = dataset.regions.slice(0, 4);
 </script>
 
 <style>
-  .threat-map-shell {
+  .threat-map-shell,
+  .threat-map-lead,
+  .threat-map-stats,
+  .threat-map-detail-stack {
     display: grid;
-    gap: 20px;
+    gap: 18px;
   }
 
   .threat-map-heading {
     display: grid;
     gap: 18px;
-    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+    grid-template-columns: minmax(0, 1.16fr) minmax(320px, 0.84fr);
   }
 
-  .threat-map-stats {
-    display: grid;
-    gap: 12px;
+  .threat-map-heading-chips {
+    align-items: center;
   }
 
   .threat-map-filterbar {
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    background: rgba(255, 255, 255, 0.02);
+    background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
     padding: 18px;
     display: grid;
     gap: 16px;
-    grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.4fr);
-    align-items: end;
   }
 
   .threat-map-filter-summary {
@@ -297,7 +294,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
   .threat-map-filter-summary p {
     margin: 0;
     color: var(--txt2);
-    max-width: 48ch;
+    max-width: 44ch;
   }
 
   .threat-map-filter-controls {
@@ -307,7 +304,6 @@ const fallbackRegions = dataset.regions.slice(0, 4);
   }
 
   .threat-map-filter-rail {
-    grid-column: 1 / -1;
     display: flex;
     gap: 12px;
     justify-content: space-between;
@@ -327,7 +323,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     width: 100%;
     border: 1px solid var(--border);
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255,255,255,.03);
     color: var(--txt);
     padding: 11px 13px;
     font: inherit;
@@ -336,7 +332,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
   .threat-map-workspace {
     display: grid;
     gap: 18px;
-    grid-template-columns: minmax(0, 1.24fr) minmax(380px, 0.92fr);
+    grid-template-columns: minmax(0, 1.32fr) minmax(360px, 0.82fr);
   }
 
   .threat-map-stage-wrap,
@@ -344,7 +340,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
   .threat-map-unmapped {
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    background: rgba(255, 255, 255, 0.02);
+    background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
   }
 
   .threat-map-stage-wrap {
@@ -355,16 +351,16 @@ const fallbackRegions = dataset.regions.slice(0, 4);
 
   .threat-map-stage {
     position: relative;
-    min-height: 520px;
+    min-height: 540px;
     border: 1px solid rgba(125, 196, 255, 0.14);
     border-radius: 28px;
     overflow: hidden;
     background:
-      radial-gradient(circle at 50% 12%, rgba(125, 196, 255, 0.14), transparent 34%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+      radial-gradient(circle at 50% 18%, rgba(125, 196, 255, 0.12), transparent 28%),
+      linear-gradient(180deg, rgba(13, 22, 34, 0.98), rgba(9, 16, 25, 0.98));
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.04),
-      inset 0 -80px 120px rgba(0, 0, 0, 0.2);
+      inset 0 1px 0 rgba(255,255,255,.04),
+      inset 0 -80px 120px rgba(0,0,0,.2);
   }
 
   .threat-map-backdrop {
@@ -379,11 +375,6 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     position: absolute;
     inset: 0;
     z-index: 2;
-  }
-
-  .threat-map-grid line {
-    stroke: rgba(139, 162, 191, 0.12);
-    stroke-width: 1;
   }
 
   .projected-world-map .world-grid line {
@@ -426,7 +417,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     border: 1px solid rgba(125, 196, 255, 0.34);
     background: radial-gradient(circle at 30% 30%, rgba(125, 196, 255, 0.34), rgba(7, 16, 24, 0.9));
     color: var(--txt);
-    box-shadow: 0 0 0 10px rgba(125, 196, 255, 0.06), 0 14px 34px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 0 10px rgba(125, 196, 255, 0.05), 0 14px 34px rgba(0, 0, 0, 0.3);
     cursor: pointer;
     transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
   }
@@ -434,8 +425,8 @@ const fallbackRegions = dataset.regions.slice(0, 4);
   :global(.map-region-node:hover),
   :global(.map-region-node.active) {
     transform: translate(-50%, -50%) scale(1.05);
-    border-color: rgba(255, 211, 105, 0.46);
-    box-shadow: 0 0 0 12px rgba(255, 211, 105, 0.08), 0 18px 40px rgba(0, 0, 0, 0.34);
+    border-color: rgba(255, 211, 105, 0.4);
+    box-shadow: 0 0 0 12px rgba(255, 211, 105, 0.07), 0 18px 40px rgba(0, 0, 0, 0.34);
   }
 
   :global(.map-region-count),
@@ -462,10 +453,6 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     color: var(--txt2);
   }
 
-  .threat-map-notes {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
   .threat-map-stage-fallback {
     position: absolute;
     inset: 18px;
@@ -479,7 +466,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     background:
       linear-gradient(180deg, rgba(7, 16, 24, 0.92), rgba(7, 16, 24, 0.84)),
       radial-gradient(circle at top, rgba(125, 196, 255, 0.14), transparent 52%);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
   }
 
   .threat-map-stage-fallback[hidden] {
@@ -502,10 +489,10 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     gap: 16px;
     align-items: end;
     padding: 14px 16px;
-    border: 1px solid rgba(125, 196, 255, 0.16);
+    border: 1px solid rgba(125, 196, 255, 0.14);
     border-radius: 18px;
-    background: linear-gradient(180deg, rgba(7, 16, 24, 0.8), rgba(7, 16, 24, 0.64));
-    backdrop-filter: blur(10px);
+    background: rgba(6, 11, 18, 0.74);
+    backdrop-filter: blur(12px);
   }
 
   .threat-map-stage-caption strong {
@@ -514,18 +501,40 @@ const fallbackRegions = dataset.regions.slice(0, 4);
   }
 
   .threat-map-stage-caption p {
-    margin: 0;
-    max-width: 42ch;
+    margin: 6px 0 0;
+    max-width: 36ch;
     color: var(--txt2);
     font-size: 12px;
   }
 
-  .threat-map-detail-stack {
-    display: grid;
-    gap: 16px;
-    align-self: start;
-    position: sticky;
-    top: 16px;
+  .threat-map-legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+    color: var(--txt2);
+    font-size: 12px;
+  }
+
+  .threat-map-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    display: inline-block;
+    margin-right: 6px;
+  }
+
+  .threat-map-dot-info {
+    background: var(--info);
+  }
+
+  .threat-map-dot-critical {
+    background: var(--crit);
+  }
+
+  .threat-map-notes,
+  .threat-map-intel-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   :global(.threat-map-detail),
@@ -545,7 +554,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
   :global(.threat-map-detail-copy) {
     margin: 8px 0 0;
     color: var(--txt2);
-    max-width: 42ch;
+    max-width: 40ch;
   }
 
   :global(.threat-map-detail-stat) {
@@ -578,25 +587,10 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     font-size: 12px;
   }
 
-  :global(.threat-map-detail-grid) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  :global(.threat-map-detail-columns) {
-    display: grid;
-    gap: 14px;
-  }
-
-  .threat-map-section,
-  :global(.threat-map-unmapped-group) {
-    display: grid;
-    gap: 12px;
-  }
-
   :global(.threat-map-section-card) {
     border: 1px solid rgba(125, 196, 255, 0.14);
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(255,255,255,.02);
     padding: 16px;
     display: grid;
     gap: 12px;
@@ -605,17 +599,16 @@ const fallbackRegions = dataset.regions.slice(0, 4);
   @media (max-width: 960px) {
     .threat-map-heading,
     .threat-map-workspace,
-    .threat-map-filterbar,
     .threat-map-filter-controls,
     .threat-map-notes,
-    :global(.threat-map-detail-grid) {
+    .threat-map-intel-grid {
       grid-template-columns: 1fr;
     }
 
     .threat-map-stage-caption,
     :global(.threat-map-detail-head) {
-      grid-template-columns: 1fr;
       display: grid;
+      grid-template-columns: 1fr;
     }
 
     .threat-map-detail-stack {
