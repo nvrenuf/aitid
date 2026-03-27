@@ -32,15 +32,13 @@ const initialStatsJson = JSON.stringify(initialStats);
               <div class="overview-kicker">Overview</div>
               <div class="overview-title">Current AI threat posture without the oversized preamble.</div>
               <p>
-                Review posture, queue pressure, and current collection state from one calm top section,
-                then move straight into the active watchlist.
+                Review posture, queue pressure, and collection state, then move into the active watchlist.
               </p>
             </div>
 
             <div class="overview-pills">
               <span class="overview-pill"><strong>Status</strong> <span id="overview-status">{overviewStatus}</span></span>
               <span class="overview-pill"><strong>Updated</strong> <span id="overview-updated">{overviewUpdated}</span></span>
-              <span class="overview-pill"><strong>Audience</strong> security leaders + analysts</span>
             </div>
 
             <MetricsStrip initialStats={initialStats} />
