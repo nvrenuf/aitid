@@ -1,6 +1,7 @@
 ---
 import { getThreatDetailHref } from '../../lib/threats-utils.js';
 import { projectThreatMapAnchor } from '../../lib/threat-map-projection.js';
+import ProjectedWorldMap from './ProjectedWorldMap.astro';
 
 const { dataset } = Astro.props;
 
@@ -83,30 +84,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
   <div class="threat-map-workspace">
     <div class="threat-map-stage-wrap">
       <div class="threat-map-stage" id="threat-map-stage" data-map-state="ready">
-        <svg class="threat-map-backdrop" viewBox="0 0 1000 520" aria-hidden="true">
-          <defs>
-            <linearGradient id="oceanFade" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="rgba(125,196,255,0.18)" />
-              <stop offset="100%" stop-color="rgba(125,196,255,0.03)" />
-            </linearGradient>
-          </defs>
-          <rect x="0" y="0" width="1000" height="520" rx="28" fill="url(#oceanFade)" />
-          <g class="threat-map-grid">
-            <line x1="200" y1="0" x2="200" y2="520" />
-            <line x1="400" y1="0" x2="400" y2="520" />
-            <line x1="600" y1="0" x2="600" y2="520" />
-            <line x1="800" y1="0" x2="800" y2="520" />
-            <line x1="0" y1="130" x2="1000" y2="130" />
-            <line x1="0" y1="260" x2="1000" y2="260" />
-            <line x1="0" y1="390" x2="1000" y2="390" />
-          </g>
-          <g class="threat-map-land">
-            <path d="M88 128l120-44 112 18 44 56-26 44-78 40-26 76-96 8-52-72 16-72 50-54z" />
-            <path d="M372 102l102-22 92 14 82 42 16 56-30 36-64 16-40 44-48 8-70-48-42-76 2-70z" />
-            <path d="M610 128l88-24 128 30 78 50-18 52-54 24-18 48-78 34-90-24-46-66 10-76z" />
-            <path d="M790 338l90-26 74 26 20 42-36 58-84 26-72-18-16-52 24-56z" />
-          </g>
-        </svg>
+        <ProjectedWorldMap />
 
         <div id="threat-map-nodes">
           {
@@ -341,8 +319,11 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     border-radius: 28px;
     overflow: hidden;
     background:
-      radial-gradient(circle at top, rgba(125, 196, 255, 0.18), transparent 34%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+      radial-gradient(circle at 50% 12%, rgba(125, 196, 255, 0.14), transparent 34%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      inset 0 -80px 120px rgba(0, 0, 0, 0.2);
   }
 
   .threat-map-backdrop {
@@ -364,10 +345,27 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     stroke-width: 1;
   }
 
-  .threat-map-land path {
-    fill: rgba(139, 162, 191, 0.12);
-    stroke: rgba(139, 162, 191, 0.18);
-    stroke-width: 2;
+  .projected-world-map .world-grid line {
+    stroke: rgba(156, 184, 214, 0.1);
+    stroke-dasharray: 2 10;
+  }
+
+  .projected-world-map .world-land-glow path {
+    fill: rgba(131, 190, 255, 0.08);
+    stroke: rgba(131, 190, 255, 0.08);
+    stroke-width: 8;
+  }
+
+  .projected-world-map .world-land path {
+    fill: url(#tp-land-fill);
+    stroke: rgba(180, 216, 255, 0.18);
+    stroke-width: 1.4;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .projected-world-map .world-land-highlight path {
+    fill: url(#tp-land-highlight);
+    opacity: 0.8;
   }
 
   .map-region-node {

@@ -58,8 +58,8 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Added a shared America/New_York formatter, normalized the shell and overview timestamps to DST-aware EST/EDT output, and pinned visible threat dates to Eastern Time instead of browser-local rendering.
 2. P4-02 [#26](https://github.com/nvrenuf/aitid/issues/26) Threat Map rendering bug repair and resilient fallback behavior - completed
    Note: Centralized map projection and edge clamping for marker placement, anchored the marker layer explicitly over the map stage, and added an in-surface regional fallback panel so the page remains useful when filters or rendering remove markers.
-3. P4-03 [#27](https://github.com/nvrenuf/aitid/issues/27) Threat Map visual replacement with a real projected map surface - pending
-   Note: Replace placeholder geometry with a restrained projected world map while preserving honest data meaning and marker clarity.
+3. P4-03 [#27](https://github.com/nvrenuf/aitid/issues/27) Threat Map visual replacement with a real projected map surface - completed
+   Note: Replaced the abstract placeholder backdrop with a dedicated projected world map component, upgraded the ocean/coastline treatment, and kept the existing observed-geography marker layer aligned to the same restrained trust-first semantics.
 4. P4-04 [#28](https://github.com/nvrenuf/aitid/issues/28) Threat Map layout and detail-panel UX polish - pending
    Note: Rebalance the map/detail layout, improve filter hierarchy, and refine panel usability without widening scope into a product-wide redesign.
 5. P4-05 [#29](https://github.com/nvrenuf/aitid/issues/29) Final regression sweep, documentation touch-up, and PR polish - pending
