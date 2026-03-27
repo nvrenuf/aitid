@@ -97,3 +97,16 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Reshaped `/threats/[slug]` into a stronger canonical intelligence record, tightened evidence and methodology framing, and rebuilt `/threat-map` around a calmer map stage and concise regional brief while preserving the current geography model.
 5. DI-05 [#46](https://github.com/nvrenuf/aitid/issues/46) Final regression sweep, docs touch-up, and PR polish - completed
    Note: Re-ran the final test/build pass after the design implementation, verified the four live routes reflect the approved direction, kept the tracker current, and prepared the branch as the single draft PR review surface for this implementation wave.
+
+## Reference Adaptation Execution Order
+
+1. RA-01 [#49](https://github.com/nvrenuf/aitid/issues/49) Product shell and navigation refinement - completed
+   Note: Tightened the top shell into a more deliberate sticky header stack, simplified the surface navigation, and documented the adaptation rules before page-level work began.
+2. RA-02 [#50](https://github.com/nvrenuf/aitid/issues/50) Overview composition adaptation - completed
+   Note: Collapsed the overview KPI duplication into one calmer top band, tightened the hero/supporting rail composition, and reduced helper copy so the page reaches product state faster.
+3. RA-03 [#51](https://github.com/nvrenuf/aitid/issues/51) Threats workbench adaptation - completed
+   Note: Tightened the filter rail into a cleaner single workbench band, reduced row chrome, and rebuilt the result anatomy around faster severity-score-title scanning.
+4. RA-04 [#52](https://github.com/nvrenuf/aitid/issues/52) Threat Map and detail-page adaptation - completed
+   Note: Rebalanced the map into a clearer stage-and-rail composition, tightened the filter/workspace grid, and made the canonical threat record feel more deliberate with stickier review context and explicit route metadata.
+5. RA-05 [#53](https://github.com/nvrenuf/aitid/issues/53) Final regression sweep, docs touch-up, and PR polish - completed
+   Note: Re-ran the full test/build pass, verified the adapted shell and four live routes hold the tighter reference-informed composition, kept the execution tracker current, and prepared the branch as the single draft PR review surface.

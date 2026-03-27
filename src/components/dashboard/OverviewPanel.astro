@@ -1,4 +1,6 @@
 ---
+import MetricsStrip from './MetricsStrip.astro';
+
 const {
   initialStats,
   overviewPosture,
@@ -17,13 +19,6 @@ const overviewFilters = [
   { value: 'data-exfil', label: 'Data exfil' },
 ];
 
-const overviewStats = [
-  { label: 'Critical active', id: 'overview-critical', value: initialStats.activeCritical, className: 'critical' },
-  { label: 'Models in scope', id: 'overview-models', value: initialStats.modelsAffected },
-  { label: 'New this week', id: 'overview-week', value: initialStats.newThisWeek },
-  { label: 'Tracked items', id: 'overview-total', value: initialStats.totalThreats },
-];
-
 const initialStatsJson = JSON.stringify(initialStats);
 ---
 
@@ -35,17 +30,20 @@ const initialStatsJson = JSON.stringify(initialStats);
           <div class="overview-stage">
             <div class="overview-copy">
               <div class="overview-kicker">Overview</div>
-              <div class="overview-title">Current AI threat posture with analyst-ready depth.</div>
+              <div class="overview-title">Current AI threat posture without the oversized preamble.</div>
               <p>
-                Review posture, current pressure, and the live queue from one surface, then step into
-                deeper model and vector context only when the feed warrants it.
+                Review posture, queue pressure, and current collection state from one calm top section,
+                then move straight into the active watchlist.
               </p>
             </div>
+
             <div class="overview-pills">
               <span class="overview-pill"><strong>Status</strong> <span id="overview-status">{overviewStatus}</span></span>
               <span class="overview-pill"><strong>Updated</strong> <span id="overview-updated">{overviewUpdated}</span></span>
               <span class="overview-pill"><strong>Audience</strong> security leaders + analysts</span>
             </div>
+
+            <MetricsStrip initialStats={initialStats} />
           </div>
 
           <div class="overview-hero-rail">
@@ -57,18 +55,11 @@ const initialStatsJson = JSON.stringify(initialStats);
               <div class="sb-title">Executive focus</div>
               <p>{overviewPriority}</p>
             </div>
+            <div class="overview-card compact">
+              <div class="sb-title">Queue framing</div>
+              <p>{initialStats.totalThreats} tracked items with {initialStats.newThisWeek} added in the last seven days.</p>
+            </div>
           </div>
-        </div>
-
-        <div class="overview-kpi-grid">
-          {
-            overviewStats.map((stat) => (
-              <div class:list={['overview-stat', 'overview-kpi-card', stat.className]}>
-                <div class="m-label">{stat.label}</div>
-                <span id={stat.id}>{stat.value}</span>
-              </div>
-            ))
-          }
         </div>
       </section>
 
@@ -122,7 +113,7 @@ const initialStatsJson = JSON.stringify(initialStats);
               <span class="loading-panel"></span>
             </div>
           </div>
-          <div class="loading-copy">Preparing current watchlist and score context.</div>
+          <div class="loading-copy">Preparing the current watchlist.</div>
         </div>
       </div>
 
@@ -134,20 +125,20 @@ const initialStatsJson = JSON.stringify(initialStats);
     <div class="sidebar" id="overview-sidebar" style="width:260px;min-width:160px;max-width:520px;overflow-y:auto;flex-shrink:0">
       <div class="sb-block executive">
         <div class="sb-title">Analyst context</div>
-        <div class="sb-copy">Use the live queue for immediate review, then scan the trend and concentration panels to decide whether this is a localized spike or a broader posture shift.</div>
+        <div class="sb-copy">Use the live queue first, then scan trend and concentration to decide whether the current pressure is localized or systemic.</div>
         <div class="sb-list">
           <div class="sb-list-item">
             <strong>{overviewStatus}</strong>
-            <span>Collection cadence and current feed health stay visible without pushing extra telemetry into the page.</span>
+            <span>Collection cadence remains visible without introducing extra telemetry noise.</span>
           </div>
           <div class="sb-list-item">
             <strong>{initialStats.modelsAffected} model families in scope</strong>
-            <span>Model and vector concentration stay available here so the top of the page can remain shorter and more decisive.</span>
+            <span>Model concentration stays available in the side rail so the top section can remain shorter.</span>
           </div>
         </div>
       </div>
       <div class="sb-block">
-        <div class="sb-title">Threat volume · 8w</div>
+        <div class="sb-title">Threat volume - 8w</div>
         <div class="tl" id="sb-tl"></div>
         <div class="tll" id="sb-tll"></div>
       </div>
@@ -173,41 +164,26 @@ const initialStatsJson = JSON.stringify(initialStats);
   .overview-hero {
     display: grid;
     gap: 16px;
-    grid-template-columns: minmax(0, 1.24fr) minmax(280px, 0.76fr);
+    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
     align-items: start;
   }
 
   .overview-stage,
-  .overview-hero-rail,
-  .overview-kpi-grid {
+  .overview-hero-rail {
     display: grid;
     gap: 12px;
   }
 
   .overview-copy p {
-    max-width: 50ch;
+    max-width: 48ch;
   }
 
   .overview-hero-rail .overview-card {
     min-height: 0;
   }
 
-  .overview-kpi-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .overview-kpi-card {
-    min-height: 132px;
-    padding: 16px 16px 18px;
-  }
-
-  .overview-kpi-card span {
-    font-size: 28px;
-    line-height: 0.92;
-  }
-
-  .overview-kpi-card.critical span {
-    font-size: 34px;
+  .overview-card.compact p {
+    margin-top: 0;
   }
 
   .sb-block.executive {
@@ -215,8 +191,7 @@ const initialStatsJson = JSON.stringify(initialStats);
   }
 
   @media (max-width: 960px) {
-    .overview-hero,
-    .overview-kpi-grid {
+    .overview-hero {
       grid-template-columns: 1fr;
     }
   }

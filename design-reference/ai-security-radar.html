@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Threat Radar — Security Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<style>
+  :root {
+    --bg: #080c10;
+    --surface: #0d1117;
+    --surface2: #111820;
+    --border: #1e2d3d;
+    --accent: #00e5ff;
+    --accent2: #ff3366;
+    --accent3: #ffd600;
+    --text: #e2e8f0;
+    --muted: #4a6278;
+    --critical: #ff3366;
+    --high: #ff8c00;
+    --medium: #ffd600;
+    --low: #00e5ff;
+    --font-mono: 'Space Mono', monospace;
+    --font-sans: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(8,12,16,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 56px;
+  }
+
+  .logo {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  nav {
+    display: flex;
+    gap: 0;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+  }
+
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0 1.25rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  nav a:hover, nav a.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+
+  .header-right {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--accent);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+  }
+
+  .live-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  /* SECTIONS */
+  section {
+    display: none;
+    padding-top: 56px;
+    min-height: 100vh;
+  }
+
+  section.active { display: block; }
+
+  .section-header {
+    padding: 3rem 2rem 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-title {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .section-sub {
+    margin-top: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* DASHBOARD GRID */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat-card {
+    padding: 2rem;
+    border-right: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card:last-child { border-right: none; }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent-color, var(--accent));
+  }
+
+  .stat-number {
+    font-family: var(--font-mono);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent-color, var(--accent));
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .stat-label {
+    margin-top: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .stat-delta {
+    margin-top: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+
+  .delta-up { color: var(--critical); }
+  .delta-down { color: var(--low); }
+
+  /* MAIN CONTENT AREAS */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .map-container {
+    padding: 2rem;
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+
+  .map-container h3 {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  #world-map {
+    width: 100%;
+    height: 380px;
+  }
+
+  #world-map svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* MAP TOOLTIP */
+  .map-tooltip {
+    position: fixed;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.75rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text);
+    pointer-events: none;
+    display: none;
+    z-index: 999;
+    min-width: 180px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  .tt-country {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+  }
+
+  .tt-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-top: 0.25rem;
+    color: var(--muted);
+  }
+
+  .tt-row span:last-child { color: var(--text); }
+
+  /* SIDE PANEL */
+  .side-panel {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-block {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    flex: 1;
+  }
+
+  .panel-block h3 {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  /* INCIDENTS LIST */
+  .incidents-container {
+    padding: 2rem;
+  }
+
+  .incidents-container h3 {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  .incident-item {
+    display: grid;
+    grid-template-columns: 80px 1fr auto auto;
+    gap: 1.5rem;
+    align-items: start;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .incident-item:hover { background: rgba(255,255,255,0.02); margin: 0 -2rem; padding: 1.25rem 2rem; }
+  .incident-item:last-child { border-bottom: none; }
+
+  .incident-date {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    padding-top: 2px;
+  }
+
+  .incident-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.01em;
+  }
+
+  .incident-meta {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+
+  .severity-badge {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+
+  .sev-critical { color: var(--critical); }
+  .sev-high { color: var(--high); }
+  .sev-medium { color: var(--medium); }
+  .sev-low { color: var(--low); }
+
+  .incident-type {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    padding-top: 2px;
+  }
+
+  /* CATEGORY BAR CHART */
+  .category-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .cat-item { }
+
+  .cat-header {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-bottom: 0.35rem;
+  }
+
+  .cat-header span:last-child { color: var(--text); }
+
+  .cat-bar-bg {
+    height: 3px;
+    background: var(--border);
+    position: relative;
+  }
+
+  .cat-bar-fill {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    background: var(--accent);
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* TIMELINE */
+  .timeline-list { display: flex; flex-direction: column; gap: 0; }
+
+  .tl-item {
+    display: grid;
+    grid-template-columns: 70px 1fr;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(30,45,61,0.5);
+    position: relative;
+  }
+
+  .tl-item:last-child { border-bottom: none; }
+
+  .tl-time {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+    padding-top: 2px;
+    letter-spacing: 0.05em;
+  }
+
+  .tl-content {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .tl-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+    margin-right: 0.4rem;
+    flex-shrink: 0;
+    position: relative;
+    top: 1px;
+  }
+
+  /* MATRIX SECTION */
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin: 2rem;
+    border: 1px solid var(--border);
+  }
+
+  .matrix-cell {
+    background: var(--surface);
+    padding: 1.5rem;
+    transition: background 0.15s;
+    cursor: default;
+  }
+
+  .matrix-cell:hover { background: var(--surface2); }
+
+  .cell-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .cell-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  .cell-desc {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .cell-count {
+    margin-top: 1rem;
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-color, var(--accent));
+  }
+
+  .matrix-cell.critical-cell { --accent-color: var(--critical); }
+  .matrix-cell.high-cell { --accent-color: var(--high); }
+  .matrix-cell.medium-cell { --accent-color: var(--medium); }
+  .matrix-cell.info-cell { --accent-color: var(--low); }
+
+  /* FILTER ROW */
+  .filter-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+  }
+
+  .filter-label { color: var(--muted); letter-spacing: 0.1em; }
+
+  .filter-btn {
+    padding: 0.3rem 0.75rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,229,255,0.05);
+  }
+
+  /* CVE TABLE */
+  .cve-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+  }
+
+  .cve-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+
+  .cve-table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(30,45,61,0.5);
+    vertical-align: top;
+    color: var(--text);
+  }
+
+  .cve-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .cve-id {
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  .cvss-score {
+    font-weight: 700;
+    font-size: 0.75rem;
+  }
+
+  /* SCORE SEVERITY COLORS */
+  .score-critical { color: var(--critical); }
+  .score-high { color: var(--high); }
+  .score-medium { color: var(--medium); }
+  .score-low { color: var(--low); }
+
+  /* MAP LEGEND */
+  .map-legend {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  section.active .stats-row,
+  section.active .section-header,
+  section.active .two-col,
+  section.active .incidents-container,
+  section.active .matrix-grid,
+  section.active table {
+    animation: fadeIn 0.35s ease forwards;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin: 2rem;
+    border: 1px solid var(--border);
+  }
+
+  .info-card {
+    background: var(--surface);
+    padding: 1.5rem;
+  }
+
+  .info-card-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .info-card-value {
+    font-family: var(--font-mono);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .info-card-desc {
+    margin-top: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .table-container {
+    margin: 0 2rem 2rem;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  /* Horizontal scrollable table */
+  .table-scroll { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<!-- TOOLTIP -->
+<div class="map-tooltip" id="mapTooltip">
+  <div class="tt-country" id="ttCountry">—</div>
+  <div class="tt-row"><span>Incidents</span><span id="ttIncidents">—</span></div>
+  <div class="tt-row"><span>Threat Level</span><span id="ttLevel">—</span></div>
+  <div class="tt-row"><span>Top Vector</span><span id="ttVector">—</span></div>
+  <div class="tt-row"><span>Last Event</span><span id="ttLast">—</span></div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    AI THREAT RADAR
+  </div>
+  <nav>
+    <a class="active" onclick="showSection('dashboard', this)">Dashboard</a>
+    <a onclick="showSection('incidents', this)">Incidents</a>
+    <a onclick="showSection('cve', this)">CVEs</a>
+    <a onclick="showSection('threat-matrix', this)">Threat Matrix</a>
+    <a onclick="showSection('intelligence', this)">Intelligence</a>
+  </nav>
+  <div class="header-right">
+    <span class="live-badge"><span class="live-dot"></span>LIVE FEED</span>
+    &nbsp;&nbsp;·&nbsp;&nbsp; Updated 2 min ago
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION: DASHBOARD -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="dashboard" class="active">
+  <div class="section-header">
+    <div class="section-label">// Overview</div>
+    <div class="section-title">AI Security Dashboard</div>
+    <div class="section-sub">Global AI threat intelligence · Q1 2026 · 847 tracked incidents · 193 active CVEs</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card" style="--accent-color: var(--critical)">
+      <div class="stat-number">312</div>
+      <div class="stat-label">Critical Incidents</div>
+      <div class="stat-delta"><span class="delta-up">↑ 23%</span> vs Q4 2025</div>
+    </div>
+    <div class="stat-card" style="--accent-color: var(--high)">
+      <div class="stat-number">847</div>
+      <div class="stat-label">Total Incidents YTD</div>
+      <div class="stat-delta"><span class="delta-up">↑ 41%</span> year-over-year</div>
+    </div>
+    <div class="stat-card" style="--accent-color: var(--medium)">
+      <div class="stat-number">193</div>
+      <div class="stat-label">Active CVEs</div>
+      <div class="stat-delta"><span class="delta-up">↑ 18</span> this week</div>
+    </div>
+    <div class="stat-card" style="--accent-color: var(--low)">
+      <div class="stat-number">67</div>
+      <div class="stat-label">Nations Impacted</div>
+      <div class="stat-delta"><span class="delta-up">↑ 9</span> new this quarter</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="map-container">
+      <h3>// Incident Geolocation — hover for details</h3>
+      <div id="world-map"></div>
+      <div class="map-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--critical)"></div> Critical (50+)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--high)"></div> High (20–49)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--medium)"></div> Medium (5–19)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--low)"></div> Low (1–4)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--border)"></div> No Data</div>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <div class="panel-block">
+        <h3>// By Attack Category</h3>
+        <div class="category-list">
+          <div class="cat-item">
+            <div class="cat-header"><span>Prompt Injection</span><span>287</span></div>
+            <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:94%;background:var(--critical)"></div></div>
+          </div>
+          <div class="cat-item">
+            <div class="cat-header"><span>Data Exfiltration</span><span>198</span></div>
+            <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:65%;background:var(--high)"></div></div>
+          </div>
+          <div class="cat-item">
+            <div class="cat-header"><span>Model Inversion</span><span>134</span></div>
+            <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:44%;background:var(--high)"></div></div>
+          </div>
+          <div class="cat-item">
+            <div class="cat-header"><span>Supply Chain</span><span>112</span></div>
+            <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:37%;background:var(--medium)"></div></div>
+          </div>
+          <div class="cat-item">
+            <div class="cat-header"><span>Agent Hijack</span><span>89</span></div>
+            <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:29%;background:var(--medium)"></div></div>
+          </div>
+          <div class="cat-item">
+            <div class="cat-header"><span>Jailbreak Bypass</span><span>71</span></div>
+            <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:23%;background:var(--medium)"></div></div>
+          </div>
+          <div class="cat-item">
+            <div class="cat-header"><span>Memory Poisoning</span><span>44</span></div>
+            <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:14%;background:var(--low)"></div></div>
+          </div>
+          <div class="cat-item">
+            <div class="cat-header"><span>Other</span><span>19</span></div>
+            <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:6%;background:var(--muted)"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-block">
+        <h3>// Live Activity Feed</h3>
+        <div class="timeline-list">
+          <div class="tl-item">
+            <div class="tl-time">02m ago</div>
+            <div class="tl-content"><span class="tl-dot" style="background:var(--critical)"></span>Critical: Prompt injection in enterprise RAG pipeline — US</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">11m ago</div>
+            <div class="tl-content"><span class="tl-dot" style="background:var(--high)"></span>High: LLM data exfil via tool-use chain — DE</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">34m ago</div>
+            <div class="tl-content"><span class="tl-dot" style="background:var(--critical)"></span>Critical: MCP server compromise, lateral movement — CN</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">58m ago</div>
+            <div class="tl-content"><span class="tl-dot" style="background:var(--medium)"></span>Medium: Model inversion attack — healthcare — UK</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">1h ago</div>
+            <div class="tl-content"><span class="tl-dot" style="background:var(--high)"></span>High: Supply chain poisoning, HuggingFace model — BR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION: INCIDENTS -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="incidents">
+  <div class="section-header">
+    <div class="section-label">// Incident Log</div>
+    <div class="section-title">AI Security Incidents</div>
+    <div class="section-sub">847 total incidents tracked · Sorted by severity · Q1 2026</div>
+  </div>
+
+  <div class="filter-row">
+    <span class="filter-label">FILTER:</span>
+    <button class="filter-btn active" onclick="filterSev(this,'all')">All</button>
+    <button class="filter-btn" onclick="filterSev(this,'critical')">Critical</button>
+    <button class="filter-btn" onclick="filterSev(this,'high')">High</button>
+    <button class="filter-btn" onclick="filterSev(this,'medium')">Medium</button>
+    <button class="filter-btn" onclick="filterSev(this,'low')">Low</button>
+    &nbsp;&nbsp;
+    <span class="filter-label">TYPE:</span>
+    <button class="filter-btn active" onclick="">All Vectors</button>
+    <button class="filter-btn">Prompt Injection</button>
+    <button class="filter-btn">Supply Chain</button>
+    <button class="filter-btn">Agent Hijack</button>
+  </div>
+
+  <div class="incidents-container">
+    <h3>// Recent Incidents</h3>
+    <div id="incidents-list"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION: CVEs -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="cve">
+  <div class="section-header">
+    <div class="section-label">// Vulnerability Tracking</div>
+    <div class="section-title">AI/ML CVE Database</div>
+    <div class="section-sub">193 active CVEs · 18 added this week · CVSS scores updated daily</div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:1px">
+    <div class="info-card">
+      <div class="info-card-label">Avg CVSS (Critical)</div>
+      <div class="info-card-value" style="color:var(--critical)">9.4</div>
+      <div class="info-card-desc">12 critical CVEs unpatched &gt;30 days</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-label">Mean Time to Patch</div>
+      <div class="info-card-value" style="color:var(--medium)">47d</div>
+      <div class="info-card-desc">Industry avg for AI/ML frameworks</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-label">Exploits in Wild</div>
+      <div class="info-card-value" style="color:var(--high)">34</div>
+      <div class="info-card-desc">Active exploitation confirmed</div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div class="table-scroll">
+      <table class="cve-table">
+        <thead>
+          <tr>
+            <th>CVE ID</th>
+            <th>Description</th>
+            <th>Product / System</th>
+            <th>CVSS</th>
+            <th>Severity</th>
+            <th>Vector</th>
+            <th>Status</th>
+            <th>Published</th>
+          </tr>
+        </thead>
+        <tbody id="cve-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION: THREAT MATRIX -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="threat-matrix">
+  <div class="section-header">
+    <div class="section-label">// Adversarial Taxonomy</div>
+    <div class="section-title">AI Threat Matrix</div>
+    <div class="section-sub">MITRE ATLAS-aligned · 8 tactic categories · 47 tracked techniques</div>
+  </div>
+
+  <div class="matrix-grid" style="grid-template-columns: repeat(4, 1fr)">
+    <div class="matrix-cell critical-cell">
+      <div class="cell-label">Tactic 01</div>
+      <div class="cell-title">Prompt Injection</div>
+      <div class="cell-desc">Direct and indirect attacks against LLM instruction following via crafted inputs, tool output poisoning, and multi-turn manipulation.</div>
+      <div class="cell-count">287</div>
+    </div>
+    <div class="matrix-cell critical-cell">
+      <div class="cell-label">Tactic 02</div>
+      <div class="cell-title">Data Exfiltration</div>
+      <div class="cell-desc">Training data extraction, membership inference, and context window leakage via adversarial queries or agentic tool chains.</div>
+      <div class="cell-count">198</div>
+    </div>
+    <div class="matrix-cell high-cell">
+      <div class="cell-label">Tactic 03</div>
+      <div class="cell-title">Model Inversion</div>
+      <div class="cell-desc">Reconstruction of private training data through repeated model queries. High impact in healthcare and financial ML systems.</div>
+      <div class="cell-count">134</div>
+    </div>
+    <div class="matrix-cell high-cell">
+      <div class="cell-label">Tactic 04</div>
+      <div class="cell-title">Supply Chain Attack</div>
+      <div class="cell-desc">Compromised model weights, poisoned HuggingFace repos, malicious LoRA adapters, and corrupted ML pipeline dependencies.</div>
+      <div class="cell-count">112</div>
+    </div>
+    <div class="matrix-cell high-cell">
+      <div class="cell-label">Tactic 05</div>
+      <div class="cell-title">Agent Hijacking</div>
+      <div class="cell-desc">Subversion of autonomous AI agents via environmental injection, goal misalignment exploitation, and MCP server compromise.</div>
+      <div class="cell-count">89</div>
+    </div>
+    <div class="matrix-cell medium-cell">
+      <div class="cell-label">Tactic 06</div>
+      <div class="cell-title">Jailbreak / Bypass</div>
+      <div class="cell-desc">Safety filter circumvention via encoding tricks, roleplay framing, adversarial suffixes, and many-shot injection patterns.</div>
+      <div class="cell-count">71</div>
+    </div>
+    <div class="matrix-cell medium-cell">
+      <div class="cell-label">Tactic 07</div>
+      <div class="cell-title">Memory Poisoning</div>
+      <div class="cell-desc">Long-term memory store manipulation in agentic systems. Persistent false beliefs injected across sessions via crafted content.</div>
+      <div class="cell-count">44</div>
+    </div>
+    <div class="matrix-cell info-cell">
+      <div class="cell-label">Tactic 08</div>
+      <div class="cell-title">Deepfake / Synthetic ID</div>
+      <div class="cell-desc">AI-generated voice, video, and identity fraud used for social engineering, account takeover, and bypassing KYC controls.</div>
+      <div class="cell-count">31</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION: INTELLIGENCE -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="intelligence">
+  <div class="section-header">
+    <div class="section-label">// Threat Intelligence</div>
+    <div class="section-title">Strategic Briefings</div>
+    <div class="section-sub">Analyst reports · TTPs · Threat actor profiles · Updated weekly</div>
+  </div>
+
+  <div class="matrix-grid" style="grid-template-columns: repeat(3, 1fr); margin: 2rem">
+    <div class="matrix-cell">
+      <div class="cell-label">REPORT — 2026-03-20</div>
+      <div class="cell-title">MCP Server Attack Surface</div>
+      <div class="cell-desc">Analysis of emerging attack patterns targeting Model Context Protocol servers in enterprise agentic pipelines. 14 confirmed techniques, 3 novel zero-days.</div>
+      <div style="margin-top:1rem;font-family:var(--font-mono);font-size:0.65rem;color:var(--accent);cursor:pointer">VIEW REPORT →</div>
+    </div>
+    <div class="matrix-cell">
+      <div class="cell-label">REPORT — 2026-03-14</div>
+      <div class="cell-title">State-Sponsored AI Ops</div>
+      <div class="cell-desc">Documented campaigns from nation-state actors using LLMs for spearphishing, code generation, and OSINT amplification. 4 APT groups attributed.</div>
+      <div style="margin-top:1rem;font-family:var(--font-mono);font-size:0.65rem;color:var(--accent);cursor:pointer">VIEW REPORT →</div>
+    </div>
+    <div class="matrix-cell">
+      <div class="cell-label">REPORT — 2026-03-07</div>
+      <div class="cell-title">RAG Pipeline Threats</div>
+      <div class="cell-desc">Indirect prompt injection via poisoned document stores. Threat actors embedding adversarial instructions in indexed enterprise knowledge bases.</div>
+      <div style="margin-top:1rem;font-family:var(--font-mono);font-size:0.65rem;color:var(--accent);cursor:pointer">VIEW REPORT →</div>
+    </div>
+    <div class="matrix-cell">
+      <div class="cell-label">REPORT — 2026-02-28</div>
+      <div class="cell-title">HuggingFace Supply Chain</div>
+      <div class="cell-desc">Systematic analysis of malicious model uploads and pickled payload delivery. 47 models removed after confirmed backdoor discovery.</div>
+      <div style="margin-top:1rem;font-family:var(--font-mono);font-size:0.65rem;color:var(--accent);cursor:pointer">VIEW REPORT →</div>
+    </div>
+    <div class="matrix-cell">
+      <div class="cell-label">REPORT — 2026-02-21</div>
+      <div class="cell-title">LLM in CI/CD Pipelines</div>
+      <div class="cell-desc">Risk assessment of AI code generation in automated pipelines. Coverage of secret leakage, insecure code patterns, and supply chain injection via LLM suggestions.</div>
+      <div style="margin-top:1rem;font-family:var(--font-mono);font-size:0.65rem;color:var(--accent);cursor:pointer">VIEW REPORT →</div>
+    </div>
+    <div class="matrix-cell">
+      <div class="cell-label">REPORT — 2026-02-14</div>
+      <div class="cell-title">Healthcare ML Threat Landscape</div>
+      <div class="cell-desc">High-impact incidents in clinical AI systems. Model inversion attacks exposing patient data, adversarial manipulation of diagnostic models.</div>
+      <div style="margin-top:1rem;font-family:var(--font-mono);font-size:0.65rem;color:var(--accent);cursor:pointer">VIEW REPORT →</div>
+    </div>
+  </div>
+</section>
+
+<script>
+// ─── NAVIGATION ───────────────────────────────────────
+function showSection(id, el) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (el) el.classList.add('active');
+  // Re-init bars on dashboard switch
+  if (id === 'dashboard') setTimeout(animateBars, 100);
+}
+
+function animateBars() {
+  document.querySelectorAll('.cat-bar-fill').forEach(b => {
+    const w = b.style.width;
+    b.style.width = '0';
+    setTimeout(() => b.style.width = w, 50);
+  });
+}
+
+// ─── INCIDENTS DATA ────────────────────────────────────
+const INCIDENTS = [
+  { date: 'Mar 27', title: 'Prompt injection in enterprise RAG pipeline bypasses access controls', org: 'Fortune 500 Financial Services', type: 'Prompt Injection', sev: 'critical', region: 'US' },
+  { date: 'Mar 26', title: 'LLM agent exfiltrates customer PII via tool-use chain', org: 'E-commerce Platform', type: 'Data Exfiltration', sev: 'critical', region: 'EU' },
+  { date: 'Mar 25', title: 'MCP server compromise enables lateral movement to production systems', org: 'Enterprise SaaS Vendor', type: 'Agent Hijack', sev: 'critical', region: 'US' },
+  { date: 'Mar 24', title: 'Malicious LoRA adapter distributed via model hub', org: 'Open Source Community', type: 'Supply Chain', sev: 'high', region: 'Global' },
+  { date: 'Mar 23', title: 'Medical imaging AI model inversion exposes 14,000 patient records', org: 'Regional Hospital Network', type: 'Model Inversion', sev: 'critical', region: 'UK' },
+  { date: 'Mar 22', title: 'Many-shot jailbreak circumvents enterprise content filter', org: 'HR Platform', type: 'Jailbreak', sev: 'high', region: 'DE' },
+  { date: 'Mar 21', title: 'AI-generated deepfake CEO audio used in $4.2M wire fraud', org: 'Manufacturing Company', type: 'Deepfake', sev: 'critical', region: 'SG' },
+  { date: 'Mar 20', title: 'Memory poisoning attack persists false instructions across 30+ sessions', org: 'Customer Service AI Platform', type: 'Memory Poisoning', sev: 'high', region: 'AU' },
+  { date: 'Mar 19', title: 'HuggingFace model with pickled payload downloaded 12,000 times', org: 'Community Repository', type: 'Supply Chain', sev: 'critical', region: 'Global' },
+  { date: 'Mar 18', title: 'Indirect injection via poisoned Confluence documents hijacks agent', org: 'Enterprise Knowledge Platform', type: 'Prompt Injection', sev: 'high', region: 'US' },
+  { date: 'Mar 17', title: 'LLM-assisted spearphishing campaign targets defense contractors', org: 'APT Group (attributed)', type: 'State-Sponsored', sev: 'critical', region: 'NATO' },
+  { date: 'Mar 16', title: 'Data exfiltration via crafted context window overflow', org: 'CRM Platform', type: 'Data Exfiltration', sev: 'medium', region: 'CA' },
+  { date: 'Mar 15', title: 'Fine-tuning dataset poisoned with backdoor triggers', org: 'AI Startup', type: 'Supply Chain', sev: 'high', region: 'US' },
+  { date: 'Mar 14', title: 'OAuth scope escalation via LLM agent misuse', org: 'Identity Provider', type: 'Agent Hijack', sev: 'high', region: 'EU' },
+  { date: 'Mar 13', title: 'Membership inference attack reveals confidential training records', org: 'Insurance ML System', type: 'Model Inversion', sev: 'medium', region: 'FR' },
+];
+
+function renderIncidents() {
+  const container = document.getElementById('incidents-list');
+  container.innerHTML = INCIDENTS.map(i => `
+    <div class="incident-item" data-sev="${i.sev}">
+      <div class="incident-date">${i.date}</div>
+      <div>
+        <div class="incident-title">${i.title}</div>
+        <div class="incident-meta">${i.org} · ${i.region}</div>
+      </div>
+      <div class="incident-type">${i.type}</div>
+      <div class="severity-badge sev-${i.sev}">${i.sev}</div>
+    </div>
+  `).join('');
+}
+
+function filterSev(btn, sev) {
+  document.querySelectorAll('#incidents .filter-row .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.incident-item').forEach(el => {
+    el.style.display = (sev === 'all' || el.dataset.sev === sev) ? 'grid' : 'none';
+  });
+}
+
+// ─── CVE DATA ──────────────────────────────────────────
+const CVES = [
+  { id: 'CVE-2026-1142', desc: 'Prompt injection via tool output in LangChain agent executor', product: 'LangChain ≤0.2.1', cvss: 9.8, vector: 'Network', status: 'Unpatched' },
+  { id: 'CVE-2026-0891', desc: 'Pickle deserialization RCE in HuggingFace transformers model loading', product: 'HuggingFace Transformers', cvss: 9.6, vector: 'Network', status: 'Patched' },
+  { id: 'CVE-2026-0734', desc: 'MCP server authentication bypass allows arbitrary tool execution', product: 'MCP SDK ≤1.3.0', cvss: 9.1, vector: 'Network', status: 'Unpatched' },
+  { id: 'CVE-2026-0612', desc: 'Memory exfiltration via crafted system prompt in multi-agent framework', product: 'AutoGen ≤0.4.2', cvss: 8.7, vector: 'Adjacent', status: 'Mitigated' },
+  { id: 'CVE-2026-0481', desc: 'Training data reconstruction via repeated API queries (model inversion)', product: 'OpenAI API, Anthropic API', cvss: 8.4, vector: 'Network', status: 'Monitoring' },
+  { id: 'CVE-2025-9982', desc: 'Indirect prompt injection via RAG document store poisoning', product: 'LlamaIndex ≤0.10.x', cvss: 8.1, vector: 'Network', status: 'Patched' },
+  { id: 'CVE-2025-9847', desc: 'Unsafe YAML deserialization in ML pipeline configuration loader', product: 'MLflow ≤2.9.1', cvss: 7.8, vector: 'Local', status: 'Patched' },
+  { id: 'CVE-2025-9721', desc: 'LLM output rendered unsanitized enabling stored XSS in chat UI', product: 'ChatBot SDK (multiple)', cvss: 7.4, vector: 'Network', status: 'Unpatched' },
+  { id: 'CVE-2025-9604', desc: 'Jailbreak persistence across session boundaries in fine-tuned model', product: 'Commercial LLM (undisclosed)', cvss: 7.1, vector: 'Network', status: 'Under Review' },
+  { id: 'CVE-2025-9512', desc: 'Tool-use chain allows read of arbitrary files via path traversal', product: 'Claude Code ≤1.1.x', cvss: 6.9, vector: 'Local', status: 'Patched' },
+  { id: 'CVE-2025-9401', desc: 'OAuth token leakage via verbose LLM error messages', product: 'LangChain + OAuth plugins', cvss: 6.5, vector: 'Network', status: 'Patched' },
+  { id: 'CVE-2025-9298', desc: 'Adversarial suffix bypasses safety classifier with 94% success rate', product: 'Open-source LLM (multiple)', cvss: 6.2, vector: 'Network', status: 'Monitoring' },
+];
+
+function sevClass(s) {
+  if (s >= 9) return 'score-critical';
+  if (s >= 7) return 'score-high';
+  if (s >= 4) return 'score-medium';
+  return 'score-low';
+}
+
+function renderCVEs() {
+  document.getElementById('cve-tbody').innerHTML = CVES.map(c => `
+    <tr>
+      <td class="cve-id">${c.id}</td>
+      <td style="max-width:360px;line-height:1.4">${c.desc}</td>
+      <td style="color:var(--muted)">${c.product}</td>
+      <td><span class="cvss-score ${sevClass(c.cvss)}">${c.cvss}</span></td>
+      <td><span class="severity-badge ${c.cvss>=9?'sev-critical':c.cvss>=7?'sev-high':c.cvss>=4?'sev-medium':'sev-low'}">${c.cvss>=9?'Critical':c.cvss>=7?'High':c.cvss>=4?'Medium':'Low'}</span></td>
+      <td style="color:var(--muted)">${c.vector}</td>
+      <td style="color:${c.status==='Patched'?'var(--low)':c.status==='Unpatched'?'var(--critical)':'var(--medium)'}">${c.status}</td>
+      <td style="color:var(--muted)">${c.id.startsWith('CVE-2026') ? '2026' : '2025'}</td>
+    </tr>
+  `).join('');
+}
+
+// ─── WORLD MAP ─────────────────────────────────────────
+const COUNTRY_DATA = {
+  'United States of America': { incidents: 312, level: 'Critical', vector: 'Prompt Injection', last: 'Mar 27' },
+  'China': { incidents: 187, level: 'Critical', vector: 'State-Sponsored', last: 'Mar 26' },
+  'Russia': { incidents: 143, level: 'Critical', vector: 'State-Sponsored', last: 'Mar 25' },
+  'Germany': { incidents: 76, level: 'High', vector: 'Data Exfiltration', last: 'Mar 24' },
+  'United Kingdom': { incidents: 89, level: 'High', vector: 'Model Inversion', last: 'Mar 23' },
+  'India': { incidents: 54, level: 'High', vector: 'Supply Chain', last: 'Mar 22' },
+  'France': { incidents: 41, level: 'High', vector: 'Model Inversion', last: 'Mar 21' },
+  'Brazil': { incidents: 38, level: 'High', vector: 'Jailbreak', last: 'Mar 20' },
+  'Canada': { incidents: 29, level: 'Medium', vector: 'Data Exfiltration', last: 'Mar 19' },
+  'Australia': { incidents: 22, level: 'Medium', vector: 'Memory Poisoning', last: 'Mar 18' },
+  'Japan': { incidents: 31, level: 'Medium', vector: 'Supply Chain', last: 'Mar 17' },
+  'South Korea': { incidents: 18, level: 'Medium', vector: 'Deepfake', last: 'Mar 16' },
+  'Netherlands': { incidents: 14, level: 'Medium', vector: 'Agent Hijack', last: 'Mar 15' },
+  'Singapore': { incidents: 19, level: 'Medium', vector: 'Deepfake', last: 'Mar 14' },
+  'Israel': { incidents: 11, level: 'Medium', vector: 'Prompt Injection', last: 'Mar 13' },
+  'Iran': { incidents: 24, level: 'Medium', vector: 'State-Sponsored', last: 'Mar 12' },
+  'North Korea': { incidents: 17, level: 'Medium', vector: 'State-Sponsored', last: 'Mar 11' },
+  'Poland': { incidents: 8, level: 'Low', vector: 'Jailbreak', last: 'Mar 10' },
+  'Sweden': { incidents: 6, level: 'Low', vector: 'Data Exfiltration', last: 'Mar 9' },
+  'Ukraine': { incidents: 12, level: 'Medium', vector: 'State-Sponsored', last: 'Mar 8' },
+  'Mexico': { incidents: 7, level: 'Low', vector: 'Deepfake', last: 'Mar 7' },
+  'South Africa': { incidents: 4, level: 'Low', vector: 'Supply Chain', last: 'Mar 6' },
+  'Nigeria': { incidents: 3, level: 'Low', vector: 'Deepfake', last: 'Mar 5' },
+  'Italy': { incidents: 15, level: 'Medium', vector: 'Data Exfiltration', last: 'Mar 4' },
+  'Spain': { incidents: 9, level: 'Low', vector: 'Prompt Injection', last: 'Mar 3' },
+  'Argentina': { incidents: 5, level: 'Low', vector: 'Jailbreak', last: 'Mar 2' },
+  'Turkey': { incidents: 11, level: 'Medium', vector: 'Agent Hijack', last: 'Mar 1' },
+  'Saudi Arabia': { incidents: 13, level: 'Medium', vector: 'State-Sponsored', last: 'Feb 28' },
+  'Indonesia': { incidents: 6, level: 'Low', vector: 'Deepfake', last: 'Feb 27' },
+  'Pakistan': { incidents: 4, level: 'Low', vector: 'Prompt Injection', last: 'Feb 26' },
+};
+
+function getCountryColor(name) {
+  const d = COUNTRY_DATA[name];
+  if (!d) return '#1a2535';
+  if (d.incidents >= 50) return '#ff3366';
+  if (d.incidents >= 20) return '#ff8c00';
+  if (d.incidents >= 5)  return '#ffd600';
+  return '#00e5ff';
+}
+
+function initMap() {
+  const container = document.getElementById('world-map');
+  const W = container.clientWidth || 700;
+  const H = 380;
+
+  const svg = d3.select('#world-map')
+    .append('svg')
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('preserveAspectRatio', 'xMidYMid meet');
+
+  // Dark background
+  svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#080c10');
+
+  // Subtle grid lines
+  const gridG = svg.append('g').attr('opacity', 0.15);
+  for (let x = 0; x <= W; x += W/12) {
+    gridG.append('line').attr('x1', x).attr('y1', 0).attr('x2', x).attr('y2', H).attr('stroke', '#1e2d3d').attr('stroke-width', 0.5);
+  }
+  for (let y = 0; y <= H; y += H/6) {
+    gridG.append('line').attr('x1', 0).attr('y1', y).attr('x2', W).attr('y2', y).attr('stroke', '#1e2d3d').attr('stroke-width', 0.5);
+  }
+
+  const projection = d3.geoNaturalEarth1()
+    .scale(W / 6.2)
+    .translate([W / 2, H / 2]);
+
+  const path = d3.geoPath().projection(projection);
+
+  const tooltip = document.getElementById('mapTooltip');
+
+  fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+    .then(r => r.json())
+    .then(world => {
+      const countries = topojson.feature(world, world.objects.countries);
+
+      // Country name lookup via a simple numeric → name map
+      const nameMap = buildNameMap();
+
+      const g = svg.append('g');
+
+      g.selectAll('path')
+        .data(countries.features)
+        .join('path')
+        .attr('d', path)
+        .attr('fill', d => {
+          const name = nameMap[d.id] || '';
+          return getCountryColor(name);
+        })
+        .attr('stroke', '#0d1117')
+        .attr('stroke-width', 0.5)
+        .style('cursor', d => {
+          const name = nameMap[d.id] || '';
+          return COUNTRY_DATA[name] ? 'crosshair' : 'default';
+        })
+        .on('mousemove', function(event, d) {
+          const name = nameMap[d.id] || '';
+          const data = COUNTRY_DATA[name];
+          if (!data) {
+            tooltip.style.display = 'none';
+            return;
+          }
+          document.getElementById('ttCountry').textContent = name;
+          document.getElementById('ttIncidents').textContent = data.incidents;
+          document.getElementById('ttLevel').textContent = data.level;
+          document.getElementById('ttVector').textContent = data.vector;
+          document.getElementById('ttLast').textContent = data.last;
+
+          const lvlColors = { Critical: '#ff3366', High: '#ff8c00', Medium: '#ffd600', Low: '#00e5ff' };
+          document.getElementById('ttLevel').style.color = lvlColors[data.level] || '#e2e8f0';
+
+          tooltip.style.display = 'block';
+          tooltip.style.left = (event.clientX + 16) + 'px';
+          tooltip.style.top = (event.clientY - 10) + 'px';
+
+          d3.select(this).attr('stroke', '#00e5ff').attr('stroke-width', 1.5);
+        })
+        .on('mouseleave', function() {
+          tooltip.style.display = 'none';
+          d3.select(this).attr('stroke', '#0d1117').attr('stroke-width', 0.5);
+        });
+
+      // Pulse dots on high-incident countries
+      const hotspots = [
+        { name: 'United States of America', coords: [-98, 39] },
+        { name: 'China', coords: [105, 35] },
+        { name: 'Russia', coords: [60, 60] },
+        { name: 'Germany', coords: [10, 51] },
+        { name: 'United Kingdom', coords: [-2, 54] },
+      ];
+
+      hotspots.forEach(h => {
+        const d = COUNTRY_DATA[h.name];
+        if (!d) return;
+        const [x, y] = projection(h.coords);
+        if (!x || !y) return;
+
+        const g2 = svg.append('g');
+        g2.append('circle')
+          .attr('cx', x).attr('cy', y).attr('r', 3)
+          .attr('fill', '#00e5ff')
+          .attr('opacity', 0.9);
+
+        g2.append('circle')
+          .attr('cx', x).attr('cy', y).attr('r', 3)
+          .attr('fill', 'none')
+          .attr('stroke', '#00e5ff')
+          .attr('stroke-width', 1)
+          .attr('opacity', 0.7)
+          .transition()
+          .duration(1800)
+          .ease(d3.easeLinear)
+          .attr('r', 14)
+          .attr('opacity', 0)
+          .on('end', function repeat() {
+            d3.select(this).attr('r', 3).attr('opacity', 0.7)
+              .transition().duration(1800)
+              .attr('r', 14).attr('opacity', 0)
+              .on('end', repeat);
+          });
+      });
+    })
+    .catch(() => {
+      svg.append('text')
+        .attr('x', W/2).attr('y', H/2)
+        .attr('text-anchor', 'middle')
+        .attr('fill', '#4a6278')
+        .attr('font-family', 'Space Mono, monospace')
+        .attr('font-size', 12)
+        .text('Map data loading...');
+    });
+}
+
+// Numeric ISO 3166-1 → country name (subset covering our data)
+function buildNameMap() {
+  return {
+    840: 'United States of America',
+    156: 'China', 643: 'Russia', 276: 'Germany',
+    826: 'United Kingdom', 356: 'India', 250: 'France',
+    76: 'Brazil', 124: 'Canada', 36: 'Australia',
+    392: 'Japan', 410: 'South Korea', 528: 'Netherlands',
+    702: 'Singapore', 376: 'Israel', 364: 'Iran',
+    408: 'North Korea', 616: 'Poland', 752: 'Sweden',
+    804: 'Ukraine', 484: 'Mexico', 710: 'South Africa',
+    566: 'Nigeria', 380: 'Italy', 724: 'Spain',
+    32: 'Argentina', 792: 'Turkey', 682: 'Saudi Arabia',
+    360: 'Indonesia', 586: 'Pakistan',
+  };
+}
+
+// ─── INIT ──────────────────────────────────────────────
+renderIncidents();
+renderCVEs();
+setTimeout(initMap, 100);
+setTimeout(animateBars, 300);
+</script>
+</body>
+</html>

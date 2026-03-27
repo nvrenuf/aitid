@@ -1,5 +1,4 @@
 ---
-import MetricsStrip from './MetricsStrip.astro';
 import OverviewPanel from './OverviewPanel.astro';
 import SecondaryPanels from './SecondaryPanels.astro';
 
@@ -13,7 +12,6 @@ const {
 ---
 
 <div class="workspace-shell">
-  <MetricsStrip initialStats={initialStats} />
   <OverviewPanel
     initialStats={initialStats}
     overviewPosture={overviewPosture}

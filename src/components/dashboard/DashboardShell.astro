@@ -24,92 +24,91 @@ if (SHOW_SIEM_IN_PRIMARY_UX) {
 }
 ---
 
-<header class="hdr">
-  <div class="hdr-main">
-    <a class="hdr-home-link" href="/overview" aria-label="ThreatParallax home">
-      <div class="logo-mark">
-        <svg viewBox="0 0 14 14" fill="none">
-          <rect x="1" y="1" width="5" height="5" rx="1" fill="#ef4444" />
-          <rect x="8" y="1" width="5" height="5" rx="1" fill="#f97316" opacity=".7" />
-          <rect x="1" y="8" width="5" height="5" rx="1" fill="#f97316" opacity=".7" />
-          <rect x="8" y="8" width="5" height="5" rx="1" fill="#facc15" opacity=".5" />
-        </svg>
-      </div>
-      <div>
-        <div class="logo-title">ThreatParallax</div>
-        <div class="logo-sub">AI Threat Intelligence Platform</div>
-      </div>
-    </a>
-    <div class="hdr-copy">
-      <div class="hdr-kicker">Security leader and analyst workspace</div>
-      <div class="hdr-headline">Track model-linked threats with product surfaces built for serious review.</div>
-      <p>
-        ThreatParallax now separates operational overview, observed geography, and research framing into
-        route-based surfaces while keeping the active dashboard workspace intact for analyst follow-up.
-      </p>
-    </div>
-  </div>
-  <div class="hdr-right">
-    <div class="status-cluster">
-      <div class="live-pill"><div class="pulse"></div>Live feed active · Updated:</div>
-      <div class="hdr-time" id="hdr-time">{headerUpdatedLabel}</div>
-    </div>
-    <div class="surface-chips">
-      <span class="future-chip"><strong>{routeMeta.label}</strong> · {routeMeta.kicker}</span>
-      <span class="future-chip">Audience · security leaders + analysts</span>
-    </div>
-  </div>
-</header>
+<div class="shell-stack">
+  <header class="hdr">
+    <div class="hdr-main">
+      <a class="hdr-home-link" href="/overview" aria-label="ThreatParallax home">
+        <div class="logo-mark">
+          <svg viewBox="0 0 14 14" fill="none">
+            <rect x="1" y="1" width="5" height="5" rx="1" fill="#ef4444" />
+            <rect x="8" y="1" width="5" height="5" rx="1" fill="#f97316" opacity=".7" />
+            <rect x="1" y="8" width="5" height="5" rx="1" fill="#f97316" opacity=".7" />
+            <rect x="8" y="8" width="5" height="5" rx="1" fill="#facc15" opacity=".5" />
+          </svg>
+        </div>
+        <div>
+          <div class="logo-title">ThreatParallax</div>
+          <div class="logo-sub">AI threat intelligence platform</div>
+        </div>
+      </a>
 
-<div class="shell-nav">
-  <div class="shell-nav-meta">
-    <div class="shell-label">Primary surfaces</div>
-    <div class="shell-note">
-      {routeMeta.description}
+      <div class="hdr-copy">
+        <div class="hdr-kicker">Professional review surfaces</div>
+        <div class="hdr-headline">Operational overview, conservative geography, and source-backed threat records.</div>
+      </div>
+    </div>
+
+    <div class="hdr-right">
+      <div class="status-cluster">
+        <div class="live-pill"><div class="pulse"></div>Live feed active</div>
+        <div class="hdr-time" id="hdr-time">{headerUpdatedLabel}</div>
+      </div>
+      <div class="surface-chips">
+        <span class="future-chip"><strong>{routeMeta.label}</strong> - {routeMeta.kicker}</span>
+        <span class="future-chip">Security leaders + analysts</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="shell-nav shell-nav-primary">
+    <div class="shell-nav-meta">
+      <div class="shell-label">Current surface</div>
+      <div class="shell-route-title">{routeMeta.label}</div>
+      <div class="shell-note">{routeMeta.description}</div>
+    </div>
+
+    <nav class="surface-nav" aria-label="ThreatParallax product surfaces">
+      {
+        PRODUCT_ROUTES.map((route) => (
+          <a class:list={['surface-link', route.href === currentPath && 'active']} href={route.href}>
+            <strong>{route.label}</strong>
+            <span>{route.kicker}</span>
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="shell-future">
+      <span class="future-chip">Map meaning stays conservative</span>
+      <span class="future-chip">Scope remains source-backed</span>
     </div>
   </div>
-  <nav class="surface-nav" aria-label="ThreatParallax product surfaces">
-    {
-      PRODUCT_ROUTES.map((route) => (
-        <a class:list={['surface-link', route.href === currentPath && 'active']} href={route.href}>
-          <div class="page-kicker">{route.kicker}</div>
-          <strong>{route.label}</strong>
-          <span>{route.description}</span>
-        </a>
-      ))
-    }
-  </nav>
-  <div class="shell-future">
-    <span class="future-chip">Map meaning limited to observed geography</span>
-    <span class="future-chip">Research remains intentionally light</span>
-  </div>
-</div>
 
-{
-  showWorkspaceNav && (
-    <div class="shell-nav">
-      <div class="shell-nav-meta">
-        <div class="shell-label">Overview workspace</div>
-        <div class="shell-note">
-          Existing feed, model, and vector panels stay live inside the Overview surface without widening the current primary workflow.
+  {
+    showWorkspaceNav && (
+      <div class="shell-nav shell-nav-secondary">
+        <div class="shell-nav-meta">
+          <div class="shell-label">Overview workspace</div>
+          <div class="shell-note">
+            Existing feed, model, and vector panels stay live inside the Overview surface.
+          </div>
+        </div>
+        <nav class="tabbar" id="tabbar" aria-label="Overview workspace views">
+          {
+            shellTabs.map((tab) => (
+              <button class:list={['tab', tab.active && 'active']} data-tab={tab.id}>
+                {tab.label}
+                <span class:list={['tbadge', tab.badgeClass]} id={tab.badgeId} style={tab.badgeStyle}>
+                  {tab.badge}
+                </span>
+              </button>
+            ))
+          }
+        </nav>
+        <div class="shell-future">
+          <span class="future-chip">Dashboard internals preserved</span>
         </div>
       </div>
-      <nav class="tabbar" id="tabbar" aria-label="Overview workspace views">
-        {
-          shellTabs.map((tab) => (
-            <button class:list={['tab', tab.active && 'active']} data-tab={tab.id}>
-              {tab.label}
-              <span class:list={['tbadge', tab.badgeClass]} id={tab.badgeId} style={tab.badgeStyle}>
-                {tab.badge}
-              </span>
-            </button>
-          ))
-        }
-      </nav>
-      <div class="shell-future">
-        <span class="future-chip">Dashboard internals preserved</span>
-        <span class="future-chip">Primary workflow kept focused</span>
-      </div>
-    </div>
-  )
-}
+    )
+  }
+</div>

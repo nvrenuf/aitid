@@ -121,6 +121,8 @@ const fallbackRegions = dataset.regions.slice(0, 4);
           }
         </div>
 
+        <div class="threat-map-hovercard" id="threat-map-hovercard" hidden></div>
+
         <section class="threat-map-stage-fallback" id="threat-map-stage-fallback" hidden>
           <div class="page-kicker">Regional fallback</div>
           <h2 id="threat-map-stage-fallback-title">Regional coverage remains available</h2>
@@ -277,6 +279,10 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     align-items: center;
   }
 
+  .threat-map-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .threat-map-filterbar {
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
@@ -284,6 +290,8 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     padding: 18px;
     display: grid;
     gap: 16px;
+    grid-template-columns: minmax(240px, 0.72fr) minmax(0, 1.28fr);
+    align-items: end;
   }
 
   .threat-map-filter-summary {
@@ -304,6 +312,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
   }
 
   .threat-map-filter-rail {
+    grid-column: 1 / -1;
     display: flex;
     gap: 12px;
     justify-content: space-between;
@@ -333,6 +342,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     display: grid;
     gap: 18px;
     grid-template-columns: minmax(0, 1.32fr) minmax(360px, 0.82fr);
+    align-items: start;
   }
 
   .threat-map-stage-wrap,
@@ -382,33 +392,6 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     stroke-dasharray: 2 10;
   }
 
-  .projected-world-map .world-land-glow path {
-    fill: rgba(154, 201, 246, 0.12);
-    stroke: rgba(154, 201, 246, 0.1);
-    stroke-width: 6;
-  }
-
-  .projected-world-map .world-land path {
-    fill: url(#tp-land-fill);
-    stroke: rgba(202, 224, 244, 0.26);
-    stroke-width: 1.15;
-    vector-effect: non-scaling-stroke;
-  }
-
-  .projected-world-map .world-land-highlight path {
-    fill: url(#tp-land-highlight);
-    opacity: 0.88;
-  }
-
-  .projected-world-map .world-land-lowlight path {
-    fill: url(#tp-land-lowlight);
-  }
-
-  .projected-world-map .world-atmosphere,
-  .projected-world-map .world-vignette {
-    mix-blend-mode: screen;
-  }
-
   :global(.map-region-node) {
     position: absolute;
     z-index: 3;
@@ -423,10 +406,54 @@ const fallbackRegions = dataset.regions.slice(0, 4);
   }
 
   :global(.map-region-node:hover),
-  :global(.map-region-node.active) {
+  :global(.map-region-node.active),
+  :global(.map-region-node.preview) {
     transform: translate(-50%, -50%) scale(1.05);
     border-color: rgba(255, 211, 105, 0.4);
     box-shadow: 0 0 0 12px rgba(255, 211, 105, 0.07), 0 18px 40px rgba(0, 0, 0, 0.34);
+  }
+
+  .threat-map-hovercard {
+    position: absolute;
+    z-index: 5;
+    min-width: 190px;
+    max-width: 240px;
+    padding: 14px 16px;
+    border: 1px solid rgba(125, 196, 255, 0.18);
+    border-radius: 18px;
+    background: rgba(6, 11, 18, 0.92);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 20px 44px rgba(0, 0, 0, 0.34);
+    pointer-events: none;
+    display: grid;
+    gap: 8px;
+  }
+
+  .threat-map-hovercard[hidden] {
+    display: none;
+  }
+
+  .threat-map-hovercard strong {
+    font-size: 15px;
+    line-height: 1.2;
+  }
+
+  .threat-map-hovercard p {
+    margin: 0;
+    color: var(--txt2);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .threat-map-hover-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    color: var(--txt3);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 700;
   }
 
   :global(.map-region-count),
@@ -537,6 +564,12 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .threat-map-detail-stack {
+    position: sticky;
+    top: 116px;
+    align-content: start;
+  }
+
   :global(.threat-map-detail),
   :global(.threat-map-unmapped) {
     padding: 18px;
@@ -599,6 +632,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
   @media (max-width: 960px) {
     .threat-map-heading,
     .threat-map-workspace,
+    .threat-map-filterbar,
     .threat-map-filter-controls,
     .threat-map-notes,
     .threat-map-intel-grid {
