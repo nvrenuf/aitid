@@ -16,7 +16,7 @@ Phase III keeps the existing Vercel deployment model and current repo name in pl
 
 - Frontend: Astro SSR
 - API: Astro API routes on Vercel Serverless Functions
-- Pipeline: Vercel Cron Job (daily at 8:00 AM EST / 13:00 UTC)
+- Pipeline: Vercel Cron Job (every 15 minutes)
 - Storage: Vercel KV (Upstash Redis)
 - Classifier: Claude API
 - Sources: NVD, GitHub Advisory DB, CISA KEV, JFrog, npm
@@ -72,7 +72,7 @@ curl -X POST https://your-aitid.vercel.app/api/pipeline/run \
   -d '{"lookbackDays": 30}'
 ```
 
-This performs an initial backfill. After that, Vercel Cron runs the pipeline automatically once per day at 8:00 AM EST.
+This performs an initial backfill. After that, Vercel Cron runs the pipeline automatically every 15 minutes.
 
 ## Manual pipeline trigger
 
@@ -144,7 +144,7 @@ npm run pipeline:run
 ## Architecture
 
 ```text
-Vercel Cron (daily at 8:00 AM EST / 13:00 UTC)
+Vercel Cron (every 15 minutes)
   |
   v
 /api/pipeline/run
