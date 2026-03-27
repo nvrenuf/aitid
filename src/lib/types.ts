@@ -176,6 +176,17 @@ export interface ThreatMapCoverage {
   pointCount: number;
 }
 
+export interface ThreatMapUnmappedSummary {
+  threatId: string;
+  threatTitle: string;
+  severity: Severity;
+  status: ThreatStatus;
+  reasonCategory: string;
+  reasonDetail: string;
+  vectors: VectorTag[];
+  models: ModelTag[];
+}
+
 export interface ThreatMapDataset {
   meaning: string;
   limitations: string[];
@@ -183,4 +194,5 @@ export interface ThreatMapDataset {
   points: ThreatMapPoint[];
   regions: ThreatMapRegionSummary[];
   unmappedThreatIds: string[];
+  unmappedThreats: ThreatMapUnmappedSummary[];
 }

@@ -1,0 +1,34 @@
+---
+import ProductLayout from '../../components/layout/ProductLayout.astro';
+import ThreatDetailSurface from '../../components/threats/ThreatDetailSurface.astro';
+import { getThreatBySlug } from '../../lib/threats.js';
+
+const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const slug = Astro.params.slug ?? '';
+const threat = await getThreatBySlug(slug);
+
+if (!threat) {
+  Astro.response.status = 404;
+}
+---
+
+<ProductLayout
+  now={now}
+  currentPath="/threats"
+  title={threat ? `${threat.title} | ThreatParallax` : 'Threat not found | ThreatParallax'}
+  description={threat ? threat.description : 'The requested threat record could not be found in the current ThreatParallax corpus.'}
+>
+  {
+    threat ? (
+      <ThreatDetailSurface threat={threat} />
+    ) : (
+      <section class="page-panel">
+        <div class="page-copy">
+          <div class="page-kicker">Threat detail</div>
+          <h1 class="page-headline">Threat record not found.</h1>
+          <p>The requested slug does not match a tracked threat in the current corpus.</p>
+        </div>
+      </section>
+    )
+  }
+</ProductLayout>

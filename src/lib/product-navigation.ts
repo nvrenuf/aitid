@@ -14,6 +14,13 @@ export const PRODUCT_ROUTES = [
     description: 'Infrastructure and exposure geography, aggregated conservatively from observed signals.',
   },
   {
+    id: 'threats',
+    href: '/threats',
+    label: 'Threats',
+    kicker: 'Operator workflow',
+    description: 'Corpus scanning, practical filtering, and prioritization across tracked threats.',
+  },
+  {
     id: 'research',
     href: '/research',
     label: 'Research',

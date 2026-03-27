@@ -2,11 +2,13 @@
 
 ThreatParallax is an AI Threat Intelligence Platform for security leaders and analysts tracking model-linked threats, distribution vectors, operational exposure, and conservative regional map context across the current non-production deployment.
 
-Phase II keeps the existing Vercel deployment model and current repo name in place while moving the product into route-based surfaces for Overview, Threat Map, and Research. Domain cutover remains out of scope.
+Phase III keeps the existing Vercel deployment model and current repo name in place while extending the route-based product with a dedicated Threats workflow, canonical threat detail pages, clearer evidence framing, and more operational Threat Map drilldowns. Domain cutover remains out of scope.
 
 ## Product surfaces
 
 - `/overview`: primary leadership and analyst workspace, including the existing dashboard/feed internals
+- `/threats`: operator-oriented corpus scanning with search, filters, and sort controls
+- `/threats/[slug]`: canonical threat detail pages for direct review and deep linking
 - `/threat-map`: conservative map surface for observed infrastructure and exposure geography
 - `/research`: light methodology, source, and cadence framing
 
@@ -14,7 +16,7 @@ Phase II keeps the existing Vercel deployment model and current repo name in pla
 
 - Frontend: Astro SSR
 - API: Astro API routes on Vercel Serverless Functions
-- Pipeline: Vercel Cron Job (daily at 8:00 AM EST / 13:00 UTC)
+- Pipeline: Vercel Cron Job (every 15 minutes)
 - Storage: Vercel KV (Upstash Redis)
 - Classifier: Claude API
 - Sources: NVD, GitHub Advisory DB, CISA KEV, JFrog, npm
@@ -70,7 +72,7 @@ curl -X POST https://your-aitid.vercel.app/api/pipeline/run \
   -d '{"lookbackDays": 30}'
 ```
 
-This performs an initial backfill. After that, Vercel Cron runs the pipeline automatically once per day at 8:00 AM EST.
+This performs an initial backfill. After that, Vercel Cron runs the pipeline automatically every 15 minutes.
 
 ## Manual pipeline trigger
 
@@ -142,7 +144,7 @@ npm run pipeline:run
 ## Architecture
 
 ```text
-Vercel Cron (daily at 8:00 AM EST / 13:00 UTC)
+Vercel Cron (every 15 minutes)
   |
   v
 /api/pipeline/run
@@ -154,6 +156,8 @@ Vercel Cron (daily at 8:00 AM EST / 13:00 UTC)
 
 Dashboard (Astro SSR)
   +-- /overview
+  +-- /threats
+  +-- /threats/[slug]
   +-- /threat-map
   +-- /research
   +-- /api/threats

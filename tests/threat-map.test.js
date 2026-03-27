@@ -68,6 +68,7 @@ test('buildThreatMapDataset keeps map meaning and unmapped coverage explicit', (
   assert.equal(dataset.coverage.mappedThreatCount, 2);
   assert.equal(dataset.coverage.unmappedThreatCount, 1);
   assert.deepEqual(dataset.unmappedThreatIds, ['t-unmapped']);
+  assert.equal(dataset.unmappedThreats[0].reasonCategory, 'Context-only record, no geography signal');
 });
 
 test('aggregateThreatMapRegions groups regional detail and orders top threats by severity', () => {

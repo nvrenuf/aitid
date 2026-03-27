@@ -38,3 +38,16 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Upgraded the Research route into a credible landing surface with current direction, methodology, and source/cadence framing while keeping the page intentionally lighter than a full advisories portal.
 5. P2-05 [#17](https://github.com/nvrenuf/aitid/issues/17) Final regression sweep, documentation touch-up, and PR polish - completed
    Note: Ran the final build and smoke-test pass again, updated README for the new route structure and Threat Map API surface, and prepared the branch as the single draft PR review surface for Phase II.
+
+## Phase III Execution Order
+
+1. P3-01 [#19](https://github.com/nvrenuf/aitid/issues/19) Threats index route and operator filter workflow - completed
+   Note: Added a dedicated `/threats` route with operator-oriented search, filtering, sorting, and corpus summary cues while preserving the current ThreatParallax visual language.
+2. P3-02 [#20](https://github.com/nvrenuf/aitid/issues/20) Canonical threat detail pages and deep-link routing - completed
+   Note: Added canonical `/threats/[slug]` detail routes, linked them from the Threats surface, exposed canonical detail links from Overview while keeping the drawer, and wired Threat Map regional lists into the same deep-link flow.
+3. P3-03 [#21](https://github.com/nvrenuf/aitid/issues/21) Evidence, source transparency, and score/method context on threat detail - completed
+   Note: Expanded canonical detail pages with source references, evidence/support notes, normalization and methodology framing, score breakdown context, and explicit limitations/confidence language grounded in the current dataset.
+4. P3-04 [#22](https://github.com/nvrenuf/aitid/issues/22) Threat Map drilldowns, filters, and unmapped reason categories - completed
+   Note: Added severity/model/vector map filters, re-rendered regional drilldowns against the filtered dataset, linked regional entries into canonical threat pages, and replaced raw unmapped IDs with defensible reason categories based on current record support.
+5. P3-05 [#23](https://github.com/nvrenuf/aitid/issues/23) Final regression sweep, documentation touch-up, and PR polish - completed
+   Note: Re-ran the final build and test pass, updated README for the new Threats surfaces and canonical detail routing, refreshed the Phase III tracker state, and prepared the branch as the single draft PR review surface for Phase III.

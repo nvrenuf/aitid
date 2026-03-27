@@ -1,0 +1,17 @@
+---
+import ProductLayout from '../components/layout/ProductLayout.astro';
+import ThreatsSurface from '../components/threats/ThreatsSurface.astro';
+import { getThreatSurfaceData } from '../lib/threats.js';
+
+const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const threatSurfaceData = await getThreatSurfaceData();
+---
+
+<ProductLayout
+  now={now}
+  currentPath="/threats"
+  title="ThreatParallax Threats | AI Threat Intelligence Platform"
+  description="ThreatParallax Threats provides a dedicated operator workflow for scanning the current AI threat corpus by severity, model, vector, status, and search."
+>
+  <ThreatsSurface {...threatSurfaceData} />
+</ProductLayout>
