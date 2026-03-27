@@ -375,7 +375,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     pointer-events: none;
   }
 
-  #threat-map-nodes {
+  :global(#threat-map-nodes) {
     position: absolute;
     inset: 0;
     z-index: 2;
@@ -409,7 +409,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     opacity: 0.8;
   }
 
-  .map-region-node {
+  :global(.map-region-node) {
     position: absolute;
     z-index: 3;
     transform: translate(-50%, -50%);
@@ -422,22 +422,22 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
   }
 
-  .map-region-node:hover,
-  .map-region-node.active {
+  :global(.map-region-node:hover),
+  :global(.map-region-node.active) {
     transform: translate(-50%, -50%) scale(1.05);
     border-color: rgba(255, 211, 105, 0.46);
     box-shadow: 0 0 0 12px rgba(255, 211, 105, 0.08), 0 18px 40px rgba(0, 0, 0, 0.34);
   }
 
-  .map-region-count,
-  .map-region-label {
+  :global(.map-region-count),
+  :global(.map-region-label) {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
     white-space: nowrap;
   }
 
-  .map-region-count {
+  :global(.map-region-count) {
     top: 50%;
     transform: translate(-50%, -50%);
     font-family: var(--font-display);
@@ -446,7 +446,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     letter-spacing: -0.04em;
   }
 
-  .map-region-label {
+  :global(.map-region-label) {
     top: calc(100% + 10px);
     font-size: 11px;
     font-weight: 700;
@@ -474,7 +474,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
   }
 
   .threat-map-stage[data-map-state='fallback'] .threat-map-backdrop,
-  .threat-map-stage[data-map-state='fallback'] #threat-map-nodes {
+  .threat-map-stage[data-map-state='fallback'] :global(#threat-map-nodes) {
     opacity: 0.18;
   }
 
@@ -515,27 +515,27 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     top: 16px;
   }
 
-  .threat-map-detail,
-  .threat-map-unmapped {
+  :global(.threat-map-detail),
+  :global(.threat-map-unmapped) {
     padding: 18px;
     display: grid;
     gap: 18px;
   }
 
-  .threat-map-detail-head {
+  :global(.threat-map-detail-head) {
     display: flex;
     justify-content: space-between;
     gap: 16px;
     align-items: start;
   }
 
-  .threat-map-detail-copy {
+  :global(.threat-map-detail-copy) {
     margin: 8px 0 0;
     color: var(--txt2);
     max-width: 42ch;
   }
 
-  .threat-map-detail-stat {
+  :global(.threat-map-detail-stat) {
     min-width: 132px;
     padding: 14px 16px;
     border: 1px solid rgba(125, 196, 255, 0.18);
@@ -545,7 +545,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     gap: 6px;
   }
 
-  .threat-map-detail-stat span {
+  :global(.threat-map-detail-stat span) {
     color: var(--txt2);
     font-size: 11px;
     font-weight: 700;
@@ -553,34 +553,34 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     letter-spacing: 0.08em;
   }
 
-  .threat-map-detail-stat strong {
+  :global(.threat-map-detail-stat strong) {
     font-family: var(--font-display);
     font-size: 28px;
     line-height: 1;
   }
 
-  .threat-map-detail-stat p {
+  :global(.threat-map-detail-stat p) {
     margin: 0;
     color: var(--txt2);
     font-size: 12px;
   }
 
-  .threat-map-detail-grid {
+  :global(.threat-map-detail-grid) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .threat-map-detail-columns {
+  :global(.threat-map-detail-columns) {
     display: grid;
     gap: 14px;
   }
 
   .threat-map-section,
-  .threat-map-unmapped-group {
+  :global(.threat-map-unmapped-group) {
     display: grid;
     gap: 12px;
   }
 
-  .threat-map-section-card {
+  :global(.threat-map-section-card) {
     border: 1px solid rgba(125, 196, 255, 0.14);
     border-radius: 18px;
     background: rgba(255, 255, 255, 0.02);
@@ -595,12 +595,12 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     .threat-map-filterbar,
     .threat-map-filter-controls,
     .threat-map-notes,
-    .threat-map-detail-grid {
+    :global(.threat-map-detail-grid) {
       grid-template-columns: 1fr;
     }
 
     .threat-map-stage-caption,
-    .threat-map-detail-head {
+    :global(.threat-map-detail-head) {
       grid-template-columns: 1fr;
       display: grid;
     }

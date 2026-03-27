@@ -248,45 +248,87 @@ function renderFilterSummary(points, unmappedThreats) {
 }
 
 function render() {
-  try {
-    const filteredPoints = filterPoints(dataset.points);
-    const filteredRegions = aggregateThreatMapRegions(filteredPoints);
-    const filteredUnmapped = filterUnmapped(dataset.unmappedThreats);
+  const stage = document.getElementById('threat-map-stage');
+  const nodes = document.getElementById('threat-map-nodes');
+  const filteredPoints = filterPoints(dataset.points);
+  const filteredRegions = aggregateThreatMapRegions(filteredPoints);
+  const filteredUnmapped = filterUnmapped(dataset.unmappedThreats);
 
-    if (!filteredRegions.some((region) => region.regionKey === state.activeRegion)) {
-      state.activeRegion = filteredRegions[0]?.regionKey ?? '';
-    }
-
-    if (filteredRegions.length) {
-      clearStageFallback();
-    } else {
-      renderStageFallback(
-        'No mapped regions match the current filters',
-        'Adjust severity, model, or vector filters to restore mapped regional coverage. Regional summaries remain available here even when no markers qualify.',
-      );
-    }
-
-    renderNodes(filteredRegions);
-    renderRegionDetails(filteredPoints, filteredRegions);
-    renderUnmapped(filteredUnmapped);
-    renderFilterSummary(filteredPoints, filteredUnmapped);
-
-    document.querySelectorAll('[data-region-node]').forEach((node) => {
-      node.addEventListener('click', () => {
-        state.activeRegion = node.dataset.regionNode ?? '';
-        render();
-      });
-    });
-  } catch {
-    renderNodes([]);
+  if (!stage || !nodes) {
     renderStageFallback(
       'Projected map unavailable',
-      'The regional summary remains available while the map visualization is unavailable. Threat detail drilldowns and unmapped coverage continue to work below.',
+      'The map stage is unavailable, so the regional summary remains visible while the visualization is degraded.',
     );
     renderRegionDetails(dataset.points, dataset.regions);
     renderUnmapped(dataset.unmappedThreats);
     renderFilterSummary([], dataset.unmappedThreats);
+    return;
   }
+
+  if (!filteredRegions.some((region) => region.regionKey === state.activeRegion)) {
+    state.activeRegion = filteredRegions[0]?.regionKey ?? '';
+  }
+
+  if (filteredRegions.length === 0) {
+    renderStageFallback(
+      'No mapped regions match the current filters',
+      'Adjust severity, model, or vector filters to restore mapped regional coverage. Regional summaries remain available here when no markers qualify.',
+    );
+  } else {
+    clearStageFallback();
+  }
+
+  renderNodes(filteredRegions);
+  renderRegionDetails(filteredPoints, filteredRegions);
+  renderUnmapped(filteredUnmapped);
+  renderFilterSummary(filteredPoints, filteredUnmapped);
+
+  document.querySelectorAll('[data-region-node]').forEach((node) => {
+    node.addEventListener('click', () => {
+      state.activeRegion = node.dataset.regionNode ?? '';
+      render();
+    });
+  });
+}
+
+function renderWhenStageReady() {
+  const stage = document.getElementById('threat-map-stage');
+  if (!stage) {
+    renderStageFallback(
+      'Projected map unavailable',
+      'The map stage is unavailable, so the regional summary remains visible while the visualization is degraded.',
+    );
+    renderRegionDetails(dataset.points, dataset.regions);
+    renderUnmapped(dataset.unmappedThreats);
+    renderFilterSummary([], dataset.unmappedThreats);
+    return;
+  }
+
+  let attempts = 0;
+  const maxAttempts = 12;
+
+  const attemptRender = () => {
+    if (stage.clientWidth > 0 && stage.clientHeight > 0) {
+      render();
+      return;
+    }
+
+    attempts += 1;
+    if (attempts >= maxAttempts) {
+      renderStageFallback(
+        'Projected map unavailable',
+        'The map stage could not be measured, so the regional summary remains visible while the visualization is degraded.',
+      );
+      renderRegionDetails(dataset.points, dataset.regions);
+      renderUnmapped(dataset.unmappedThreats);
+      renderFilterSummary([], dataset.unmappedThreats);
+      return;
+    }
+
+    window.requestAnimationFrame(attemptRender);
+  };
+
+  window.requestAnimationFrame(attemptRender);
 }
 
 function bindSelect(id, key) {
@@ -318,4 +360,4 @@ bindSelect('threat-map-filter-severity', 'severity');
 bindSelect('threat-map-filter-model', 'model');
 bindSelect('threat-map-filter-vector', 'vector');
 document.getElementById('threat-map-reset-filters')?.addEventListener('click', resetFilters);
-render();
+renderWhenStageReady();
