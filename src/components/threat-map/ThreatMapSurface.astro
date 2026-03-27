@@ -277,6 +277,10 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     align-items: center;
   }
 
+  .threat-map-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .threat-map-filterbar {
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
@@ -284,6 +288,8 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     padding: 18px;
     display: grid;
     gap: 16px;
+    grid-template-columns: minmax(240px, 0.72fr) minmax(0, 1.28fr);
+    align-items: end;
   }
 
   .threat-map-filter-summary {
@@ -304,6 +310,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
   }
 
   .threat-map-filter-rail {
+    grid-column: 1 / -1;
     display: flex;
     gap: 12px;
     justify-content: space-between;
@@ -333,6 +340,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     display: grid;
     gap: 18px;
     grid-template-columns: minmax(0, 1.32fr) minmax(360px, 0.82fr);
+    align-items: start;
   }
 
   .threat-map-stage-wrap,
@@ -537,6 +545,12 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .threat-map-detail-stack {
+    position: sticky;
+    top: 116px;
+    align-content: start;
+  }
+
   :global(.threat-map-detail),
   :global(.threat-map-unmapped) {
     padding: 18px;
@@ -599,6 +613,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
   @media (max-width: 960px) {
     .threat-map-heading,
     .threat-map-workspace,
+    .threat-map-filterbar,
     .threat-map-filter-controls,
     .threat-map-notes,
     .threat-map-intel-grid {

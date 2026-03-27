@@ -67,6 +67,11 @@ const detailContext = buildThreatDetailContext(threat);
           <strong>{threat.patchVersion ?? 'Not listed'}</strong>
           <p>{threat.affectedVersions ?? 'Affected versions are not explicitly listed in the current record.'}</p>
         </div>
+        <div class="threat-detail-meta-item">
+          <span>Canonical route</span>
+          <strong>{getThreatDetailHref(threat)}</strong>
+          <p>Stable internal route for review, linking, and analyst handoff.</p>
+        </div>
       </div>
     </div>
 
@@ -252,7 +257,7 @@ const detailContext = buildThreatDetailContext(threat);
   .threat-detail-hero {
     display: grid;
     gap: 18px;
-    grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+    grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
     align-items: start;
   }
 
@@ -334,6 +339,12 @@ const detailContext = buildThreatDetailContext(threat);
 
   .threat-detail-summary p {
     margin: 0;
+  }
+
+  .threat-detail-rail {
+    position: sticky;
+    top: 116px;
+    align-content: start;
   }
 
   .threat-detail-panel {
