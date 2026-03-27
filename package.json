@@ -15,7 +15,9 @@
     "@anthropic-ai/sdk": "^0.39.0",
     "@astrojs/vercel": "^8.0.0",
     "astro": "^5.0.0",
+    "d3-geo": "^3.1.1",
     "node-fetch": "^3.3.2",
+    "topojson-client": "^3.1.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

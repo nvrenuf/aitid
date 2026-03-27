@@ -8,6 +8,7 @@ const state = {
   model: '',
   vector: '',
   activeRegion: '',
+  previewRegion: '',
 };
 
 function readDataset(node) {
@@ -66,10 +67,12 @@ function renderNodes(regions) {
       const point = projectThreatMapAnchor(region.anchor);
       const size = Math.min(72, 28 + region.threatCount * 8);
       const isActive = region.regionKey === state.activeRegion;
+      const isPreview = region.regionKey === state.previewRegion;
 
       return `<button type="button"
-        class="map-region-node ${isActive ? 'active' : ''}"
+        class="map-region-node ${isActive ? 'active' : ''} ${isPreview ? 'preview' : ''}"
         data-region-node="${escapeHtml(region.regionKey)}"
+        data-region-name="${escapeHtml(region.regionName)}"
         style="left:${point.x}%;top:${point.y}%;width:${size}px;height:${size}px;"
         aria-pressed="${String(isActive)}"
       >
@@ -115,6 +118,41 @@ function clearStageFallback() {
 
   if (stage) stage.dataset.mapState = 'ready';
   if (fallback) fallback.hidden = true;
+}
+
+function hideHoverCard() {
+  const hoverCard = document.getElementById('threat-map-hovercard');
+  if (hoverCard) hoverCard.hidden = true;
+  state.previewRegion = '';
+}
+
+function showHoverCard(region, target) {
+  const stage = document.getElementById('threat-map-stage');
+  const hoverCard = document.getElementById('threat-map-hovercard');
+  if (!stage || !hoverCard || !region || !target) return;
+
+  const stageRect = stage.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const dominantVector = region.dominantVectors[0] ?? 'Mixed vectors';
+
+  hoverCard.innerHTML = `<div class="page-kicker">Regional preview</div>
+    <strong>${escapeHtml(region.regionName)}</strong>
+    <div class="threat-map-hover-meta">
+      <span>${region.threatCount} threats</span>
+      <span>${region.pointCount} observations</span>
+    </div>
+    <p>${escapeHtml(dominantVector)} &middot; ${escapeHtml(region.anchor.label)}</p>`;
+
+  const offsetLeft = targetRect.left - stageRect.left + targetRect.width / 2 + 22;
+  const offsetTop = targetRect.top - stageRect.top - 6;
+  const maxLeft = stageRect.width - 252;
+  const clampedLeft = Math.max(16, Math.min(maxLeft, offsetLeft));
+  const clampedTop = Math.max(16, Math.min(stageRect.height - 132, offsetTop));
+
+  hoverCard.style.left = `${clampedLeft}px`;
+  hoverCard.style.top = `${clampedTop}px`;
+  hoverCard.hidden = false;
+  state.previewRegion = region.regionKey;
 }
 
 function renderRegionDetails(points, regions) {
@@ -293,8 +331,31 @@ function render() {
   renderFilterSummary(filteredPoints, filteredUnmapped);
 
   document.querySelectorAll('[data-region-node]').forEach((node) => {
+    const region = filteredRegions.find((item) => item.regionKey === node.dataset.regionNode);
+
+    const preview = () => {
+      if (!region) return;
+      showHoverCard(region, node);
+      document.querySelectorAll('[data-region-node]').forEach((button) => {
+        button.classList.toggle('preview', button === node);
+      });
+    };
+
+    const clearPreview = () => {
+      hideHoverCard();
+      document.querySelectorAll('[data-region-node]').forEach((button) => {
+        button.classList.remove('preview');
+      });
+    };
+
+    node.addEventListener('mouseenter', preview);
+    node.addEventListener('focus', preview);
+    node.addEventListener('mouseleave', clearPreview);
+    node.addEventListener('blur', clearPreview);
+
     node.addEventListener('click', () => {
       state.activeRegion = node.dataset.regionNode ?? '';
+      hideHoverCard();
       render();
     });
   });
@@ -305,6 +366,7 @@ function bindSelect(id, key) {
   if (!node) return;
   node.addEventListener('change', () => {
     state[key] = node.value;
+    hideHoverCard();
     render();
   });
 }
@@ -322,6 +384,7 @@ function resetFilters() {
   if (model) model.value = '';
   if (vector) vector.value = '';
 
+  hideHoverCard();
   render();
 }
 
