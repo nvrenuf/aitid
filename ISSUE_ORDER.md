@@ -119,5 +119,7 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Shortened the overview hero and support copy, collapsed the top-right stack into denser summary cards, and trimmed the analyst side rail so the page reaches the watchlist faster.
 3. FUI-03 [#58](https://github.com/nvrenuf/aitid/issues/58) Threats workbench anatomy and scanability pass - completed
    Note: Integrated the result summary into the filter workbench, rebuilt the row anatomy around severity-title-score scanning, and quieted secondary metadata so the queue reads faster.
-4. FUI-04 [#59](https://github.com/nvrenuf/aitid/issues/59) Threat detail authority pass and map polish restraint pass - in progress
-5. FUI-05 [#60](https://github.com/nvrenuf/aitid/issues/60) Final regression sweep, docs touch-up, and PR polish - pending
+4. FUI-04 [#59](https://github.com/nvrenuf/aitid/issues/59) Threat detail authority pass and map polish restraint pass - completed
+   Note: Tightened the detail page into a cleaner intelligence record, shortened map and rail language, and preserved the current projected map direction while removing leftover self-explanatory phrasing.
+5. FUI-05 [#60](https://github.com/nvrenuf/aitid/issues/60) Final regression sweep, docs touch-up, and PR polish - completed
+   Note: Re-ran the final build and test pass, verified the scoped routes after the final UI tightening, kept the tracker current, and opened draft PR #61 as the single review surface for this pass.
