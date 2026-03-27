@@ -113,8 +113,9 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
 
 ## Final UI/System Pass Execution Order
 
-1. FUI-01 [#56](https://github.com/nvrenuf/aitid/issues/56) Shared design system and copy discipline pass - in progress
-2. FUI-02 [#57](https://github.com/nvrenuf/aitid/issues/57) Overview compression and top-composition refinement - pending
+1. FUI-01 [#56](https://github.com/nvrenuf/aitid/issues/56) Shared design system and copy discipline pass - completed
+   Note: Standardized the shared severity language, tightened shell and route copy, removed self-referential helper text in shared contexts, and pinned the final-pass notes and reference surface into the branch.
+2. FUI-02 [#57](https://github.com/nvrenuf/aitid/issues/57) Overview compression and top-composition refinement - in progress
 3. FUI-03 [#58](https://github.com/nvrenuf/aitid/issues/58) Threats workbench anatomy and scanability pass - pending
 4. FUI-04 [#59](https://github.com/nvrenuf/aitid/issues/59) Threat detail authority pass and map polish restraint pass - pending
 5. FUI-05 [#60](https://github.com/nvrenuf/aitid/issues/60) Final regression sweep, docs touch-up, and PR polish - pending
