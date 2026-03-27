@@ -387,26 +387,35 @@ const fallbackRegions = dataset.regions.slice(0, 4);
   }
 
   .projected-world-map .world-grid line {
-    stroke: rgba(156, 184, 214, 0.1);
+    stroke: rgba(170, 195, 220, 0.12);
     stroke-dasharray: 2 10;
   }
 
   .projected-world-map .world-land-glow path {
-    fill: rgba(131, 190, 255, 0.08);
-    stroke: rgba(131, 190, 255, 0.08);
-    stroke-width: 8;
+    fill: rgba(154, 201, 246, 0.12);
+    stroke: rgba(154, 201, 246, 0.1);
+    stroke-width: 6;
   }
 
   .projected-world-map .world-land path {
     fill: url(#tp-land-fill);
-    stroke: rgba(180, 216, 255, 0.18);
-    stroke-width: 1.4;
+    stroke: rgba(202, 224, 244, 0.26);
+    stroke-width: 1.15;
     vector-effect: non-scaling-stroke;
   }
 
   .projected-world-map .world-land-highlight path {
     fill: url(#tp-land-highlight);
-    opacity: 0.8;
+    opacity: 0.88;
+  }
+
+  .projected-world-map .world-land-lowlight path {
+    fill: url(#tp-land-lowlight);
+  }
+
+  .projected-world-map .world-atmosphere,
+  .projected-world-map .world-vignette {
+    mix-blend-mode: screen;
   }
 
   :global(.map-region-node) {
