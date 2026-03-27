@@ -110,3 +110,16 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Rebalanced the map into a clearer stage-and-rail composition, tightened the filter/workspace grid, and made the canonical threat record feel more deliberate with stickier review context and explicit route metadata.
 5. RA-05 [#53](https://github.com/nvrenuf/aitid/issues/53) Final regression sweep, docs touch-up, and PR polish - completed
    Note: Re-ran the full test/build pass, verified the adapted shell and four live routes hold the tighter reference-informed composition, kept the execution tracker current, and prepared the branch as the single draft PR review surface.
+
+## Final UI/System Pass Execution Order
+
+1. FUI-01 [#56](https://github.com/nvrenuf/aitid/issues/56) Shared design system and copy discipline pass - completed
+   Note: Standardized the shared severity language, tightened shell and route copy, removed self-referential helper text in shared contexts, and pinned the final-pass notes and reference surface into the branch.
+2. FUI-02 [#57](https://github.com/nvrenuf/aitid/issues/57) Overview compression and top-composition refinement - completed
+   Note: Shortened the overview hero and support copy, collapsed the top-right stack into denser summary cards, and trimmed the analyst side rail so the page reaches the watchlist faster.
+3. FUI-03 [#58](https://github.com/nvrenuf/aitid/issues/58) Threats workbench anatomy and scanability pass - completed
+   Note: Integrated the result summary into the filter workbench, rebuilt the row anatomy around severity-title-score scanning, and quieted secondary metadata so the queue reads faster.
+4. FUI-04 [#59](https://github.com/nvrenuf/aitid/issues/59) Threat detail authority pass and map polish restraint pass - completed
+   Note: Tightened the detail page into a cleaner intelligence record, shortened map and rail language, and preserved the current projected map direction while removing leftover self-explanatory phrasing.
+5. FUI-05 [#60](https://github.com/nvrenuf/aitid/issues/60) Final regression sweep, docs touch-up, and PR polish - completed
+   Note: Re-ran the final build and test pass, verified the scoped routes after the final UI tightening, kept the tracker current, and opened draft PR #61 as the single review surface for this pass.

@@ -27,12 +27,12 @@ export async function getOverviewPageData() {
   const initialStats = stats ?? fallbackStats;
   const overviewPosture =
     initialStats.activeCritical > 0
-      ? `${initialStats.activeCritical} critical campaigns remain active and require immediate leadership visibility.`
-      : 'No active critical campaigns are currently in rotation, but medium and high-severity tracking remains live.';
+      ? `${initialStats.activeCritical} critical campaigns require immediate review.`
+      : 'No active critical campaigns. High and medium-severity tracking remains active.';
   const overviewPriority =
     initialStats.newThisWeek > 0
-      ? `${initialStats.newThisWeek} items landed in the last seven days, with model and vector overlap concentrated in the main feed below.`
-      : 'No new items entered the pipeline this week; the focus remains on validating remediation status in the current queue.';
+      ? `${initialStats.newThisWeek} items landed in the last seven days and remain concentrated in the active queue.`
+      : 'No new items entered this week. Review remediation status across the active queue.';
   const overviewStatus = initialStats.pipelineStatus === 'healthy' ? 'Collection healthy' : 'Collection needs review';
   const overviewUpdated = formatEasternTimestamp(initialStats.lastUpdated);
 

@@ -30,9 +30,9 @@ const initialStatsJson = JSON.stringify(initialStats);
           <div class="overview-stage">
             <div class="overview-copy">
               <div class="overview-kicker">Overview</div>
-              <div class="overview-title">Current AI threat posture without the oversized preamble.</div>
+              <div class="overview-title">Current AI threat posture.</div>
               <p>
-                Review posture, queue pressure, and collection state, then move into the active watchlist.
+                Review posture, queue pressure, and collection state, then move into the watchlist.
               </p>
             </div>
 
@@ -52,10 +52,16 @@ const initialStatsJson = JSON.stringify(initialStats);
             <div class="overview-card">
               <div class="sb-title">Executive focus</div>
               <p>{overviewPriority}</p>
-            </div>
-            <div class="overview-card compact">
-              <div class="sb-title">Queue framing</div>
-              <p>{initialStats.totalThreats} tracked items with {initialStats.newThisWeek} added in the last seven days.</p>
+              <div class="overview-grid overview-grid-compact">
+                <div class="overview-stat">
+                  <div class="sb-title">Tracked queue</div>
+                  <span>{initialStats.totalThreats} items</span>
+                </div>
+                <div class="overview-stat">
+                  <div class="sb-title">Collection</div>
+                  <span>{overviewStatus}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -123,15 +129,14 @@ const initialStatsJson = JSON.stringify(initialStats);
     <div class="sidebar" id="overview-sidebar" style="width:260px;min-width:160px;max-width:520px;overflow-y:auto;flex-shrink:0">
       <div class="sb-block executive">
         <div class="sb-title">Analyst context</div>
-        <div class="sb-copy">Use the live queue first, then scan trend and concentration to decide whether the current pressure is localized or systemic.</div>
         <div class="sb-list">
           <div class="sb-list-item">
             <strong>{overviewStatus}</strong>
-            <span>Collection cadence remains visible without introducing extra telemetry noise.</span>
+            <span>Cadence remains steady across the current feed.</span>
           </div>
           <div class="sb-list-item">
             <strong>{initialStats.modelsAffected} model families in scope</strong>
-            <span>Model concentration stays available in the side rail so the top section can remain shorter.</span>
+            <span>Model concentration remains visible in the side rail.</span>
           </div>
         </div>
       </div>
@@ -172,16 +177,21 @@ const initialStatsJson = JSON.stringify(initialStats);
     gap: 12px;
   }
 
+  .overview-stage {
+    gap: 14px;
+  }
+
   .overview-copy p {
-    max-width: 48ch;
+    max-width: 42ch;
   }
 
   .overview-hero-rail .overview-card {
     min-height: 0;
   }
 
-  .overview-card.compact p {
-    margin-top: 0;
+  .overview-grid-compact {
+    margin-top: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .sb-block.executive {
@@ -220,6 +230,10 @@ const initialStatsJson = JSON.stringify(initialStats);
 
   @media (max-width: 960px) {
     .overview-hero {
+      grid-template-columns: 1fr;
+    }
+
+    .overview-grid-compact {
       grid-template-columns: 1fr;
     }
   }

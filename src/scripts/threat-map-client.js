@@ -187,7 +187,7 @@ function renderRegionDetails(points, regions) {
       <div>
         <div class="page-kicker">Regional brief</div>
         <h2>${escapeHtml(activeRegion.regionName)}</h2>
-        <p class="threat-map-detail-copy">Approximate posture based on the mapped observations currently in scope.</p>
+        <p class="threat-map-detail-copy">Based on the mapped observations currently in scope.</p>
       </div>
       <div class="threat-map-detail-stat">
         <span>Tracked threats</span>
@@ -205,7 +205,7 @@ function renderRegionDetails(points, regions) {
       <div class="info-card">
         <span>Dominant vectors</span>
         <strong>${escapeHtml(activeRegion.dominantVectors.join(', '))}</strong>
-        <p>Vector labels remain tied to the filtered mapped threats.</p>
+        <p>Derived from the filtered mapped records.</p>
       </div>
     </div>
 
@@ -255,7 +255,7 @@ function renderUnmapped(unmappedThreats) {
   container.innerHTML = `<div class="page-kicker">Unmapped coverage</div>
     <div class="page-list-item">
       <strong>${unmappedThreats.length} threats remain off-map after filters</strong>
-      <p>Threats stay off-map until observed infrastructure or exposure geography can be stated defensibly. The categories below explain why the current records remain unmapped.</p>
+      <p>Threats stay off-map until observed infrastructure or exposure geography can be stated defensibly.</p>
     </div>
     ${groups
       .map(

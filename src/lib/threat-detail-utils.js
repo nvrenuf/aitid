@@ -48,8 +48,8 @@ export function buildThreatDetailContext(threat) {
 
   const methodologyNotes = [
     'ThreatParallax normalizes each tracked record into source, status, severity, type, models, vectors, TTPs, IOCs, mitigations, and patch posture when those fields are available.',
-    'This page reflects the current normalized corpus entry. It is designed for operational review, not as a full editorial archive or external advisory replacement.',
-    'The canonical route makes the record linkable, but the underlying evidence remains limited to what is captured in the current dataset.',
+    'This page reflects the current normalized record, not a full advisory archive.',
+    'The canonical route is stable, but the evidence remains limited to the references captured in the current dataset.',
   ];
 
   const scoreContext = [
@@ -85,10 +85,10 @@ export function buildThreatDetailContext(threat) {
     limitations.push('No patch version is listed in the current dataset.');
   }
 
-  limitations.push('This page summarizes the current ThreatParallax corpus entry only; it does not claim exhaustive source coverage, live telemetry, or independent corroboration beyond the listed references.');
+  limitations.push('This record reflects the references listed here. It does not claim exhaustive source coverage, live telemetry, or independent corroboration beyond those references.');
 
   const confidenceFraming = threat.sourceUrl
-    ? 'The record includes a direct source link, which improves traceability, but the page still reflects a curated product entry rather than a full source archive.'
+    ? 'A direct source link is available. Confidence still depends on the references captured here, not a broader source archive.'
     : 'The record is traceable to a named source, but direct source transparency is limited because the current entry does not include a source URL.';
 
   return {
