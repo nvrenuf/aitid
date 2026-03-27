@@ -104,6 +104,7 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Tightened the top shell into a more deliberate sticky header stack, simplified the surface navigation, and documented the adaptation rules before page-level work began.
 2. RA-02 [#50](https://github.com/nvrenuf/aitid/issues/50) Overview composition adaptation - completed
    Note: Collapsed the overview KPI duplication into one calmer top band, tightened the hero/supporting rail composition, and reduced helper copy so the page reaches product state faster.
-3. RA-03 [#51](https://github.com/nvrenuf/aitid/issues/51) Threats workbench adaptation - pending
+3. RA-03 [#51](https://github.com/nvrenuf/aitid/issues/51) Threats workbench adaptation - completed
+   Note: Tightened the filter rail into a cleaner single workbench band, reduced row chrome, and rebuilt the result anatomy around faster severity-score-title scanning.
 4. RA-04 [#52](https://github.com/nvrenuf/aitid/issues/52) Threat Map and detail-page adaptation - pending
 5. RA-05 [#53](https://github.com/nvrenuf/aitid/issues/53) Final regression sweep, docs touch-up, and PR polish - pending

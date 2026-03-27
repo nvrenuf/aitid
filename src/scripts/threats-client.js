@@ -87,56 +87,32 @@ function resultCard(threat) {
   const ttpIds = threat.ttps.map((ttp) => `<span class="ttp-tag">${escapeHtml(ttp.id)}</span>`).join('');
   const patchLine = threat.patchVersion ? `Patch ${escapeHtml(threat.patchVersion)}` : 'Patch not listed';
   const detailHref = getThreatDetailHref(threat);
-  const topModels = threat.models.slice(0, 2).map((model) => shortModel(model)).join(', ');
-  const topVectors = threat.vectors.slice(0, 2).join(', ');
-  const ageLabel = formatThreatAge(threat.publishedAt);
 
   return `
     <article class="threat-row">
-      <div class="threat-row-eyebrow">
+      <div class="threat-row-top">
         <div class="tc-meta">
           ${badge(threat.severity.toUpperCase(), severityClasses[threat.severity] ?? 'b-gray')}
           ${badge(threat.status, statusClasses[threat.status] ?? 'b-gray')}
           ${badge(threat.type, 'b-gray')}
           ${threat.cve ? `<span class="ttp-tag">${escapeHtml(threat.cve)}</span>` : ''}
         </div>
-        <div class="threat-row-date">
-          <div>Published ${formatDate(threat.publishedAt)}</div>
-          <div>Updated ${formatDate(threat.updatedAt)}</div>
-        </div>
+        <div class="threat-row-date">Published ${formatDate(threat.publishedAt)}</div>
       </div>
 
-      <div class="threat-row-head">
+      <div class="threat-row-main">
         <div>
           <div class="threat-row-title"><a class="threat-row-link" href="${detailHref}">${escapeHtml(threat.title)}</a></div>
           <div class="threat-row-source">${escapeHtml(threat.source)}</div>
-          <div class="threat-row-meta-line">${threat.models.length} model targets · ${threat.vectors.length} mapped vectors · ${threat.iocs.length} IOC${threat.iocs.length === 1 ? '' : 's'}</div>
+          <div class="threat-row-meta-line">${threat.models.length} model targets | ${threat.vectors.length} vectors | ${threat.iocs.length} IOC${threat.iocs.length === 1 ? '' : 's'} | ${formatThreatAge(threat.publishedAt)}</div>
         </div>
-        <div class="tc-score-card">
-          <span class="tc-score-label">Blended score</span>
-          <span class="score">${threat.score.blended.toFixed(1)}</span>
+        <div class="threat-row-score">
+          <span class="threat-row-score-label">Blended score</span>
+          <span class="threat-row-score-value">${threat.score.blended.toFixed(1)}</span>
         </div>
       </div>
 
       <div class="threat-row-summary">${escapeHtml(threat.description)}</div>
-
-      <div class="threat-row-scan">
-        <div class="threat-row-scan-item">
-          <span>Models</span>
-          <strong>${escapeHtml(topModels || 'None listed')}</strong>
-          <p>${threat.models.length} model family${threat.models.length === 1 ? '' : 'ies'} in scope</p>
-        </div>
-        <div class="threat-row-scan-item">
-          <span>Vectors</span>
-          <strong>${escapeHtml(topVectors || 'None listed')}</strong>
-          <p>${threat.vectors.length} delivery path${threat.vectors.length === 1 ? '' : 's'} tracked</p>
-        </div>
-        <div class="threat-row-scan-item">
-          <span>Age and patch</span>
-          <strong>${escapeHtml(ageLabel)}</strong>
-          <p>${patchLine}</p>
-        </div>
-      </div>
 
       <div class="threat-row-bands">
         <div class="threat-row-band">
@@ -151,7 +127,7 @@ function resultCard(threat) {
 
       <div class="threat-row-foot">
         <span>${patchLine}</span>
-        <span>${threat.iocs.length} IOC${threat.iocs.length === 1 ? '' : 's'} | ${threat.mitigations.length} mitigation actions</span>
+        <span>Updated ${formatDate(threat.updatedAt)} | ${threat.mitigations.length} mitigation actions</span>
         <a class="expand-btn" href="${detailHref}">Open detail page</a>
       </div>
     </article>
@@ -222,10 +198,36 @@ function bindInput(id, key) {
   });
 }
 
+function resetWorkbench() {
+  state.query = '';
+  state.severity = '';
+  state.model = '';
+  state.vector = '';
+  state.status = '';
+  state.sort = DEFAULT_THREAT_SORT;
+
+  const search = document.getElementById('threats-search');
+  const severity = document.getElementById('threats-severity');
+  const model = document.getElementById('threats-model');
+  const vector = document.getElementById('threats-vector');
+  const status = document.getElementById('threats-status');
+  const sort = document.getElementById('threats-sort');
+
+  if (search) search.value = '';
+  if (severity) severity.value = '';
+  if (model) model.value = '';
+  if (vector) vector.value = '';
+  if (status) status.value = '';
+  if (sort) sort.value = DEFAULT_THREAT_SORT;
+
+  renderThreats();
+}
+
 bindInput('threats-search', 'query');
 bindInput('threats-severity', 'severity');
 bindInput('threats-model', 'model');
 bindInput('threats-vector', 'vector');
 bindInput('threats-status', 'status');
 bindInput('threats-sort', 'sort');
+document.getElementById('threats-reset')?.addEventListener('click', resetWorkbench);
 renderThreats();
