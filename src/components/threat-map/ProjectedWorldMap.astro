@@ -36,6 +36,41 @@
     </filter>
   </defs>
 
+  <style>
+    .world-grid line {
+      stroke: rgba(170, 195, 220, 0.12);
+      stroke-width: 1;
+      stroke-dasharray: 2 10;
+    }
+
+    .world-land-glow path {
+      fill: rgba(154, 201, 246, 0.12);
+      stroke: rgba(154, 201, 246, 0.1);
+      stroke-width: 6;
+    }
+
+    .world-land path {
+      fill: url(#tp-land-fill);
+      stroke: rgba(202, 224, 244, 0.26);
+      stroke-width: 1.15;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .world-land-highlight path {
+      fill: url(#tp-land-highlight);
+      opacity: 0.88;
+    }
+
+    .world-land-lowlight path {
+      fill: url(#tp-land-lowlight);
+    }
+
+    .world-atmosphere,
+    .world-vignette {
+      mix-blend-mode: screen;
+    }
+  </style>
+
   <rect class="world-ocean" x="0" y="0" width="1000" height="520" rx="28" fill="url(#tp-ocean-base)" />
   <rect class="world-atmosphere" x="0" y="0" width="1000" height="520" rx="28" fill="url(#tp-atmosphere)" />
   <rect class="world-vignette" x="0" y="0" width="1000" height="520" rx="28" fill="url(#tp-ocean-vignette)" />
