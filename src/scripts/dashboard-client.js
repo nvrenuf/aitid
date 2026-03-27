@@ -1,3 +1,11 @@
+import {
+  buildDrawerSubtitle,
+  filterThreats,
+  MODEL_FILTERS as modelFilters,
+  shortModel,
+  sortThreats,
+} from '../lib/dashboard-utils.js';
+
 let allThreats = [];
 let overviewFilter = 'all';
 let selectedThreatId = null;
@@ -18,19 +26,6 @@ const statusClasses = {
   disputed: 'b-gray',
 };
 
-const severityOrder = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
-
-const modelFilters = {
-  openai: (threat) =>
-    threat.models.some((model) => ['openai-gpt4o', 'openai-o3', 'openai-o4', 'openai-gpt41'].includes(model)),
-  claude: (threat) => threat.models.some((model) => model === 'anthropic-claude'),
-  copilot: (threat) =>
-    threat.models.some((model) => ['microsoft-copilot-github', 'microsoft-copilot-m365'].includes(model)),
-  oss: (threat) =>
-    threat.models.some((model) => ['huggingface-oss', 'meta-llama', 'mistral'].includes(model)) ||
-    threat.vectors.includes('huggingface'),
-};
-
 const vectorGroups = [
   { key: 'skill-md', label: 'SKILL.md / AI agent file abuse', vectors: ['skill-md'] },
   { key: 'supply-chain', label: 'npm / PyPI / GitHub supply chain', vectors: ['npm', 'pypi', 'github-repo', 'github-advisory'] },
@@ -49,15 +44,6 @@ const badge = (text, className) => `<span class="badge ${className}">${text}</sp
 const severityBadge = (severity) => badge(severity.toUpperCase(), severityClasses[severity] ?? 'b-gray');
 const statusBadge = (status) => badge(status, statusClasses[status] ?? 'b-gray');
 
-function shortModel(model) {
-  return model
-    .replace('openai-', '')
-    .replace('anthropic-', '')
-    .replace('microsoft-', '')
-    .replace('huggingface-', '')
-    .replace('meta-', '');
-}
-
 function formatDate(iso) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
@@ -73,13 +59,6 @@ function escapeHtml(value) {
 
 function findThreat(id) {
   return allThreats.find((threat) => threat.id === id) ?? null;
-}
-
-function sortedThreats(threats) {
-  return [...threats].sort((left, right) => {
-    const severityDelta = severityOrder[left.severity] - severityOrder[right.severity];
-    return severityDelta !== 0 ? severityDelta : right.score.blended - left.score.blended;
-  });
 }
 
 function arraySection(label, items) {
@@ -169,7 +148,7 @@ function openThreatDetail(id) {
 
   selectedThreatId = threat.id;
   safeSetText('drawer-title', threat.title);
-  safeSetText('drawer-sub', `${threat.type} | ${threat.severity.toUpperCase()} | score ${threat.score.blended.toFixed(1)}`);
+  safeSetText('drawer-sub', buildDrawerSubtitle(threat));
 
   const drawerBody = document.getElementById('drawer-body');
   if (drawerBody) {
@@ -242,16 +221,11 @@ function cardHtml(threat) {
   </article>`;
 }
 
-function filtered(threats, filter) {
-  if (!filter || filter === 'all') return threats;
-  return threats.filter((threat) => threat.severity === filter || threat.type === filter || threat.vectors.includes(filter));
-}
-
 function renderFeed(elementId, threats) {
   const element = document.getElementById(elementId);
   if (!element) return;
 
-  const sorted = sortedThreats(threats);
+  const sorted = sortThreats(threats);
   element.innerHTML = sorted.length
     ? `<div class="feed-stack">${sorted.map(cardHtml).join('')}</div>`
     : '<div class="empty">No threats matching this filter.</div>';
@@ -268,7 +242,7 @@ function renderVectorThreats() {
       if (!threats.length) return '';
       return `<div>
         <div class="shdr">${group.label}<span>${threats.length} threat${threats.length > 1 ? 's' : ''}</span></div>
-        <div class="feed-stack">${sortedThreats(threats).map(cardHtml).join('')}</div>
+        <div class="feed-stack">${sortThreats(threats).map(cardHtml).join('')}</div>
       </div>`;
     })
     .join('');
@@ -300,7 +274,7 @@ function renderVectorMatrix() {
       (threat) => threat.vectors.some((vector) => keys.includes(vector)) && (modelFilter(threat) || threat.models.includes('multi-model')),
     );
     if (!threats.length) return `<div class="mdot md-none"></div>`;
-    const topThreat = sortedThreats(threats)[0];
+    const topThreat = sortThreats(threats)[0];
     const className = { critical: 'md-crit', high: 'md-high', medium: 'md-med', low: 'md-none' }[topThreat.severity] ?? 'md-none';
     return `<div class="mdot ${className}" title="${topThreat.severity.toUpperCase()}: ${topThreat.title}"></div>`;
   };
@@ -382,7 +356,7 @@ function renderSidebar() {
           (threat) => threat.vectors.some((vector) => row.keys.includes(vector)) && (model.fn(threat) || threat.models.includes('multi-model')),
         );
         if (!threats.length) return `<td><div class="mdot md-none"></div></td>`;
-        const topThreat = sortedThreats(threats)[0];
+        const topThreat = sortThreats(threats)[0];
         const className = { critical: 'md-crit', high: 'md-high', medium: 'md-med' }[topThreat.severity] ?? 'md-none';
         return `<td><div class="mdot ${className}" title="${topThreat.severity}"></div></td>`;
       }).join('')}</tr>`).join('')}
@@ -400,7 +374,7 @@ function updateBadges() {
 }
 
 function renderAll() {
-  renderFeed('overview-feed', filtered(allThreats, overviewFilter));
+  renderFeed('overview-feed', filterThreats(allThreats, overviewFilter));
   renderFeed('feed-openai', allThreats.filter(modelFilters.openai));
   renderFeed('feed-claude', allThreats.filter(modelFilters.claude));
   renderFeed('feed-copilot', allThreats.filter(modelFilters.copilot));
@@ -474,7 +448,7 @@ function initOverviewFilters() {
     overviewFilter = pill.dataset.f ?? 'all';
     document.querySelectorAll('.fpill').forEach((node) => node.classList.remove('active'));
     pill.classList.add('active');
-    renderFeed('overview-feed', filtered(allThreats, overviewFilter));
+    renderFeed('overview-feed', filterThreats(allThreats, overviewFilter));
   });
 }
 

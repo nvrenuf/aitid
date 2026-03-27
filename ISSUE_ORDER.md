@@ -21,5 +21,6 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Removed the remaining corrupted banner text in the main page source and normalized high-risk visible separators in the drawer subtitle.
 2. P1.5-02 [#9](https://github.com/nvrenuf/aitid/issues/9) Component extraction for shell, overview, feed, and drawer - completed
    Note: Split the dashboard shell into focused Astro components and moved the client-side feed, drawer, and interaction logic into a dedicated browser module so `index.astro` now acts as the page composition layer.
-3. P1.5-03 [#10](https://github.com/nvrenuf/aitid/issues/10) Minimal smoke test harness and npm test script
+3. P1.5-03 [#10](https://github.com/nvrenuf/aitid/issues/10) Minimal smoke test harness and npm test script - completed
+   Note: Added a lightweight `node:test` smoke suite around shared dashboard helper logic and introduced a real `npm test` entrypoint so Phase 1.5 work is no longer validated by build alone.
 4. P1.5-04 [#11](https://github.com/nvrenuf/aitid/issues/11) Final regression sweep and PR polish
