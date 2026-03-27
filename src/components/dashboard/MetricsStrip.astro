@@ -1,0 +1,74 @@
+---
+const { initialStats } = Astro.props;
+
+const metrics = [
+  {
+    label: 'Active campaigns',
+    description: 'Current threat records requiring ongoing monitoring in the platform queue.',
+    accent: 'ACT',
+    value: initialStats.totalThreats,
+    valueId: 'm-total',
+    context: 'Across the current tracked set',
+    deltaId: 'm-total-d',
+  },
+  {
+    label: 'Critical severity',
+    description: 'Highest-priority issues still active and likely to drive escalation decisions.',
+    accent: 'CRI',
+    accentClass: 'crit',
+    value: initialStats.activeCritical,
+    valueId: 'm-crit',
+    valueClass: 'crit',
+    context: 'Immediate attention window',
+    deltaId: 'm-crit-d',
+    deltaClass: 'up',
+  },
+  {
+    label: 'New this week',
+    description: 'Fresh entries added during the current seven-day review cycle.',
+    accent: 'NEW',
+    accentClass: 'amber',
+    value: initialStats.newThisWeek,
+    valueId: 'm-week',
+    valueClass: 'amber',
+    context: 'Recent change pressure',
+    deltaId: 'm-week-d',
+  },
+  {
+    label: 'Models affected',
+    description: 'Distinct model families showing exposure in the current feed.',
+    accent: 'MOD',
+    accentClass: 'info',
+    value: `${initialStats.modelsAffected} / 5`,
+    valueId: 'm-models',
+    context: 'Coverage breadth in scope',
+    deltaId: 'm-models-d',
+    deltaClass: 'dn',
+  },
+];
+---
+
+<div class="metrics" id="metrics-strip">
+  {
+    metrics.map((metric) => (
+      <div class="metric">
+        <div class="metric-top">
+          <div>
+            <div class="m-label">{metric.label}</div>
+            <p>{metric.description}</p>
+          </div>
+          <div class:list={['metric-accent', metric.accentClass]}>{metric.accent}</div>
+        </div>
+        <div class="metric-bottom">
+          <div>
+            <div class:list={['m-val', metric.valueClass]} id={metric.valueId}>
+              {metric.value}
+            </div>
+            <div class="m-context">{metric.context}</div>
+          </div>
+          <div class:list={['m-delta', metric.deltaClass]} id={metric.deltaId}></div>
+        </div>
+      </div>
+    ))
+  }
+</div>

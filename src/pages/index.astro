@@ -1,8 +1,14 @@
 ---
 // src/pages/index.astro
 // Server-rendered shell — stats fetched at request time, threats loaded client-side
-import { getStats } from '../lib/store.js';
+import DashboardShell from '../components/dashboard/DashboardShell.astro';
+import MetricsStrip from '../components/dashboard/MetricsStrip.astro';
+import OverviewPanel from '../components/dashboard/OverviewPanel.astro';
+import SecondaryPanels from '../components/dashboard/SecondaryPanels.astro';
+import ThreatDetailDrawer from '../components/dashboard/ThreatDetailDrawer.astro';
 import { SEED_THREATS } from '../lib/seed.js';
+import { getStats } from '../lib/store.js';
+import '../styles/threatparallax.css';
 
 let stats;
 try {
@@ -10,96 +16,137 @@ try {
 } catch {
   stats = null;
 }
+
 const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const seedModelCount = new Set(
+  SEED_THREATS.flatMap((threat) => threat.models).filter((model) => model !== 'multi-model'),
+).size;
+
+const fallbackStats = {
+  totalThreats: SEED_THREATS.length,
+  activeCritical: SEED_THREATS.filter((threat) => threat.severity === 'critical' && threat.status === 'active').length,
+  activeHigh: SEED_THREATS.filter((threat) => threat.severity === 'high' && threat.status === 'active').length,
+  newThisWeek: SEED_THREATS.length,
+  modelsAffected: seedModelCount,
+  lastUpdated: new Date().toISOString(),
+  pipelineStatus: 'healthy',
+};
+
+const initialStats = stats ?? fallbackStats;
+const overviewPosture =
+  initialStats.activeCritical > 0
+    ? `${initialStats.activeCritical} critical campaigns remain active and require immediate leadership visibility.`
+    : 'No active critical campaigns are currently in rotation, but medium and high-severity tracking remains live.';
+const overviewPriority =
+  initialStats.newThisWeek > 0
+    ? `${initialStats.newThisWeek} items landed in the last seven days, with model and vector overlap concentrated in the main feed below.`
+    : 'No new items entered the pipeline this week; the focus remains on validating remediation status in the current queue.';
+const overviewStatus = initialStats.pipelineStatus === 'healthy' ? 'Collection healthy' : 'Collection needs review';
+const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US', {
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+});
 ---
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AITID — AI Threat Intelligence Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ThreatParallax | AI Threat Intelligence Platform</title>
+  <meta
+    name="description"
+    content="ThreatParallax is an AI Threat Intelligence Platform for security leaders and analysts monitoring model-linked threats, exposure vectors, and operational risk."
+  />
+  <meta name="application-name" content="ThreatParallax" />
+  <meta name="theme-color" content="#111110" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <style is:global>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg:       #ffffff;
-      --bg2:      #f6f5f2;
-      --bg3:      #efede9;
-      --txt:      #111110;
-      --txt2:     #605f5b;
-      --txt3:     #9c9a92;
-      --border:   rgba(0,0,0,.08);
-      --border2:  rgba(0,0,0,.14);
-      --mono:     'IBM Plex Mono', monospace;
-      --sans:     'IBM Plex Sans', sans-serif;
-      --crit:     #c0392b; --crit-bg: #fdf0ef; --crit-border: rgba(192,57,43,.2);
-      --high:     #c0641a; --high-bg: #fef4ed; --high-border: rgba(192,100,26,.2);
-      --med:      #9a7000; --med-bg:  #fefaed; --med-border:  rgba(154,112,0,.2);
-      --low:      #1a7a4a; --low-bg:  #edf7f2; --low-border:  rgba(26,122,74,.2);
-      --info:     #1a5fa8; --info-bg: #edf4fc; --info-border: rgba(26,95,168,.2);
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg:       #111110;
-        --bg2:      #1a1a18;
-        --bg3:      #222220;
-        --txt:      #e8e6de;
-        --txt2:     #9c9a92;
-        --txt3:     #605f5b;
-        --border:   rgba(255,255,255,.07);
-        --border2:  rgba(255,255,255,.12);
-        --crit-bg:  #2d1210; --high-bg: #2d1a0a;
-        --med-bg:   #2a220a; --low-bg:  #0d2018; --info-bg: #0d1e30;
-      }
-    }
+    /* layout */
+    #app { display: flex; flex-direction: column; min-height: 100vh; overflow: hidden; padding: 16px; gap: 16px; }
 
-    html, body { height: 100%; background: var(--bg); color: var(--txt); font-family: var(--sans); font-size: 13px; }
-
-    /* ── layout ── */
-    #app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-
-    /* ── header ── */
-    .hdr { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 48px; border-bottom: 0.5px solid var(--border); flex-shrink: 0; gap: 12px; }
-    .hdr-logo { display: flex; align-items: center; gap: 10px; }
-    .logo-mark { width: 26px; height: 26px; background: var(--txt); border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .logo-mark svg { width: 14px; height: 14px; }
-    .logo-title { font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
-    .logo-sub { font-size: 10px; color: var(--txt3); font-family: var(--mono); }
-    .hdr-right { display: flex; align-items: center; gap: 16px; }
-    .live-pill { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--txt3); font-family: var(--mono); }
+    /* header */
+    .hdr { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; min-height: 76px; border: 1px solid var(--border); border-radius: var(--radius-lg); flex-shrink: 0; gap: 12px; background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.02)); box-shadow: var(--shadow-panel); }
+    .hdr-logo { display: flex; align-items: center; gap: 14px; }
+    .logo-mark { width: 38px; height: 38px; background: linear-gradient(135deg, rgba(125, 196, 255, 0.22), rgba(77, 213, 153, 0.18)); border: 1px solid var(--border2); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
+    .logo-mark svg { width: 18px; height: 18px; }
+    .logo-title { font-size: 18px; font-weight: 600; text-transform: none; }
+    .logo-sub { margin-top: 2px; color: var(--txt3); font-weight: 600; }
+    .hdr-right { display: flex; flex-direction: column; align-items: flex-end; gap: 14px; }
+    .live-pill { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--txt3); font-weight: 600; }
     .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--low); animation: pulse 2s ease-in-out infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
-    .hdr-time { font-size: 10px; color: var(--txt3); font-family: var(--mono); }
+    .hdr-time { font-size: 11px; color: var(--txt2); font-weight: 600; }
+    .hdr-main { display: flex; align-items: flex-start; gap: 18px; }
+    .hdr-copy { display: grid; gap: 8px; max-width: 560px; }
+    .hdr-kicker, .shell-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--txt3); font-weight: 700; }
+    .hdr-headline { font-family: var(--font-display); font-size: clamp(24px, 3vw, 38px); line-height: 1.02; letter-spacing: -0.05em; max-width: 14ch; }
+    .hdr-copy p { color: var(--txt2); line-height: 1.65; max-width: 58ch; }
+    .status-cluster { display: flex; align-items: center; gap: 12px; }
+    .future-nav, .shell-future { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .future-chip { padding: 7px 10px; border: 1px solid var(--border); border-radius: 999px; color: var(--txt2); background: rgba(255,255,255,.03); font-size: 11px; font-weight: 700; }
+    .future-chip strong { color: var(--txt); font-weight: 700; }
+    .shell-note { color: var(--txt2); font-size: 13px; line-height: 1.45; max-width: 26ch; }
 
-    /* ── tab bar ── */
-    .tabbar { display: flex; border-bottom: 0.5px solid var(--border); padding: 0 20px; flex-shrink: 0; overflow-x: auto; background: var(--bg); }
+    /* tab bar */
+    .shell-nav { display: flex; align-items: center; gap: 18px; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 18px; background: rgba(9,19,29,.74); box-shadow: var(--shadow-soft); }
+    .shell-nav-meta { display: grid; gap: 4px; min-width: 220px; }
+    .tabbar { display: flex; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 6px; flex-shrink: 0; overflow-x: auto; background: rgba(9,19,29,.78); }
     .tabbar::-webkit-scrollbar { display: none; }
-    .tab { padding: 0 14px; height: 38px; display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 12px; color: var(--txt3); border-bottom: 2px solid transparent; margin-bottom: -0.5px; white-space: nowrap; transition: color .1s; background: none; border-left: none; border-right: none; border-top: none; user-select: none; }
-    .tab:hover { color: var(--txt2); }
-    .tab.active { color: var(--txt); border-bottom-color: var(--txt); font-weight: 500; }
-    .tbadge { font-size: 10px; font-family: var(--mono); padding: 1px 5px; border-radius: 3px; background: var(--bg2); color: var(--txt3); transition: background .1s; }
+    .tab { padding: 0 16px; height: 42px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; color: var(--txt3); border-bottom: 2px solid transparent; border-radius: 999px; white-space: nowrap; transition: color .1s, background .1s; background: none; border-left: none; border-right: none; border-top: none; user-select: none; font-weight: 700; }
+    .tab:hover { color: var(--txt2); background: rgba(255,255,255,.035); }
+    .tab.active { color: var(--txt); border-bottom-color: transparent; background: rgba(255,255,255,.07); }
+    .tbadge { font-size: 10px; font-family: var(--font-sans); padding: 1px 5px; border-radius: 3px; background: var(--bg2); color: var(--txt3); transition: background .1s; }
     .tab.active .tbadge { background: var(--txt); color: var(--bg); }
     .tbadge.warn { background: var(--crit-bg); color: var(--crit); }
 
-    /* ── metrics ── */
-    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
-    .metric { padding: 12px 20px; border-right: 0.5px solid var(--border); }
-    .metric:last-child { border-right: none; }
-    .m-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--txt3); font-family: var(--mono); margin-bottom: 4px; }
-    .m-val { font-size: 24px; font-weight: 300; font-family: var(--mono); line-height: 1; margin-bottom: 3px; }
+    /* metrics */
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; flex-shrink: 0; }
+    .metric { padding: 18px 20px 20px; display: grid; gap: 14px; position: relative; overflow: hidden; }
+    .metric::before { content: ''; position: absolute; inset: 0 0 auto; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent); opacity: .8; }
+    .metric-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .metric-top .m-label { margin-bottom: 6px; }
+    .metric-top p { color: var(--txt2); font-size: 12px; line-height: 1.5; max-width: 24ch; }
+    .metric-accent { width: 38px; height: 38px; border-radius: 12px; border: 1px solid var(--border2); background: rgba(255,255,255,.04); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: var(--txt2); box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
+    .metric-accent.crit { color: var(--crit); background: rgba(255,107,107,.08); border-color: var(--crit-border); }
+    .metric-accent.amber { color: var(--med); background: rgba(255,211,105,.08); border-color: var(--med-border); }
+    .metric-accent.info { color: var(--info); background: rgba(125,196,255,.08); border-color: var(--info-border); }
+    .metric-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+    .m-label { margin-bottom: 8px; }
+    .m-val { font-size: clamp(32px, 4vw, 40px); font-weight: 600; font-family: var(--font-display); line-height: .95; margin-bottom: 6px; letter-spacing: -0.05em; }
     .m-val.crit { color: var(--crit); }
     .m-val.amber { color: var(--med); }
-    .m-delta { font-size: 10px; font-family: var(--mono); color: var(--txt3); }
+    .m-context { font-size: 11px; color: var(--txt3); font-weight: 700; }
+    .m-delta { font-size: 11px; color: var(--txt3); font-weight: 600; max-width: 14ch; text-align: right; line-height: 1.45; }
     .m-delta.up { color: var(--crit); }
     .m-delta.dn { color: var(--low); }
 
-    /* ── body ── */
+    .overview-frame { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr); gap: 16px; padding: 18px 20px; border-bottom: 0.5px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.028), rgba(255,255,255,.012)); }
+    .overview-stage { display: grid; gap: 14px; }
+    .overview-copy { display: grid; gap: 10px; max-width: 60ch; }
+    .overview-kicker { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--info); font-weight: 800; }
+    .overview-title { font-family: var(--font-display); font-size: clamp(24px, 3vw, 36px); line-height: 1.02; letter-spacing: -0.05em; max-width: 15ch; }
+    .overview-copy p { color: var(--txt2); line-height: 1.65; }
+    .overview-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .overview-pill { padding: 7px 10px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,.03); color: var(--txt2); font-size: 11px; font-weight: 700; }
+    .overview-pill strong { color: var(--txt); }
+    .overview-summary { display: grid; gap: 12px; }
+    .overview-card { padding: 16px 18px; border: 1px solid var(--border); border-radius: var(--radius-md); background: rgba(255,255,255,.03); box-shadow: inset 0 1px 0 rgba(255,255,255,.04); }
+    .overview-card p { margin-top: 8px; color: var(--txt2); line-height: 1.6; font-size: 13px; }
+    .overview-card.primary { background: linear-gradient(180deg, rgba(125,196,255,.12), rgba(125,196,255,.04)); border-color: rgba(125,196,255,.2); }
+    .overview-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .overview-stat { padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: rgba(7,16,24,.44); }
+    .overview-stat span { display: block; margin-top: 6px; color: var(--txt); font-size: 17px; font-weight: 700; letter-spacing: -0.03em; }
+
+    /* body */
     .body { display: grid; grid-template-columns: 1fr 260px; flex: 1; min-height: 0; }
     .feed-col { overflow-y: auto; }
     .sidebar { overflow-y: auto; }
 
-    /* ── resize handle ── */
+    /* resize handle */
     .resize-handle {
       width: 4px;
       cursor: col-resize;
@@ -114,74 +161,88 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
     .resize-handle::after {
       content: '';
       position: absolute;
-      top: 0; bottom: 0;
-      left: -4px; right: -4px; /* widen the hit target */
+      top: 0;
+      bottom: 0;
+      left: -4px;
+      right: -4px;
     }
 
-    /* ── filter bar ── */
-    .filterbar { padding: 8px 20px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; position: sticky; top: 0; background: var(--bg); z-index: 10; }
-    .fl { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--txt3); font-family: var(--mono); }
-    .fpill { font-size: 10px; font-family: var(--mono); padding: 3px 9px; border-radius: 20px; border: 0.5px solid var(--border2); color: var(--txt2); cursor: pointer; user-select: none; transition: all .1s; background: transparent; }
+    /* filter bar */
+    .filterbar { padding: 10px 20px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; position: sticky; top: 0; background: rgba(9,19,29,.8); z-index: 10; }
+    .fl { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--txt3); font-family: var(--font-sans); }
+    .fpill { font-size: 10px; font-family: var(--font-sans); padding: 3px 9px; border-radius: 20px; border: 0.5px solid var(--border2); color: var(--txt2); cursor: pointer; user-select: none; transition: all .1s; background: transparent; }
     .fpill:hover { background: var(--bg2); }
     .fpill.active { background: var(--txt); color: var(--bg); border-color: var(--txt); }
 
-    /* ── section header ── */
-    .shdr { padding: 7px 20px; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--txt3); font-family: var(--mono); border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 37px; background: var(--bg); z-index: 9; }
+    /* section header */
+    .shdr { padding: 10px 20px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 44px; background: rgba(9,19,29,.88); z-index: 9; }
 
-    /* ── threat card ── */
-    .tcard { padding: 14px 20px; border-bottom: 0.5px solid var(--border); cursor: pointer; transition: background .1s; }
-    .tcard:hover, .tcard.active { background: var(--bg2); }
-    .tc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
-    .tc-title { font-size: 13px; font-weight: 500; line-height: 1.4; flex: 1; }
-    .tc-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-    .tc-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-bottom: 7px; }
-    .tc-desc { font-size: 12px; color: var(--txt2); line-height: 1.55; }
+    /* threat card */
+    .feed-stack { display: grid; gap: 0; padding: 2px 0 14px; }
+    .tcard { margin: 14px 14px 0; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius-md); background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)); cursor: pointer; transition: transform .12s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease; box-shadow: var(--shadow-soft); display: grid; gap: 14px; }
+    .tcard:hover, .tcard.active { background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border-color: rgba(139, 162, 191, 0.34); transform: translateY(-1px); }
+    .tc-kicker { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .tc-kicker-main { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .tc-date { color: var(--txt3); font-size: 11px; font-weight: 700; }
+    .tc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+    .tc-title { font-size: 17px; font-weight: 600; line-height: 1.35; flex: 1; max-width: 34ch; }
+    .tc-meta-line { margin-top: 7px; color: var(--txt3); font-size: 12px; line-height: 1.5; }
+    .tc-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+    .tc-score-card { min-width: 106px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(7,16,24,.55); text-align: right; }
+    .tc-score-label { display: block; margin-bottom: 6px; color: var(--txt3); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; }
+    .tc-band { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .tc-group { padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(7,16,24,.4); display: grid; gap: 8px; }
+    .tc-group-label { color: var(--txt3); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; }
+    .tc-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0; }
+    .tc-desc { font-size: 13px; color: var(--txt2); line-height: 1.7; }
     .tc-desc.clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
-    .tc-footer { display: flex; gap: 8px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
-    .tc-foot-item { font-size: 10px; font-family: var(--mono); color: var(--txt3); }
-    .expand-btn { font-size: 10px; font-family: var(--mono); color: var(--txt3); cursor: pointer; padding: 2px 6px; border: 0.5px solid var(--border2); border-radius: 3px; background: transparent; margin-top: 8px; transition: background .1s; }
-    .expand-btn:hover { background: var(--bg2); }
+    .tc-footer { display: flex; gap: 12px; margin-top: 2px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid rgba(139, 162, 191, 0.12); }
+    .tc-footer-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .tc-foot-item { font-size: 11px; color: var(--txt3); }
+    .expand-btn { cursor: pointer; padding: 7px 12px; margin-top: 0; }
 
-    /* ── badges ── */
-    .badge { font-size: 9px; font-family: var(--mono); font-weight: 500; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.04em; white-space: nowrap; }
+    /* badges */
+    .badge { font-size: 10px; }
     .b-crit { background: var(--crit-bg); color: var(--crit); border: 0.5px solid var(--crit-border); }
     .b-high { background: var(--high-bg); color: var(--high); border: 0.5px solid var(--high-border); }
     .b-med  { background: var(--med-bg);  color: var(--med);  border: 0.5px solid var(--med-border); }
     .b-low  { background: var(--low-bg);  color: var(--low);  border: 0.5px solid var(--low-border); }
     .b-info { background: var(--info-bg); color: var(--info); border: 0.5px solid var(--info-border); }
-    .b-gray { background: var(--bg2); color: var(--txt3); border: 0.5px solid var(--border); }
-    .b-model { background: var(--bg3); color: var(--txt2); border: 0.5px solid var(--border); }
-    .ttp-tag { font-size: 9px; font-family: var(--mono); padding: 1px 5px; border-radius: 2px; background: var(--bg2); border: 0.5px solid var(--border); color: var(--txt3); }
-    .score { font-size: 11px; font-family: var(--mono); font-weight: 500; }
+    .ttp-tag { font-size: 10px; background: rgba(255,255,255,.045); color: var(--txt3); }
+    .score { font-size: 24px; font-weight: 700; letter-spacing: -0.04em; }
 
-    /* ── model sub-nav ── */
-    .msubnav { display: flex; border-bottom: 0.5px solid var(--border); padding: 0 20px; overflow-x: auto; background: var(--bg); position: sticky; top: 0; z-index: 10; }
+    /* model sub-nav */
+    .msubnav { display: flex; border-bottom: 0.5px solid var(--border); padding: 0 20px; overflow-x: auto; background: rgba(9,19,29,.8); position: sticky; top: 0; z-index: 10; }
     .msubnav::-webkit-scrollbar { display: none; }
-    .mstab { padding: 0 12px; height: 34px; display: flex; align-items: center; font-size: 11px; color: var(--txt3); cursor: pointer; border-bottom: 1.5px solid transparent; margin-bottom: -0.5px; white-space: nowrap; user-select: none; transition: color .1s; background: none; border-left: none; border-right: none; border-top: none; }
+    .mstab { padding: 0 12px; height: 36px; display: flex; align-items: center; font-size: 12px; color: var(--txt3); cursor: pointer; border-bottom: 1.5px solid transparent; margin-bottom: -0.5px; white-space: nowrap; user-select: none; transition: color .1s; background: none; border-left: none; border-right: none; border-top: none; font-weight: 700; }
     .mstab:hover { color: var(--txt2); }
     .mstab.active { color: var(--txt); border-bottom-color: var(--txt); }
 
-    /* ── vector toggle ── */
-    .vtoggle { display: flex; border: 0.5px solid var(--border2); border-radius: 5px; overflow: hidden; }
-    .vtbtn { padding: 4px 11px; font-size: 10px; font-family: var(--mono); cursor: pointer; background: var(--bg); color: var(--txt3); border: none; transition: all .1s; user-select: none; }
+    /* vector toggle */
+    .vtoggle { display: flex; gap: 6px; border: 0; border-radius: 999px; overflow: visible; }
+    .vtbtn { padding: 6px 12px; font-size: 11px; cursor: pointer; color: var(--txt3); border: none; user-select: none; font-weight: 700; }
     .vtbtn.active { background: var(--txt); color: var(--bg); }
 
-    /* ── sidebar ── */
-    .sb-block { padding: 14px 16px; border-bottom: 0.5px solid var(--border); }
-    .sb-title { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--txt3); font-family: var(--mono); margin-bottom: 10px; }
+    /* sidebar */
+    .sb-block { padding: 16px; margin-bottom: 12px; }
+    .sb-block.executive { background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); }
+    .sb-title { margin-bottom: 12px; }
+    .sb-copy { color: var(--txt2); font-size: 13px; line-height: 1.6; }
+    .sb-list { display: grid; gap: 10px; margin-top: 14px; }
+    .sb-list-item { display: grid; gap: 4px; }
+    .sb-list-item strong { color: var(--txt); font-size: 12px; font-weight: 700; }
+    .sb-list-item span { color: var(--txt3); font-size: 12px; line-height: 1.5; }
     .mbar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-    .mbar-name { font-size: 10px; color: var(--txt2); font-family: var(--mono); width: 62px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .mbar-name { font-size: 11px; color: var(--txt2); width: 62px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
     .mbar-wrap { flex: 1; height: 5px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
     .mbar { height: 100%; border-radius: 3px; }
-    .mbar-n { font-size: 10px; font-family: var(--mono); color: var(--txt3); width: 16px; text-align: right; }
-    /* timeline */
+    .mbar-n { font-size: 11px; color: var(--txt3); width: 16px; text-align: right; font-weight: 700; }
     .tl { display: flex; align-items: flex-end; gap: 3px; height: 44px; }
     .tlb { flex: 1; border-radius: 2px 2px 0 0; min-height: 3px; cursor: pointer; transition: opacity .1s; }
     .tlb:hover { opacity: .7; }
     .tll { display: flex; gap: 3px; margin-top: 4px; }
-    .tllb { flex: 1; font-size: 8px; font-family: var(--mono); color: var(--txt3); text-align: center; }
-    /* matrix */
-    .matrix-tbl { width: 100%; border-collapse: collapse; font-family: var(--mono); }
+    .tllb { flex: 1; font-size: 9px; color: var(--txt3); text-align: center; font-weight: 600; }
+    .matrix-tbl { width: 100%; border-collapse: collapse; }
     .matrix-tbl th { font-size: 8px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--txt3); padding: 3px 3px; text-align: center; border-bottom: 0.5px solid var(--border); }
     .matrix-tbl th:first-child { text-align: left; font-size: 8px; }
     .matrix-tbl td { padding: 3px; text-align: center; border-bottom: 0.5px solid var(--border); }
@@ -191,753 +252,94 @@ const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
     .md-high { background: var(--high); opacity: .85; }
     .md-med  { background: var(--med);  opacity: .8; }
     .md-none { background: var(--bg3); }
-    /* siem stub */
-    .siem-stub { margin: 20px; padding: 20px; border: 0.5px dashed var(--border2); border-radius: 8px; text-align: center; }
-    .siem-stub-title { font-size: 10px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--txt3); margin-bottom: 10px; }
-    .siem-stub-body { font-size: 12px; color: var(--txt2); line-height: 1.6; }
-    .siem-config-rows { text-align: left; margin-top: 16px; }
-    .siem-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 11px; font-family: var(--mono); }
-    .siem-row label { color: var(--txt3); width: 120px; flex-shrink: 0; }
-    .siem-row input, .siem-row select { flex: 1; background: var(--bg2); border: 0.5px solid var(--border2); color: var(--txt); padding: 5px 8px; border-radius: 4px; font-family: var(--mono); font-size: 11px; }
-    .siem-export-btns { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; justify-content: center; }
-    .export-btn { padding: 6px 14px; font-size: 11px; font-family: var(--mono); border: 0.5px solid var(--border2); border-radius: 4px; background: var(--bg2); color: var(--txt2); cursor: pointer; transition: background .1s; }
-    .export-btn:hover { background: var(--bg3); }
 
-    /* ── panels ── */
+    /* panels */
+    .workspace-shell { display: flex; flex-direction: column; gap: 16px; flex: 1; min-height: 0; }
     .panel { display: none; flex: 1; overflow: hidden; flex-direction: column; }
     .panel.active { display: flex; }
     .panel-scroll { overflow-y: auto; flex: 1; }
+    .panel,
+    #overview-layout {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(9,19,29,.78);
+      box-shadow: var(--shadow-soft);
+    }
+    .siem-config-rows { text-align: left; margin-top: 16px; }
+    .siem-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 11px; font-family: var(--font-sans); }
+    .siem-row label { color: var(--txt3); width: 120px; flex-shrink: 0; }
+    .siem-row input, .siem-row select { flex: 1; background: rgba(255,255,255,.03); border: 0.5px solid var(--border2); color: var(--txt); padding: 8px 10px; border-radius: 10px; font-family: var(--font-sans); font-size: 12px; }
+    .siem-export-btns { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; justify-content: center; }
+    .export-btn { padding: 8px 14px; }
 
-    .drawer-scrim { position: fixed; inset: 0; background: rgba(0,0,0,.3); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 40; }
+    /* drawer */
+    .drawer-scrim { position: fixed; inset: 0; background: rgba(3,8,13,.62); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 40; backdrop-filter: blur(4px); }
     .drawer-scrim.open { opacity: 1; pointer-events: auto; }
-    .drawer { position: fixed; top: 0; right: 0; width: min(520px, 100vw); height: 100vh; background: var(--bg); border-left: 0.5px solid var(--border); transform: translateX(100%); transition: transform .2s ease; z-index: 41; display: flex; flex-direction: column; box-shadow: -20px 0 40px rgba(0,0,0,.08); }
+    .drawer { position: fixed; top: 0; right: 0; width: min(560px, 100vw); height: 100vh; background: linear-gradient(180deg, rgba(7,16,24,.98), rgba(9,19,29,.98)); border-left: 1px solid var(--border); transform: translateX(100%); transition: transform .2s ease; z-index: 41; display: flex; flex-direction: column; box-shadow: -26px 0 60px rgba(0,0,0,.34); }
     .drawer.open { transform: translateX(0); }
-    .drawer-hdr { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 16px 18px; border-bottom: 0.5px solid var(--border); }
-    .drawer-title { font-size: 16px; line-height: 1.35; font-weight: 500; }
-    .drawer-sub { margin-top: 6px; font-size: 10px; font-family: var(--mono); color: var(--txt3); }
-    .drawer-close { border: 0.5px solid var(--border2); background: transparent; color: var(--txt2); border-radius: 4px; width: 28px; height: 28px; cursor: pointer; flex-shrink: 0; }
-    .drawer-body { overflow-y: auto; padding: 16px 18px 28px; }
-    .drawer-section { margin-bottom: 18px; }
-    .drawer-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--txt3); font-family: var(--mono); margin-bottom: 8px; }
-    .drawer-copy { font-size: 12px; line-height: 1.65; color: var(--txt2); }
+    .drawer-hdr { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding: 18px 20px; border-bottom: 1px solid rgba(139, 162, 191, 0.14); background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); }
+    .drawer-title { font-size: 28px; line-height: 1.02; font-weight: 600; max-width: 14ch; }
+    .drawer-sub { margin-top: 8px; max-width: 36ch; line-height: 1.5; }
+    .drawer-close { width: 38px; height: 38px; cursor: pointer; flex-shrink: 0; }
+    .drawer-body { overflow-y: auto; padding: 20px 20px 30px; display: grid; gap: 18px; }
+    .drawer-section { display: grid; gap: 10px; }
+    .drawer-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(150px, 180px); gap: 14px; }
+    .drawer-copy { font-size: 13px; line-height: 1.7; color: var(--txt2); }
+    .drawer-hero-rail, .drawer-band { padding: 14px; border: 1px solid var(--border); border-radius: 14px; background: rgba(255,255,255,.03); display: grid; gap: 10px; }
+    .drawer-score-card { padding: 14px; border-radius: 14px; border: 1px solid rgba(125,196,255,.18); background: linear-gradient(180deg, rgba(125,196,255,.12), rgba(125,196,255,.04)); }
+    .drawer-score-card .score { display: block; margin-top: 8px; }
+    .drawer-band-title { color: var(--txt3); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; }
+    .drawer-pill-grid { display: grid; gap: 10px; }
     .drawer-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-    .drawer-stat { border: 0.5px solid var(--border); background: var(--bg2); border-radius: 8px; padding: 10px; }
-    .drawer-stat-k { font-size: 9px; color: var(--txt3); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; }
-    .drawer-stat-v { margin-top: 5px; font-size: 12px; color: var(--txt); line-height: 1.4; }
-    .drawer-list { display: grid; gap: 7px; }
+    .drawer-stat { padding: 12px; }
+    .drawer-stat-v { margin-top: 6px; font-size: 13px; color: var(--txt); line-height: 1.45; }
+    .drawer-list { display: grid; gap: 8px; }
     .drawer-item { font-size: 12px; color: var(--txt2); line-height: 1.55; padding-left: 14px; position: relative; }
-    .drawer-item::before { content: '→'; position: absolute; left: 0; color: var(--txt3); }
-    .drawer-link { color: var(--info); text-decoration: none; }
+    .drawer-item::before { content: '-'; position: absolute; left: 0; color: var(--txt3); }
+    .drawer-link { color: var(--info); text-decoration: none; font-weight: 700; }
     .drawer-link:hover { text-decoration: underline; }
     body.drawer-open { overflow: hidden; }
 
     @media (max-width: 780px) {
+      #app { padding: 12px; }
+      .hdr { flex-direction: column; align-items: stretch; }
+      .hdr-main { flex-direction: column; }
+      .hdr-right { align-items: flex-start; }
+      .status-cluster { flex-wrap: wrap; }
+      .shell-nav { flex-direction: column; align-items: stretch; }
+      .shell-nav-meta { min-width: 0; }
+      .shell-future { justify-content: flex-start; }
+      .tabbar { width: 100%; }
+      .overview-frame { grid-template-columns: 1fr; }
+      .overview-grid { grid-template-columns: 1fr; }
       .metrics { grid-template-columns: repeat(2, 1fr); }
+      .tc-band { grid-template-columns: 1fr; }
+      .drawer-hero { grid-template-columns: 1fr; }
       .drawer-grid { grid-template-columns: 1fr; }
     }
-
-    /* ── empty state ── */
-    .empty { padding: 32px 20px; text-align: center; color: var(--txt3); font-size: 12px; }
-
-    /* ── loading ── */
-    .loading { padding: 24px 20px; text-align: center; color: var(--txt3); font-size: 11px; font-family: var(--mono); }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spinner { display: inline-block; width: 14px; height: 14px; border: 1.5px solid var(--border2); border-top-color: var(--txt3); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; }
   </style>
 </head>
 <body>
-<div id="app">
+  <div id="app">
+    <DashboardShell now={now} />
 
-  <!-- HEADER -->
-  <header class="hdr">
-    <div class="hdr-logo">
-      <div class="logo-mark">
-        <svg viewBox="0 0 14 14" fill="none">
-          <rect x="1" y="1" width="5" height="5" rx="1" fill="#ef4444"/>
-          <rect x="8" y="1" width="5" height="5" rx="1" fill="#f97316" opacity=".7"/>
-          <rect x="1" y="8" width="5" height="5" rx="1" fill="#f97316" opacity=".7"/>
-          <rect x="8" y="8" width="5" height="5" rx="1" fill="#facc15" opacity=".5"/>
-        </svg>
-      </div>
-      <div>
-        <div class="logo-title">AI Threat Intel</div>
-        <div class="logo-sub">AITID · v0.1 · prototype</div>
-      </div>
+    <div class="workspace-shell">
+      <MetricsStrip initialStats={initialStats} />
+      <OverviewPanel
+        initialStats={initialStats}
+        overviewPosture={overviewPosture}
+        overviewPriority={overviewPriority}
+        overviewStatus={overviewStatus}
+        overviewUpdated={overviewUpdated}
+      />
+      <SecondaryPanels />
     </div>
-    <div class="hdr-right">
-      <div class="live-pill"><div class="pulse"></div>Live feed active &nbsp;·&nbsp; Updated:</div>
-      <div class="hdr-time" id="hdr-time">{now}</div>
-    </div>
-  </header>
 
-  <!-- TAB BAR -->
-  <nav class="tabbar" id="tabbar">
-    <button class="tab active" data-tab="overview">Overview <span class="tbadge" id="badge-overview">—</span></button>
-    <button class="tab" data-tab="openai">OpenAI <span class="tbadge warn" id="badge-openai">—</span></button>
-    <button class="tab" data-tab="claude">Claude <span class="tbadge" id="badge-claude">—</span></button>
-    <button class="tab" data-tab="copilot">Copilot <span class="tbadge" id="badge-copilot">—</span></button>
-    <button class="tab" data-tab="oss">OSS / HuggingFace <span class="tbadge" id="badge-oss">—</span></button>
-    <button class="tab" data-tab="vectors">Vectors <span class="tbadge" id="badge-vectors">—</span></button>
-    <button class="tab" data-tab="siem">SIEM Config <span class="tbadge" style="background:var(--info-bg);color:var(--info)">stub</span></button>
-  </nav>
-
-  <!-- METRICS -->
-  <div class="metrics" id="metrics-strip">
-    <div class="metric"><div class="m-label">Active campaigns</div><div class="m-val" id="m-total">—</div><div class="m-delta" id="m-total-d"></div></div>
-    <div class="metric"><div class="m-label">Critical severity</div><div class="m-val crit" id="m-crit">—</div><div class="m-delta up" id="m-crit-d"></div></div>
-    <div class="metric"><div class="m-label">New this week</div><div class="m-val amber" id="m-week">—</div><div class="m-delta" id="m-week-d"></div></div>
-    <div class="metric"><div class="m-label">Models affected</div><div class="m-val" id="m-models">—</div><div class="m-delta dn" id="m-models-d"></div></div>
+    <ThreatDetailDrawer />
   </div>
 
-  <!-- PANELS -->
-
-  <!-- OVERVIEW -->
-  <div class="panel active" id="panel-overview">
-    <div id="overview-layout" style="display:flex;flex:1;min-height:0;overflow:hidden">
-      <div class="feed-col" id="overview-feed-col" style="flex:1;min-width:0;overflow-y:auto;border-right:none">
-        <div class="filterbar">
-          <span class="fl">Filter:</span>
-          <button class="fpill active" data-f="all">All</button>
-          <button class="fpill" data-f="critical">Critical</button>
-          <button class="fpill" data-f="high">High</button>
-          <button class="fpill" data-f="medium">Medium</button>
-          <button class="fpill" data-f="supply-chain">Supply chain</button>
-          <button class="fpill" data-f="jailbreak">Jailbreak</button>
-          <button class="fpill" data-f="data-exfil">Data exfil</button>
-        </div>
-        <div class="shdr"><span>Live threat feed</span><span>blended CVSS + ATLAS score</span></div>
-        <div id="overview-feed"><div class="loading"><span class="spinner"></span>Loading threats...</div></div>
-      </div>
-      <div class="resize-handle" id="sidebar-resize-handle"></div>
-      <div class="sidebar" id="overview-sidebar" style="width:260px;min-width:160px;max-width:520px;overflow-y:auto;flex-shrink:0">
-        <div class="sb-block">
-          <div class="sb-title">Threat volume · 8w</div>
-          <div class="tl" id="sb-tl"></div>
-          <div class="tll" id="sb-tll"></div>
-        </div>
-        <div class="sb-block">
-          <div class="sb-title">Exposure by model</div>
-          <div id="sb-models"></div>
-        </div>
-        <div class="sb-block">
-          <div class="sb-title">Vector × model</div>
-          <div id="sb-matrix"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODEL PANELS -->
-  <div class="panel" id="panel-openai">
-    <div class="msubnav" id="msubnav-openai">
-      <button class="mstab active" data-mf="all">All</button>
-      <button class="mstab" data-mf="jailbreak">Jailbreaks</button>
-      <button class="mstab" data-mf="prompt-injection">Prompt injection</button>
-      <button class="mstab" data-mf="plugin-abuse">Plugin / MCP</button>
-      <button class="mstab" data-mf="data-exfil">Data exfil</button>
-      <button class="mstab" data-mf="supply-chain">Supply chain</button>
-    </div>
-    <div class="panel-scroll"><div id="feed-openai"><div class="loading"><span class="spinner"></span>Loading...</div></div></div>
-  </div>
-
-  <div class="panel" id="panel-claude">
-    <div class="msubnav" id="msubnav-claude">
-      <button class="mstab active" data-mf="all">All</button>
-      <button class="mstab" data-mf="mcp-abuse">MCP abuse</button>
-      <button class="mstab" data-mf="jailbreak">Jailbreaks</button>
-      <button class="mstab" data-mf="prompt-injection">Prompt injection</button>
-      <button class="mstab" data-mf="skill-file-abuse">SKILL.md</button>
-    </div>
-    <div class="panel-scroll"><div id="feed-claude"><div class="loading"><span class="spinner"></span>Loading...</div></div></div>
-  </div>
-
-  <div class="panel" id="panel-copilot">
-    <div class="msubnav" id="msubnav-copilot">
-      <button class="mstab active" data-mf="all">All</button>
-      <button class="mstab" data-mf="data-exfil">Data exfil</button>
-      <button class="mstab" data-mf="prompt-injection">Prompt injection</button>
-      <button class="mstab" data-mf="supply-chain">Supply chain</button>
-    </div>
-    <div class="panel-scroll"><div id="feed-copilot"><div class="loading"><span class="spinner"></span>Loading...</div></div></div>
-  </div>
-
-  <div class="panel" id="panel-oss">
-    <div class="msubnav" id="msubnav-oss">
-      <button class="mstab active" data-mf="all">All</button>
-      <button class="mstab" data-mf="model-poisoning">Model poisoning</button>
-      <button class="mstab" data-mf="supply-chain">Supply chain</button>
-      <button class="mstab" data-mf="skill-file-abuse">SKILL.md / agent</button>
-    </div>
-    <div class="panel-scroll"><div id="feed-oss"><div class="loading"><span class="spinner"></span>Loading...</div></div></div>
-  </div>
-
-  <!-- VECTORS PANEL -->
-  <div class="panel" id="panel-vectors">
-    <div class="shdr">
-      <span>Distribution vector tracking</span>
-      <div class="vtoggle">
-        <button class="vtbtn active" id="vt-threats">Threats per vector</button>
-        <button class="vtbtn" id="vt-matrix">Vector × model matrix</button>
-      </div>
-    </div>
-    <div class="panel-scroll">
-      <div id="vec-threats-view"></div>
-      <div id="vec-matrix-view" style="display:none;padding:16px 20px;"></div>
-    </div>
-  </div>
-
-  <!-- SIEM PANEL -->
-  <div class="panel" id="panel-siem">
-    <div class="panel-scroll">
-      <div class="siem-stub">
-        <div class="siem-stub-title">SIEM / SOAR Integration</div>
-        <div class="siem-stub-body">
-          Connect your SIEM to receive structured threat events. Each event includes severity, blended CVSS+ATLAS score, affected models, vectors, IOCs, and STIX 2.1 object.
-          <br/><br/>
-          Supported targets: Microsoft Sentinel, Splunk HEC, Elastic, CrowdStrike Falcon, generic webhook.
-        </div>
-        <div class="siem-config-rows">
-          <div class="siem-row"><label>SIEM type</label><select id="sc-type"><option value="">— select —</option><option>sentinel</option><option>splunk</option><option>elastic</option><option>crowdstrike</option><option>webhook</option></select></div>
-          <div class="siem-row"><label>Webhook / HEC URL</label><input type="url" id="sc-url" placeholder="https://..." /></div>
-          <div class="siem-row"><label>Secret / token</label><input type="password" id="sc-secret" placeholder="•••••••••" /></div>
-          <div class="siem-row"><label>Min severity</label><select id="sc-minsev"><option value="critical">Critical only</option><option value="high" selected>High+</option><option value="medium">Medium+</option></select></div>
-        </div>
-        <div class="siem-export-btns">
-          <button class="export-btn" onclick="exportStix()">Export STIX 2.1 bundle</button>
-          <button class="export-btn" onclick="exportCsv()">Export CSV</button>
-          <button class="export-btn" onclick="exportJson()">Export JSON</button>
-          <button class="export-btn" style="color:var(--info)" onclick="saveSiemConfig()">Save config →</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<div class="drawer-scrim" id="detail-scrim"></div>
-<aside class="drawer" id="detail-drawer" aria-hidden="true">
-  <div class="drawer-hdr">
-    <div>
-      <div class="drawer-title" id="drawer-title">Threat detail</div>
-      <div class="drawer-sub" id="drawer-sub"></div>
-    </div>
-    <button class="drawer-close" id="drawer-close" aria-label="Close detail drawer">×</button>
-  </div>
-  <div class="drawer-body" id="drawer-body"></div>
-</aside>
-
-<script>
-// ── State ─────────────────────────────────────────────────────────────────
-let ALL_THREATS = [];
-let currentTab  = 'overview';
-let overviewFilter = 'all';
-let selectedThreatId = null;
-
-// ── Fetch threats ─────────────────────────────────────────────────────────
-async function loadThreats() {
-  try {
-    const res = await fetch('/api/threats');
-    const data = await res.json();
-    ALL_THREATS = data.threats ?? [];
-  } catch {
-    ALL_THREATS = [];
-  }
-  renderAll();
-}
-
-async function loadStats() {
-  try {
-    const res = await fetch('/api/stats');
-    const s = await res.json();
-    document.getElementById('m-total').textContent    = s.totalThreats;
-    document.getElementById('m-crit').textContent     = s.activeCritical;
-    document.getElementById('m-week').textContent     = s.newThisWeek;
-    document.getElementById('m-models').textContent   = s.modelsAffected + ' / 5';
-    document.getElementById('m-total-d').textContent  = s.totalThreats > 0 ? '↑ ' + Math.max(1, Math.floor(s.totalThreats * 0.25)) + ' vs last week' : '';
-    document.getElementById('m-crit-d').textContent   = s.activeCritical > 0 ? '↑ ' + s.activeCritical + ' new today' : '— none active';
-    document.getElementById('m-week-d').textContent   = '— same as prior';
-    document.getElementById('m-models-d').textContent = s.modelsAffected >= 5 ? '↑ all models affected' : '↓ Gemini cleared';
-  } catch { /* use defaults */ }
-}
-
-// ── Badge helpers ─────────────────────────────────────────────────────────
-const SEV_CLS = { critical:'b-crit', high:'b-high', medium:'b-med', low:'b-low', info:'b-info' };
-const STATUS_CLS = { active:'b-high', investigating:'b-med', mitigated:'b-low', patched:'b-low', disputed:'b-gray' };
-const SEV_ORDER = { critical:0, high:1, medium:2, low:3, info:4 };
-
-function badge(text, cls) { return `<span class="badge ${cls}">${text}</span>`; }
-function sevBadge(s) { return badge(s.toUpperCase(), SEV_CLS[s] ?? 'b-gray'); }
-function statusBadge(s) { return badge(s, STATUS_CLS[s] ?? 'b-gray'); }
-
-function shortModel(m) {
-  return m.replace('openai-','').replace('anthropic-','').replace('microsoft-','').replace('huggingface-','').replace('meta-','');
-}
-
-function formatDate(iso) {
-  return new Date(iso).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-}
-
-function escapeHtml(value) {
-  return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
-
-function findThreat(id) {
-  return ALL_THREATS.find(t => t.id === id) ?? null;
-}
-
-function arraySection(label, items) {
-  if (!items?.length) return '';
-  return `<section class="drawer-section">
-    <div class="drawer-label">${label}</div>
-    <div class="drawer-list">${items.map(item => `<div class="drawer-item">${escapeHtml(item)}</div>`).join('')}</div>
-  </section>`;
-}
-
-function threatDrawerHtml(threat) {
-  const facts = [
-    ['Severity', threat.severity.toUpperCase()],
-    ['Score', threat.score.blended.toFixed(1)],
-    ['Status', threat.status],
-    ['Published', formatDate(threat.publishedAt)],
-    ['Source', threat.source],
-    ['Patch', threat.patchVersion ?? 'None listed'],
-  ];
-  const modelBadges = threat.models.map(m => `<span class="badge b-model">${escapeHtml(shortModel(m))}</span>`).join('');
-  const vectorBadges = threat.vectors.map(v => `<span class="badge b-gray">${escapeHtml(v)}</span>`).join('');
-  const ttpBadges = threat.ttps.map(p => `<span class="ttp-tag">${escapeHtml(p.id)}</span>`).join('');
-  const sourceHref = /^https?:\/\//.test(threat.sourceUrl ?? '') ? threat.sourceUrl : null;
-
-  return `
-    <section class="drawer-section">
-      <div class="drawer-label">Summary</div>
-      <div class="drawer-copy">${escapeHtml(threat.description)}</div>
-    </section>
-    <section class="drawer-section">
-      <div class="drawer-label">Coverage</div>
-      <div class="tc-meta">
-        ${modelBadges}
-        ${vectorBadges}
-        ${ttpBadges}
-        ${threat.cve ? `<span class="ttp-tag">${escapeHtml(threat.cve)}</span>` : ''}
-      </div>
-    </section>
-    <section class="drawer-section">
-      <div class="drawer-label">Key Facts</div>
-      <div class="drawer-grid">
-        ${facts.map(([label, value]) => `<div class="drawer-stat"><div class="drawer-stat-k">${escapeHtml(label)}</div><div class="drawer-stat-v">${escapeHtml(value)}</div></div>`).join('')}
-      </div>
-    </section>
-    ${arraySection('Mitigations', threat.mitigations)}
-    ${arraySection('IOCs', threat.iocs)}
-    ${sourceHref ? `<section class="drawer-section"><div class="drawer-label">Reference</div><a class="drawer-link" href="${escapeHtml(sourceHref)}" target="_blank" rel="noreferrer">Open source advisory</a></section>` : ''}
-  `;
-}
-
-function updateActiveCard() {
-  document.querySelectorAll('.tcard').forEach(card => {
-    card.classList.toggle('active', card.dataset.threatId === selectedThreatId);
-  });
-}
-
-function openThreatDetail(id) {
-  const threat = findThreat(id);
-  if (!threat) return;
-  selectedThreatId = threat.id;
-  document.getElementById('drawer-title').textContent = threat.title;
-  document.getElementById('drawer-sub').textContent = `${threat.type} • ${threat.severity.toUpperCase()} • ${threat.score.blended.toFixed(1)}`;
-  document.getElementById('drawer-body').innerHTML = threatDrawerHtml(threat);
-  document.getElementById('detail-scrim').classList.add('open');
-  const drawer = document.getElementById('detail-drawer');
-  drawer.classList.add('open');
-  drawer.setAttribute('aria-hidden', 'false');
-  document.body.classList.add('drawer-open');
-  updateActiveCard();
-}
-
-function closeThreatDetail() {
-  selectedThreatId = null;
-  document.getElementById('detail-scrim').classList.remove('open');
-  const drawer = document.getElementById('detail-drawer');
-  drawer.classList.remove('open');
-  drawer.setAttribute('aria-hidden', 'true');
-  document.body.classList.remove('drawer-open');
-  updateActiveCard();
-}
-
-// ── Threat card HTML ──────────────────────────────────────────────────────
-function cardHtml(t) {
-  const cve = t.cve ? `<span class="ttp-tag">${escapeHtml(t.cve)}</span>` : '';
-  const patch = t.patchVersion ? `<span class="tc-foot-item" style="color:var(--low)">→ patch: ${escapeHtml(t.patchVersion)}</span>` : '';
-
-  return `<article class="tcard" id="card-${t.id}" data-threat-id="${t.id}" tabindex="0" role="button" aria-label="Open details for ${escapeHtml(t.title)}">
-    <div class="tc-top">
-      <div class="tc-title">${escapeHtml(t.title)}</div>
-      <div class="tc-right">
-        ${sevBadge(t.severity)}
-        <span class="score">${t.score.blended.toFixed(1)}</span>
-      </div>
-    </div>
-    <div class="tc-meta">
-      ${t.models.map(m => `<span class="badge b-model">${shortModel(m)}</span>`).join('')}
-      ${t.vectors.map(v => `<span class="badge b-gray">${escapeHtml(v)}</span>`).join('')}
-      ${statusBadge(t.status)}
-      ${t.ttps.map(p => `<span class="ttp-tag">${escapeHtml(p.id)}</span>`).join('')}
-      ${cve}
-    </div>
-    <div class="tc-desc clamp">${escapeHtml(t.description)}</div>
-    <div class="tc-footer">
-      <span class="tc-foot-item">${formatDate(t.publishedAt)}</span>
-      <span class="tc-foot-item">·</span>
-      <span class="tc-foot-item">${escapeHtml(t.source)}</span>
-      ${patch}
-    </div>
-    <button class="expand-btn" type="button" data-open-detail="${t.id}">View details →</button>
-  </article>`;
-}
-
-// ── Filter & render helpers ───────────────────────────────────────────────
-function filtered(threats, f) {
-  if (!f || f === 'all') return threats;
-  return threats.filter(t => t.severity === f || t.type === f || t.vectors.includes(f));
-}
-
-function sortedThreats(threats) {
-  return [...threats].sort((a, b) => {
-    const sd = SEV_ORDER[a.severity] - SEV_ORDER[b.severity];
-    return sd !== 0 ? sd : b.score.blended - a.score.blended;
-  });
-}
-
-function renderFeed(elId, threats) {
-  const el = document.getElementById(elId);
-  if (!el) return;
-  const sorted = sortedThreats(threats);
-  el.innerHTML = sorted.length
-    ? sorted.map(cardHtml).join('')
-    : '<div class="empty">No threats matching this filter.</div>';
-  updateActiveCard();
-}
-
-// ── Model filter helpers ──────────────────────────────────────────────────
-const MODEL_FILTERS = {
-  openai:  t => t.models.some(m => ['openai-gpt4o','openai-o3','openai-o4','openai-gpt41'].includes(m)),
-  claude:  t => t.models.some(m => m === 'anthropic-claude'),
-  copilot: t => t.models.some(m => ['microsoft-copilot-github','microsoft-copilot-m365'].includes(m)),
-  oss:     t => t.models.some(m => ['huggingface-oss','meta-llama','mistral'].includes(m)) || t.vectors.includes('huggingface'),
-};
-
-// ── Vector tab ───────────────────────────────────────────────────────────
-const VECTOR_GROUPS = [
-  { key:'skill-md',       label:'SKILL.md / AI agent file abuse',       vectors:['skill-md'] },
-  { key:'supply-chain',   label:'npm / PyPI / GitHub supply chain',      vectors:['npm','pypi','github-repo','github-advisory'] },
-  { key:'mcp',            label:'MCP server abuse',                      vectors:['mcp-server'] },
-  { key:'ide-plugin',     label:'IDE extension / plugin store',          vectors:['vs-code-ext','ide','plugin-store','browser-ext'] },
-  { key:'model-weights',  label:'Model weights / HuggingFace Hub',       vectors:['huggingface'] },
-  { key:'api-prompt',     label:'API abuse / prompt injection',          vectors:['api'] },
-];
-
-function renderVectorThreats() {
-  const el = document.getElementById('vec-threats-view');
-  if (!el) return;
-  el.innerHTML = VECTOR_GROUPS.map(g => {
-    const threats = ALL_THREATS.filter(t => t.vectors.some(v => g.vectors.includes(v)));
-    if (!threats.length) return '';
-    return `<div>
-      <div class="shdr">${g.label}<span>${threats.length} threat${threats.length>1?'s':''}</span></div>
-      ${sortedThreats(threats).map(cardHtml).join('')}
-    </div>`;
-  }).join('');
-}
-
-function renderVectorMatrix() {
-  const el = document.getElementById('vec-matrix-view');
-  if (!el) return;
-  const vectors = ['SKILL.md','npm/PyPI','GitHub','VS Code','MCP','HF Hub','API/Prompt'];
-  const vecKeys  = [['skill-md'],['npm','pypi'],['github-repo','github-advisory'],['vs-code-ext','ide'],['mcp-server'],['huggingface'],['api']];
-  const mods = [
-    { label:'OpenAI',   fn: MODEL_FILTERS.openai },
-    { label:'Copilot',  fn: MODEL_FILTERS.copilot },
-    { label:'Claude',   fn: MODEL_FILTERS.claude },
-    { label:'OSS/HF',   fn: MODEL_FILTERS.oss },
-  ];
-
-  const cell = (vkeys, mfn) => {
-    const ts = ALL_THREATS.filter(t => t.vectors.some(v => vkeys.includes(v)) && (mfn(t) || t.models.includes('multi-model')));
-    if (!ts.length) return `<div class="mdot md-none"></div>`;
-    const top = sortedThreats(ts)[0];
-    const cls = { critical:'md-crit', high:'md-high', medium:'md-med', low:'md-none' }[top.severity] ?? 'md-none';
-    return `<div class="mdot ${cls}" title="${top.severity.toUpperCase()}: ${top.title}"></div>`;
-  };
-
-  el.innerHTML = `
-    <table class="matrix-tbl">
-      <tr><th>Vector</th>${mods.map(m=>`<th>${m.label}</th>`).join('')}</tr>
-      ${vectors.map((v,i)=>`<tr><td>${v}</td>${mods.map(m=>`<td>${cell(vecKeys[i],m.fn)}</td>`).join('')}</tr>`).join('')}
-    </table>
-    <div style="display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap">
-      ${[['CRITICAL','md-crit'],['HIGH','md-high'],['MEDIUM','md-med'],['NONE','md-none']].map(([l,c])=>`<div style="display:flex;align-items:center;gap:4px"><div class="mdot ${c}" style="cursor:default"></div><span style="font-size:8px;font-family:var(--mono);color:var(--txt3)">${l}</span></div>`).join('')}
-    </div>`;
-}
-
-// ── Sidebar ───────────────────────────────────────────────────────────────
-function renderSidebar() {
-  // Timeline (mock data — replace with real per-week aggregates from store)
-  const weeks  = ['W1','W2','W3','W4','W5','W6','W7','W8'];
-  const counts = [3,5,4,7,6,9,8,ALL_THREATS.length||12];
-  const maxC   = Math.max(...counts);
-  const tlEl   = document.getElementById('sb-tl');
-  const tllEl  = document.getElementById('sb-tll');
-  if (tlEl) tlEl.innerHTML = counts.map((c,i)=>{
-    const h = Math.round((c/maxC)*40)+2;
-    const col = c>=10?'var(--crit)':c>=7?'var(--high)':c>=5?'var(--med)':'var(--low)';
-    return `<div class="tlb" style="height:${h}px;background:${col}" title="Week ${i+1}: ${c}"></div>`;
-  }).join('');
-  if (tllEl) tllEl.innerHTML = weeks.map(w=>`<div class="tllb">${w}</div>`).join('');
-
-  // Model bars
-  const models = [
-    { name:'OpenAI',  fn:MODEL_FILTERS.openai  },
-    { name:'Copilot', fn:MODEL_FILTERS.copilot },
-    { name:'OSS/HF',  fn:MODEL_FILTERS.oss     },
-    { name:'Claude',  fn:MODEL_FILTERS.claude  },
-  ];
-  const mEl = document.getElementById('sb-models');
-  if (mEl) {
-    const counts2 = models.map(m => ALL_THREATS.filter(m.fn).length);
-    const maxM = Math.max(...counts2, 1);
-    mEl.innerHTML = models.map((m,i)=>{
-      const pct = Math.round((counts2[i]/maxM)*100);
-      const col = counts2[i]>=6?'var(--crit)':counts2[i]>=4?'var(--high)':counts2[i]>=2?'var(--med)':'var(--low)';
-      return `<div class="mbar-row"><span class="mbar-name">${m.name}</span><div class="mbar-wrap"><div class="mbar" style="width:${pct}%;background:${col}"></div></div><span class="mbar-n">${counts2[i]}</span></div>`;
-    }).join('');
-  }
-
-  // Matrix (mini)
-  const matEl = document.getElementById('sb-matrix');
-  if (matEl) {
-    const rows = [
-      { v:'SKILL.md', keys:['skill-md'] },
-      { v:'npm/PyPI', keys:['npm','pypi'] },
-      { v:'VS Code',  keys:['vs-code-ext','ide'] },
-      { v:'MCP',      keys:['mcp-server'] },
-      { v:'HF Hub',   keys:['huggingface'] },
-    ];
-    const mods2 = [
-      { h:'OAI', fn:MODEL_FILTERS.openai  },
-      { h:'CPL', fn:MODEL_FILTERS.copilot },
-      { h:'CLD', fn:MODEL_FILTERS.claude  },
-      { h:'OSS', fn:MODEL_FILTERS.oss     },
-    ];
-    matEl.innerHTML = `<table class="matrix-tbl">
-      <tr><th></th>${mods2.map(m=>`<th>${m.h}</th>`).join('')}</tr>
-      ${rows.map(r=>`<tr><td>${r.v}</td>${mods2.map(m=>{
-        const ts = ALL_THREATS.filter(t=>t.vectors.some(v=>r.keys.includes(v))&&(m.fn(t)||t.models.includes('multi-model')));
-        if(!ts.length) return `<td><div class="mdot md-none"></div></td>`;
-        const top = sortedThreats(ts)[0];
-        const cls = {critical:'md-crit',high:'md-high',medium:'md-med'}[top.severity]??'md-none';
-        return `<td><div class="mdot ${cls}" title="${top.severity}"></div></td>`;
-      }).join('')}</tr>`).join('')}
-    </table>`;
-  }
-}
-
-// ── Update tab badges ─────────────────────────────────────────────────────
-function updateBadges() {
-  document.getElementById('badge-overview').textContent = ALL_THREATS.length;
-  document.getElementById('badge-openai').textContent  = ALL_THREATS.filter(MODEL_FILTERS.openai).length;
-  document.getElementById('badge-claude').textContent  = ALL_THREATS.filter(MODEL_FILTERS.claude).length;
-  document.getElementById('badge-copilot').textContent = ALL_THREATS.filter(MODEL_FILTERS.copilot).length;
-  document.getElementById('badge-oss').textContent     = ALL_THREATS.filter(MODEL_FILTERS.oss).length;
-  const vecThreats = ALL_THREATS.filter(t => VECTOR_GROUPS.some(g => t.vectors.some(v => g.vectors.includes(v))));
-  document.getElementById('badge-vectors').textContent = vecThreats.length;
-}
-
-// ── Render all panels ─────────────────────────────────────────────────────
-function renderAll() {
-  renderFeed('overview-feed', filtered(ALL_THREATS, overviewFilter));
-  renderFeed('feed-openai',   ALL_THREATS.filter(MODEL_FILTERS.openai));
-  renderFeed('feed-claude',   ALL_THREATS.filter(MODEL_FILTERS.claude));
-  renderFeed('feed-copilot',  ALL_THREATS.filter(MODEL_FILTERS.copilot));
-  renderFeed('feed-oss',      ALL_THREATS.filter(MODEL_FILTERS.oss));
-  renderVectorThreats();
-  renderVectorMatrix();
-  renderSidebar();
-  updateBadges();
-}
-
-// ── Tab switching ─────────────────────────────────────────────────────────
-document.getElementById('tabbar').addEventListener('click', e => {
-  const btn = e.target.closest('.tab');
-  if (!btn) return;
-  const tab = btn.dataset.tab;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById(`panel-${tab}`)?.classList.add('active');
-  currentTab = tab;
-});
-
-// ── Filter pills ──────────────────────────────────────────────────────────
-document.querySelector('.filterbar').addEventListener('click', e => {
-  const pill = e.target.closest('.fpill');
-  if (!pill) return;
-  overviewFilter = pill.dataset.f;
-  document.querySelectorAll('.fpill').forEach(p => p.classList.remove('active'));
-  pill.classList.add('active');
-  renderFeed('overview-feed', filtered(ALL_THREATS, overviewFilter));
-});
-
-document.body.addEventListener('click', e => {
-  const btn = e.target.closest('[data-open-detail]');
-  if (btn) {
-    e.stopPropagation();
-    openThreatDetail(btn.dataset.openDetail);
-    return;
-  }
-
-  const card = e.target.closest('.tcard');
-  if (card) {
-    openThreatDetail(card.dataset.threatId);
-  }
-});
-
-document.body.addEventListener('keydown', e => {
-  const card = e.target.closest('.tcard');
-  if (!card) return;
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    openThreatDetail(card.dataset.threatId);
-  }
-});
-
-document.getElementById('detail-scrim').addEventListener('click', closeThreatDetail);
-document.getElementById('drawer-close').addEventListener('click', closeThreatDetail);
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeThreatDetail();
-});
-
-// ── Model sub-navs ────────────────────────────────────────────────────────
-['openai','claude','copilot','oss'].forEach(model => {
-  const nav = document.getElementById(`msubnav-${model}`);
-  if (!nav) return;
-  nav.addEventListener('click', e => {
-    const btn = e.target.closest('.mstab');
-    if (!btn) return;
-    nav.querySelectorAll('.mstab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    const mf = btn.dataset.mf;
-    let base = ALL_THREATS.filter(MODEL_FILTERS[model]);
-    if (mf !== 'all') base = base.filter(t => t.type === mf);
-    renderFeed(`feed-${model}`, base);
-  });
-});
-
-// ── Vector view toggle ────────────────────────────────────────────────────
-document.getElementById('vt-threats').addEventListener('click', function() {
-  this.classList.add('active');
-  document.getElementById('vt-matrix').classList.remove('active');
-  document.getElementById('vec-threats-view').style.display = 'block';
-  document.getElementById('vec-matrix-view').style.display = 'none';
-});
-document.getElementById('vt-matrix').addEventListener('click', function() {
-  this.classList.add('active');
-  document.getElementById('vt-threats').classList.remove('active');
-  document.getElementById('vec-threats-view').style.display = 'none';
-  document.getElementById('vec-matrix-view').style.display = 'block';
-});
-
-// ── SIEM export stubs ─────────────────────────────────────────────────────
-function exportJson() {
-  const blob = new Blob([JSON.stringify(ALL_THREATS, null, 2)], { type:'application/json' });
-  const a = Object.assign(document.createElement('a'), { href:URL.createObjectURL(blob), download:'aitid-threats.json' });
-  a.click();
-}
-function exportCsv() {
-  const rows = [['id','title','severity','blended_score','status','type','models','vectors','ttps','cve','source','publishedAt']];
-  ALL_THREATS.forEach(t => rows.push([
-    t.id, `"${t.title}"`, t.severity, t.score.blended, t.status, t.type,
-    t.models.join('|'), t.vectors.join('|'), t.ttps.map(p=>p.id).join('|'),
-    t.cve??'', t.source, t.publishedAt,
-  ]));
-  const blob = new Blob([rows.map(r=>r.join(',')).join('\n')], { type:'text/csv' });
-  const a = Object.assign(document.createElement('a'), { href:URL.createObjectURL(blob), download:'aitid-threats.csv' });
-  a.click();
-}
-function exportStix() {
-  const bundle = {
-    type:'bundle', id:`bundle--aitid-${Date.now()}`, spec_version:'2.1',
-    objects: ALL_THREATS.map(t=>({
-      type:'vulnerability', spec_version:'2.1', id:`vulnerability--${t.id}`,
-      created:t.publishedAt, modified:t.updatedAt, name:t.title, description:t.description,
-      labels:[...t.models,...t.vectors,t.type],
-      x_aitid:{ severity:t.severity, score:t.score, atlas_ttps:t.ttps.map(p=>p.id), iocs:t.iocs, status:t.status, mitigations:t.mitigations },
-    })),
-  };
-  const blob = new Blob([JSON.stringify(bundle, null, 2)], { type:'application/json' });
-  const a = Object.assign(document.createElement('a'), { href:URL.createObjectURL(blob), download:'aitid-stix.json' });
-  a.click();
-}
-function saveSiemConfig() {
-  alert('SIEM config saved. Set SIEM_TYPE, SIEM_WEBHOOK_URL, SIEM_SECRET, and SIEM_MIN_SEVERITY in your Vercel environment variables to activate live forwarding.');
-}
-
-// ── Clock update ──────────────────────────────────────────────────────────
-setInterval(() => {
-  document.getElementById('hdr-time').textContent =
-    new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-}, 30000);
-
-// ── Sidebar resize ────────────────────────────────────────────────────────
-(function initResize() {
-  const handle  = document.getElementById('sidebar-resize-handle');
-  const sidebar = document.getElementById('overview-sidebar');
-  const layout  = document.getElementById('overview-layout');
-  if (!handle || !sidebar || !layout) return;
-
-  // Restore saved width
-  const saved = localStorage.getItem('aitid-sidebar-width');
-  if (saved) sidebar.style.width = saved + 'px';
-
-  let startX = 0;
-  let startW = 0;
-
-  handle.addEventListener('mousedown', (e) => {
-    startX = e.clientX;
-    startW = sidebar.offsetWidth;
-    handle.classList.add('dragging');
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-
-    function onMove(e) {
-      // Dragging left → larger sidebar; dragging right → smaller
-      const delta = startX - e.clientX;
-      const newW  = Math.min(520, Math.max(160, startW + delta));
-      sidebar.style.width = newW + 'px';
-    }
-
-    function onUp() {
-      handle.classList.remove('dragging');
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-      localStorage.setItem('aitid-sidebar-width', sidebar.offsetWidth);
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
-    }
-
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
-    e.preventDefault();
-  });
-})();
-
-// ── Boot ──────────────────────────────────────────────────────────────────
-loadStats();
-loadThreats();
-</script>
+  <script>
+    import '../scripts/dashboard-client.js';
+  </script>
 </body>
 </html>

@@ -1,0 +1,18 @@
+---
+const { panel } = Astro.props;
+---
+
+<div class="panel" id={`panel-${panel.id}`}>
+  <div class="msubnav" id={`msubnav-${panel.id}`}>
+    {
+      panel.filters.map((filter, index) => (
+        <button class:list={['mstab', index === 0 && 'active']} data-mf={filter.value}>
+          {filter.label}
+        </button>
+      ))
+    }
+  </div>
+  <div class="panel-scroll">
+    <div id={`feed-${panel.id}`}><div class="loading"><span class="spinner"></span>Loading...</div></div>
+  </div>
+</div>

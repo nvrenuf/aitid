@@ -1,11 +1,12 @@
 {
   "name": "aitid",
   "version": "0.1.0",
-  "description": "AI Threat Intelligence Dashboard",
+  "description": "ThreatParallax AI Threat Intelligence Platform",
   "type": "module",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "test": "node --test",
     "preview": "astro preview",
     "pipeline:run": "node pipeline/run.js",
     "pipeline:seed": "node pipeline/seed.js"
