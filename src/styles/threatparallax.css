@@ -1,36 +1,41 @@
 :root {
   --bg: #071018;
-  --bg2: #0d1722;
-  --bg3: #142131;
-  --bg4: #1b2b3f;
-  --txt: #edf3f9;
-  --txt2: #b6c2d1;
-  --txt3: #7c8ca1;
-  --border: rgba(139, 162, 191, 0.16);
-  --border2: rgba(139, 162, 191, 0.28);
-  --shadow-soft: 0 16px 36px rgba(0, 0, 0, 0.24);
-  --shadow-panel: 0 22px 48px rgba(0, 0, 0, 0.28);
+  --bg2: #0b1520;
+  --bg3: #121f2f;
+  --bg4: #1a2a3e;
+  --surface: rgba(9, 18, 28, 0.88);
+  --surface-2: rgba(12, 22, 34, 0.92);
+  --surface-3: rgba(17, 29, 44, 0.92);
+  --txt: #f1f6fb;
+  --txt2: #b4c1d0;
+  --txt3: #7f90a5;
+  --border: rgba(145, 169, 201, 0.16);
+  --border2: rgba(145, 169, 201, 0.28);
+  --border3: rgba(145, 169, 201, 0.4);
+  --shadow-soft: 0 18px 44px rgba(0, 0, 0, 0.26);
+  --shadow-panel: 0 28px 72px rgba(0, 0, 0, 0.34);
   --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
   --font-display: 'Space Grotesk', sans-serif;
   --font-sans: 'Manrope', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
-  --crit: #ff6b6b;
-  --crit-bg: rgba(255, 107, 107, 0.14);
-  --crit-border: rgba(255, 107, 107, 0.22);
-  --high: #ffb86c;
-  --high-bg: rgba(255, 184, 108, 0.12);
-  --high-border: rgba(255, 184, 108, 0.2);
-  --med: #ffd369;
-  --med-bg: rgba(255, 211, 105, 0.12);
-  --med-border: rgba(255, 211, 105, 0.2);
-  --low: #4dd599;
-  --low-bg: rgba(77, 213, 153, 0.13);
-  --low-border: rgba(77, 213, 153, 0.2);
-  --info: #7dc4ff;
-  --info-bg: rgba(125, 196, 255, 0.14);
-  --info-border: rgba(125, 196, 255, 0.22);
+  --crit: #ff7a7a;
+  --crit-bg: rgba(255, 122, 122, 0.14);
+  --crit-border: rgba(255, 122, 122, 0.22);
+  --high: #ffb36d;
+  --high-bg: rgba(255, 179, 109, 0.12);
+  --high-border: rgba(255, 179, 109, 0.2);
+  --med: #f5cf72;
+  --med-bg: rgba(245, 207, 114, 0.12);
+  --med-border: rgba(245, 207, 114, 0.2);
+  --low: #55d39f;
+  --low-bg: rgba(85, 211, 159, 0.13);
+  --low-border: rgba(85, 211, 159, 0.2);
+  --info: #8ec5ff;
+  --info-bg: rgba(142, 197, 255, 0.14);
+  --info-border: rgba(142, 197, 255, 0.22);
 }
 
 *, *::before, *::after {
@@ -43,9 +48,9 @@ html,
 body {
   min-height: 100%;
   background:
-    radial-gradient(circle at top left, rgba(74, 103, 179, 0.18), transparent 32%),
-    radial-gradient(circle at top right, rgba(39, 88, 133, 0.22), transparent 28%),
-    linear-gradient(180deg, #08111a 0%, #09131d 52%, #071018 100%);
+    radial-gradient(circle at top left, rgba(82, 123, 178, 0.18), transparent 30%),
+    radial-gradient(circle at top right, rgba(66, 105, 158, 0.14), transparent 26%),
+    linear-gradient(180deg, #071018 0%, #08111a 48%, #09121b 100%);
   color: var(--txt);
   font-family: var(--font-sans);
   font-size: 14px;
@@ -60,9 +65,12 @@ a {
 }
 
 .logo-title,
-.drawer-title {
+.drawer-title,
+.page-headline,
+.overview-title,
+.hdr-headline {
   font-family: var(--font-display);
-  letter-spacing: -0.03em;
+  letter-spacing: -0.045em;
 }
 
 .logo-sub,
@@ -101,9 +109,9 @@ a {
 .drawer-stat-k,
 .siem-stub-title {
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--txt3);
 }
 
@@ -111,7 +119,7 @@ a {
 .sb-block,
 .drawer-stat,
 .siem-stub {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015));
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-soft);
@@ -130,11 +138,11 @@ a {
 .badge,
 .tbadge,
 .ttp-tag {
-  padding: 3px 8px;
+  padding: 5px 9px;
 }
 
 .fpill {
-  padding: 5px 12px;
+  padding: 6px 12px;
 }
 
 .expand-btn,
@@ -145,7 +153,7 @@ a {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.03);
   color: var(--txt2);
-  transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+  transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease, transform 0.14s ease;
 }
 
 .expand-btn:hover,
@@ -155,6 +163,7 @@ a {
   background: rgba(255, 255, 255, 0.07);
   border-color: rgba(139, 162, 191, 0.38);
   color: var(--txt);
+  transform: translateY(-1px);
 }
 
 .badge {
@@ -174,4 +183,9 @@ a {
 .filterbar,
 .shdr {
   backdrop-filter: blur(14px);
+}
+
+::selection {
+  background: rgba(142, 197, 255, 0.22);
+  color: var(--txt);
 }

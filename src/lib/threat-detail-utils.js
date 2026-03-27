@@ -18,7 +18,7 @@ export function buildThreatDetailContext(threat) {
       : []),
     ...threat.ttps.map((ttp) => ({
       title: 'ATLAS technique',
-      detail: `${ttp.id} · ${ttp.name}`,
+      detail: `${ttp.id} - ${ttp.name}`,
       href: ttp.url ?? null,
     })),
   ];

@@ -84,3 +84,16 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Reworked `/api/pipeline/run` around shared cron/manual request parsing, added explicit JSON responses and route-level error logging, and removed the current 503 path for valid Vercel cron GET requests when `CRON_SECRET` is absent.
 2. RF-02 [#39](https://github.com/nvrenuf/aitid/issues/39) Reduce duplicate overview stats and threats fetches - completed
    Note: Confirmed that `/overview` was duplicating `/api/stats` work but not `/api/threats`, then hydrated the dashboard from the server-rendered stats payload so the initial stats request is no longer repeated on page load.
+
+## Design Implementation Execution Order
+
+1. DI-01 [#43](https://github.com/nvrenuf/aitid/issues/43) Shared visual system alignment - completed
+   Note: Tightened the shared ThreatParallax theme tokens and shell/card typography primitives so the live routes now sit on a calmer, more disciplined design base before the page-specific redesign work.
+2. DI-02 [#47](https://github.com/nvrenuf/aitid/issues/47) Overview redesign implementation - completed
+   Note: Compressed the `/overview` top composition, integrated the KPI band into the primary posture area, reduced helper copy, and tightened the watchlist framing without changing the feed, filters, or overview interactions.
+3. DI-03 [#44](https://github.com/nvrenuf/aitid/issues/44) Threats workbench redesign implementation - completed
+   Note: Reworked `/threats` into a tighter operator workbench, embedded the filter controls into the review surface, and rebuilt the result rows around clearer title, score, metadata, and exposure grouping.
+4. DI-04 [#45](https://github.com/nvrenuf/aitid/issues/45) Threat detail and map redesign implementation - completed
+   Note: Reshaped `/threats/[slug]` into a stronger canonical intelligence record, tightened evidence and methodology framing, and rebuilt `/threat-map` around a calmer map stage and concise regional brief while preserving the current geography model.
+5. DI-05 [#46](https://github.com/nvrenuf/aitid/issues/46) Final regression sweep, docs touch-up, and PR polish - completed
+   Note: Re-ran the final test/build pass after the design implementation, verified the four live routes reflect the approved direction, kept the tracker current, and prepared the branch as the single draft PR review surface for this implementation wave.

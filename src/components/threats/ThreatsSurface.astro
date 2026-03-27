@@ -14,12 +14,10 @@ const initialThreats = JSON.stringify(threats);
       <span class="page-eyebrow">Threat corpus operations</span>
       <div>
         <div class="page-kicker">Threats</div>
-        <h1 class="page-headline">Scan, filter, and prioritize the current ThreatParallax corpus.</h1>
+        <h1 class="page-headline">Operator scanning across the current ThreatParallax corpus.</h1>
       </div>
       <p>
-        This route is for operator review, not executive summary. Search the tracked corpus, isolate the
-        combinations that matter now, and sort by severity, score, or recency without pretending to be a
-        full enterprise case-management surface.
+        Search, scope, and prioritize the current record set without widening this route into a case-management surface.
       </p>
     </div>
 
@@ -27,48 +25,32 @@ const initialThreats = JSON.stringify(threats);
       <div class="info-card">
         <span>Tracked threats</span>
         <strong data-threat-total>{summary.total}</strong>
-        <p>The current route works against the current product corpus only. No synthetic incidents are added here.</p>
+        <p>Current in-product corpus only.</p>
       </div>
       <div class="info-card">
         <span>Active threats</span>
         <strong data-threat-active>{summary.activeCount}</strong>
-        <p>Use status, vector, and model filters together to isolate the operational review queue.</p>
+        <p>Immediate review queue.</p>
       </div>
       <div class="info-card">
         <span>Critical coverage</span>
         <strong data-threat-critical>{summary.criticalCount}</strong>
-        <p>{summary.uniqueModels} tracked model families currently appear in the corpus.</p>
+        <p>{summary.uniqueModels} model families in scope.</p>
       </div>
     </div>
   </div>
 
   <div class="threats-workspace">
     <div class="threats-results-shell">
-      <div class="threats-results-head">
-        <div>
-          <div class="page-kicker">Results</div>
-          <h2><span data-results-count>{summary.total}</span> threats in scope</h2>
-        </div>
-        <div class="surface-chips" id="threats-active-filters">
-          <span class="future-chip">All threats</span>
-        </div>
-      </div>
-
       <section class="threats-controls">
         <div class="threats-controls-head">
           <div>
-            <div class="page-kicker">Operator workflow</div>
-            <p class="threats-controls-copy">
-              Filters sit directly above the corpus so search, scoping, and prioritization happen in the
-              same visual lane as the feed.
-            </p>
+            <div class="page-kicker">Workbench</div>
+            <h2><span data-results-count>{summary.total}</span> threats in scope</h2>
+            <p class="threats-controls-copy">Filters are embedded in the workbench so scoping and review happen in one visual lane.</p>
           </div>
-          <div class="info-card threats-note">
-            <span>Workflow guardrails</span>
-            <p>
-              Filters stay intentionally practical: severity, model, vector, status, and text search on
-              the current data model only.
-            </p>
+          <div class="surface-chips threats-active-filters" id="threats-active-filters">
+            <span class="future-chip">All threats</span>
           </div>
         </div>
 
@@ -132,7 +114,7 @@ const initialThreats = JSON.stringify(threats);
         <div class="info-card">
           <span>Newest matching publication</span>
           <strong data-newest-published>{summary.newestPublishedAt ? formatEasternDate(summary.newestPublishedAt) : 'None'}</strong>
-          <p>Sorting and counts update live as filters change. Search runs against the current in-product corpus.</p>
+          <p>Counts and ordering update live as the workbench changes.</p>
         </div>
       </div>
 
@@ -156,19 +138,21 @@ const initialThreats = JSON.stringify(threats);
     display: grid;
     gap: 18px;
     grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);
+    align-items: end;
   }
 
   .threats-kpis {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .threats-workspace {
+  .threats-workspace,
+  .threats-results-shell {
     display: grid;
-    gap: 18px;
+    gap: 16px;
   }
 
-  .threats-controls,
   .threats-results-shell {
+    padding: 20px;
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     background: rgba(255, 255, 255, 0.02);
@@ -176,10 +160,12 @@ const initialThreats = JSON.stringify(threats);
 
   .threats-controls {
     padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
     display: grid;
     gap: 18px;
     background:
-      linear-gradient(180deg, rgba(125, 196, 255, 0.08), rgba(125, 196, 255, 0.02)),
+      linear-gradient(180deg, rgba(142, 197, 255, 0.08), rgba(142, 197, 255, 0.02)),
       rgba(255, 255, 255, 0.02);
   }
 
@@ -190,12 +176,25 @@ const initialThreats = JSON.stringify(threats);
     align-items: start;
   }
 
+  .threats-controls-head h2 {
+    margin-top: 8px;
+    font-family: var(--font-display);
+    font-size: clamp(26px, 2.8vw, 36px);
+    line-height: 0.96;
+    letter-spacing: -0.05em;
+  }
+
   .threats-controls-copy {
     margin-top: 8px;
-    max-width: 58ch;
+    max-width: 48ch;
     color: var(--txt2);
     font-size: 13px;
-    line-height: 1.65;
+    line-height: 1.6;
+  }
+
+  .threats-active-filters {
+    justify-content: flex-end;
+    max-width: 320px;
   }
 
   .threats-filter-stack {
@@ -203,10 +202,6 @@ const initialThreats = JSON.stringify(threats);
     gap: 12px;
     grid-template-columns: minmax(0, 1.8fr) repeat(5, minmax(0, 1fr));
     align-items: end;
-  }
-
-  .threats-field-search {
-    grid-column: span 1;
   }
 
   .threats-field {
@@ -221,10 +216,10 @@ const initialThreats = JSON.stringify(threats);
   .threats-select {
     width: 100%;
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 14px;
     background: rgba(255, 255, 255, 0.03);
     color: var(--txt);
-    padding: 11px 13px;
+    padding: 12px 13px;
     font: inherit;
   }
 
@@ -232,30 +227,7 @@ const initialThreats = JSON.stringify(threats);
     color: var(--txt3);
   }
 
-  .threats-results-shell {
-    padding: 20px;
-    display: grid;
-    gap: 16px;
-  }
-
-  .threats-results-head {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    align-items: start;
-  }
-
-  .threats-results-head h2 {
-    font-size: clamp(24px, 2.8vw, 34px);
-    letter-spacing: -0.05em;
-    line-height: 1;
-  }
-
-  .threats-results-meta {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-  }
-
+  .threats-results-meta,
   .threats-results {
     display: grid;
     gap: 14px;
@@ -264,22 +236,14 @@ const initialThreats = JSON.stringify(threats);
   .threat-row {
     padding: 18px;
     border: 1px solid var(--border);
-    border-radius: 18px;
+    border-radius: 20px;
     background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
     display: grid;
     gap: 14px;
   }
 
-  .threat-row-eyebrow {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    align-items: start;
-    flex-wrap: wrap;
-  }
-
+  .threat-row-eyebrow,
   .threat-row-head,
-  .threat-row-meta,
   .threat-row-foot {
     display: flex;
     justify-content: space-between;
@@ -289,8 +253,8 @@ const initialThreats = JSON.stringify(threats);
   }
 
   .threat-row-title {
-    font-size: 22px;
-    line-height: 1.1;
+    font-size: 23px;
+    line-height: 1.05;
     max-width: 24ch;
   }
 
@@ -303,29 +267,48 @@ const initialThreats = JSON.stringify(threats);
     color: var(--info);
   }
 
+  .threat-row-source {
+    margin-top: 8px;
+    color: var(--txt2);
+    font-weight: 700;
+  }
+
+  .threat-row-meta-line,
+  .threat-row-date {
+    color: var(--txt3);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .threat-row-date {
+    text-align: right;
+  }
+
   .threat-row-summary {
     color: var(--txt2);
     font-size: 13px;
-    line-height: 1.65;
+    line-height: 1.62;
+    max-width: 80ch;
   }
 
   .threat-row-scan {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
   }
 
-  .threat-row-scan-item {
+  .threat-row-scan-item,
+  .threat-row-band {
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 16px;
     background: rgba(255,255,255,.025);
-    padding: 12px 13px;
+    padding: 13px 14px;
     display: grid;
     gap: 6px;
-    min-height: 84px;
   }
 
-  .threat-row-scan-item span {
+  .threat-row-scan-item span,
+  .threat-row-band strong {
     font-size: 10px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -345,48 +328,17 @@ const initialThreats = JSON.stringify(threats);
     line-height: 1.5;
   }
 
-  .threat-row-groups {
+  .threat-row-bands {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 12px;
   }
 
-  .threat-row-band {
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    background: rgba(255,255,255,.02);
-    padding: 14px;
-    display: grid;
-    gap: 10px;
-  }
-
-  .threat-row-band strong {
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--txt3);
-  }
-
   .threat-row-foot {
+    padding-top: 12px;
+    border-top: 1px solid rgba(145, 169, 201, 0.14);
     font-size: 12px;
     color: var(--txt3);
-  }
-
-  .threat-row-source {
-    color: var(--txt2);
-    font-weight: 700;
-  }
-
-  .threat-row-date {
-    color: var(--txt3);
-    font-size: 12px;
-    line-height: 1.5;
-    text-align: right;
-  }
-
-  .threats-note {
-    min-width: min(320px, 100%);
-    max-width: 360px;
   }
 
   .threat-empty {
@@ -400,35 +352,25 @@ const initialThreats = JSON.stringify(threats);
 
   @media (max-width: 960px) {
     .threats-hero,
-    .threats-workspace {
-      grid-template-columns: 1fr;
-    }
-
     .threats-controls-head,
-    .threat-row-scan {
+    .threats-filter-stack,
+    .threat-row-scan,
+    .threat-row-bands {
       grid-template-columns: 1fr;
       display: grid;
     }
 
-    .threats-filter-stack {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    .threats-active-filters {
+      justify-content: flex-start;
+      max-width: none;
     }
 
-    .threats-field-search {
-      grid-column: 1 / -1;
-    }
-
-    .threats-kpis,
-    .threat-row-groups {
+    .threats-kpis {
       grid-template-columns: 1fr;
     }
   }
 
   @media (max-width: 720px) {
-    .threats-filter-stack {
-      grid-template-columns: 1fr;
-    }
-
     .threat-row-date {
       text-align: left;
     }
