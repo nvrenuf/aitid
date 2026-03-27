@@ -86,10 +86,11 @@ function resultCard(threat) {
   const vectors = threat.vectors.map((vector) => badge(vector, 'b-gray')).join('');
   const ttpIds = threat.ttps.map((ttp) => `<span class="ttp-tag">${escapeHtml(ttp.id)}</span>`).join('');
   const patchLine = threat.patchVersion ? `Patch ${escapeHtml(threat.patchVersion)}` : 'Patch not listed';
+  const iocLine = `${threat.iocs.length} IOC${threat.iocs.length === 1 ? '' : 's'}`;
   const detailHref = getThreatDetailHref(threat);
 
   return `
-    <article class="threat-row">
+    <article class="threat-row ${escapeHtml(threat.severity)}">
       <div class="threat-row-top">
         <div class="tc-meta">
           ${badge(threat.severity.toUpperCase(), severityClasses[threat.severity] ?? 'b-gray')}
@@ -103,12 +104,12 @@ function resultCard(threat) {
       <div class="threat-row-main">
         <div>
           <div class="threat-row-title"><a class="threat-row-link" href="${detailHref}">${escapeHtml(threat.title)}</a></div>
-          <div class="threat-row-source">${escapeHtml(threat.source)}</div>
-          <div class="threat-row-meta-line">${threat.models.length} model targets | ${threat.vectors.length} vectors | ${threat.iocs.length} IOC${threat.iocs.length === 1 ? '' : 's'} | ${formatThreatAge(threat.publishedAt)}</div>
+          <div class="threat-row-meta-line"><strong>${escapeHtml(threat.source)}</strong> &middot; ${formatThreatAge(threat.publishedAt)}</div>
+          <div class="threat-row-meta-line">${threat.models.length} model targets &middot; ${threat.vectors.length} vectors &middot; ${iocLine}</div>
         </div>
         <div class="threat-row-score">
           <span class="threat-row-score-label">Blended score</span>
-          <span class="threat-row-score-value">${threat.score.blended.toFixed(1)}</span>
+          <span class="threat-row-score-value ${escapeHtml(threat.severity)}">${threat.score.blended.toFixed(1)}</span>
         </div>
       </div>
 
@@ -116,18 +117,18 @@ function resultCard(threat) {
 
       <div class="threat-row-bands">
         <div class="threat-row-band">
-          <strong>Model exposure</strong>
+          <strong>Affected models</strong>
           <div class="tc-meta">${models}</div>
         </div>
         <div class="threat-row-band">
-          <strong>Vectors and TTPs</strong>
+          <strong>Operational context</strong>
           <div class="tc-meta">${vectors}${ttpIds}</div>
         </div>
       </div>
 
       <div class="threat-row-foot">
-        <span>${patchLine}</span>
-        <span>Updated ${formatDate(threat.updatedAt)} | ${threat.mitigations.length} mitigation actions</span>
+        <span>${patchLine} &middot; Updated ${formatDate(threat.updatedAt)}</span>
+        <span>${threat.mitigations.length} mitigation action${threat.mitigations.length === 1 ? '' : 's'}</span>
         <a class="expand-btn" href="${detailHref}">Open detail page</a>
       </div>
     </article>
@@ -157,12 +158,14 @@ function renderSummary(summary) {
   const critical = document.querySelector('[data-threat-critical]');
   const results = document.querySelector('[data-results-count]');
   const newest = document.querySelector('[data-newest-published]');
+  const resultsCritical = document.querySelector('[data-results-critical]');
 
   if (total) total.textContent = String(summary.total);
   if (active) active.textContent = String(summary.activeCount);
   if (critical) critical.textContent = String(summary.criticalCount);
   if (results) results.textContent = String(summary.total);
   if (newest) newest.textContent = summary.newestPublishedAt ? formatDate(summary.newestPublishedAt) : 'None';
+  if (resultsCritical) resultsCritical.textContent = String(summary.criticalCount);
 }
 
 function renderThreats() {
