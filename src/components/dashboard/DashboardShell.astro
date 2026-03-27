@@ -43,19 +43,14 @@ if (SHOW_SIEM_IN_PRIMARY_UX) {
       </a>
 
       <div class="hdr-copy">
-        <div class="hdr-kicker">Professional review surfaces</div>
-        <div class="hdr-headline">Operational overview, conservative geography, and source-backed threat records.</div>
+        <div class="hdr-headline">Operational overview and threat records.</div>
       </div>
     </div>
 
     <div class="hdr-right">
       <div class="status-cluster">
         <div class="live-pill"><div class="pulse"></div>Live feed active</div>
-        <div class="hdr-time" id="hdr-time">{headerUpdatedLabel}</div>
-      </div>
-      <div class="surface-chips">
-        <span class="future-chip"><strong>{routeMeta.label}</strong> - {routeMeta.kicker}</span>
-        <span class="future-chip">Security leaders + analysts</span>
+        <div class="hdr-time" id="hdr-time">Updated: {headerUpdatedLabel}</div>
       </div>
     </div>
   </header>
@@ -77,11 +72,6 @@ if (SHOW_SIEM_IN_PRIMARY_UX) {
         ))
       }
     </nav>
-
-    <div class="shell-future">
-      <span class="future-chip">Map meaning stays conservative</span>
-      <span class="future-chip">Scope remains source-backed</span>
-    </div>
   </div>
 
   {
@@ -89,9 +79,6 @@ if (SHOW_SIEM_IN_PRIMARY_UX) {
       <div class="shell-nav shell-nav-secondary">
         <div class="shell-nav-meta">
           <div class="shell-label">Overview workspace</div>
-          <div class="shell-note">
-            Existing feed, model, and vector panels stay live inside the Overview surface.
-          </div>
         </div>
         <nav class="tabbar" id="tabbar" aria-label="Overview workspace views">
           {
@@ -105,9 +92,6 @@ if (SHOW_SIEM_IN_PRIMARY_UX) {
             ))
           }
         </nav>
-        <div class="shell-future">
-          <span class="future-chip">Dashboard internals preserved</span>
-        </div>
       </div>
     )
   }
