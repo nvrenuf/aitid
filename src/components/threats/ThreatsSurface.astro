@@ -1,6 +1,7 @@
 ---
 import { shortModel } from '../../lib/dashboard-utils.js';
 import { THREAT_SORT_OPTIONS } from '../../lib/threats-utils.js';
+import { formatEasternDate } from '../../lib/time.js';
 
 const { threats, summary, filters } = Astro.props;
 
@@ -123,7 +124,7 @@ const initialThreats = JSON.stringify(threats);
       <div class="threats-results-meta">
         <div class="info-card">
           <span>Newest matching publication</span>
-          <strong data-newest-published>{summary.newestPublishedAt ? new Date(summary.newestPublishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'None'}</strong>
+          <strong data-newest-published>{summary.newestPublishedAt ? formatEasternDate(summary.newestPublishedAt) : 'None'}</strong>
           <p>Sorting and counts update live as filters change. Search runs against the current in-product corpus.</p>
         </div>
       </div>

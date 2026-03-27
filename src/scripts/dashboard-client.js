@@ -6,6 +6,7 @@ import {
   sortThreats,
 } from '../lib/dashboard-utils.js';
 import { getThreatDetailHref } from '../lib/threats-utils.js';
+import { formatEasternDate, formatEasternTime, formatEasternTimestamp } from '../lib/time.js';
 
 let allThreats = [];
 let overviewFilter = 'all';
@@ -46,7 +47,7 @@ const severityBadge = (severity) => badge(severity.toUpperCase(), severityClasse
 const statusBadge = (status) => badge(status, statusClasses[status] ?? 'b-gray');
 
 function formatDate(iso) {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return formatEasternDate(iso);
 }
 
 function escapeHtml(value) {
@@ -410,12 +411,7 @@ async function loadStats() {
     const response = await fetch('/api/stats');
     const stats = await response.json();
     const statusText = stats.pipelineStatus === 'healthy' ? 'Collection healthy' : 'Collection needs review';
-    const updatedText = new Date(stats.lastUpdated).toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-    });
+    const updatedText = formatEasternTimestamp(stats.lastUpdated);
 
     safeSetText('m-total', stats.totalThreats);
     safeSetText('m-crit', stats.activeCritical);
@@ -600,7 +596,7 @@ function saveSiemConfig() {
 
 function initClock() {
   window.setInterval(() => {
-    safeSetText('hdr-time', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    safeSetText('hdr-time', formatEasternTime());
   }, 30000);
 }
 

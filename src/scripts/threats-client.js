@@ -6,6 +6,7 @@ import {
   sortThreatCollection,
   summarizeThreatResultSet,
 } from '../lib/threats-utils.js';
+import { formatEasternDate } from '../lib/time.js';
 
 const severityClasses = {
   critical: 'b-crit',
@@ -57,7 +58,7 @@ function badge(text, className) {
 }
 
 function formatDate(value) {
-  return new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return formatEasternDate(value);
 }
 
 function resultCard(threat) {

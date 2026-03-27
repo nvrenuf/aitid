@@ -2,8 +2,9 @@
 import ProductLayout from '../../components/layout/ProductLayout.astro';
 import ThreatDetailSurface from '../../components/threats/ThreatDetailSurface.astro';
 import { getThreatBySlug } from '../../lib/threats.js';
+import { formatEasternTime } from '../../lib/time.js';
 
-const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const now = formatEasternTime();
 const slug = Astro.params.slug ?? '';
 const threat = await getThreatBySlug(slug);
 
