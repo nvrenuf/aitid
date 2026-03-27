@@ -1,11 +1,8 @@
 ---
 import ProductLayout from '../components/layout/ProductLayout.astro';
 import ResearchSurface from '../components/research/ResearchSurface.astro';
-import { formatEasternTime } from '../lib/time.js';
-
-const now = formatEasternTime();
 ---
 
-<ProductLayout now={now} currentPath="/research">
+<ProductLayout currentPath="/research">
   <ResearchSurface />
 </ProductLayout>

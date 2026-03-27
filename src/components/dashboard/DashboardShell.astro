@@ -2,7 +2,7 @@
 import { PRODUCT_ROUTES } from '../../lib/product-navigation.js';
 import { SHOW_SIEM_IN_PRIMARY_UX } from '../../lib/feature-flags.js';
 
-const { now, currentPath, routeMeta, showWorkspaceNav = false } = Astro.props;
+const { headerUpdatedLabel, currentPath, routeMeta, showWorkspaceNav = false } = Astro.props;
 
 const shellTabs = [
   { id: 'overview', label: 'Overview workspace', badgeId: 'badge-overview', badge: '--', active: true },
@@ -52,7 +52,7 @@ if (SHOW_SIEM_IN_PRIMARY_UX) {
   <div class="hdr-right">
     <div class="status-cluster">
       <div class="live-pill"><div class="pulse"></div>Live feed active · Updated:</div>
-      <div class="hdr-time" id="hdr-time">{now}</div>
+      <div class="hdr-time" id="hdr-time">{headerUpdatedLabel}</div>
     </div>
     <div class="surface-chips">
       <span class="future-chip"><strong>{routeMeta.label}</strong> · {routeMeta.kicker}</span>
