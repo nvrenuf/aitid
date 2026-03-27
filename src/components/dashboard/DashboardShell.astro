@@ -1,5 +1,6 @@
 ---
 import { PRODUCT_ROUTES } from '../../lib/product-navigation.js';
+import { SHOW_SIEM_IN_PRIMARY_UX } from '../../lib/feature-flags.js';
 
 const { now, currentPath, routeMeta, showWorkspaceNav = false } = Astro.props;
 
@@ -10,14 +11,17 @@ const shellTabs = [
   { id: 'copilot', label: 'Copilot', badgeId: 'badge-copilot', badge: '--' },
   { id: 'oss', label: 'OSS / HuggingFace', badgeId: 'badge-oss', badge: '--' },
   { id: 'vectors', label: 'Vectors', badgeId: 'badge-vectors', badge: '--' },
-  {
+];
+
+if (SHOW_SIEM_IN_PRIMARY_UX) {
+  shellTabs.push({
     id: 'siem',
     label: 'SIEM Config',
     badgeId: 'badge-siem',
     badge: 'stub',
     badgeStyle: 'background:var(--info-bg);color:var(--info)',
-  },
-];
+  });
+}
 ---
 
 <header class="hdr">
@@ -87,7 +91,7 @@ const shellTabs = [
       <div class="shell-nav-meta">
         <div class="shell-label">Overview workspace</div>
         <div class="shell-note">
-          Existing feed, model, vector, and SIEM panels stay live inside the Overview surface.
+          Existing feed, model, and vector panels stay live inside the Overview surface without widening the current primary workflow.
         </div>
       </div>
       <nav class="tabbar" id="tabbar" aria-label="Overview workspace views">
@@ -104,7 +108,7 @@ const shellTabs = [
       </nav>
       <div class="shell-future">
         <span class="future-chip">Dashboard internals preserved</span>
-        <span class="future-chip">Route shell ready for deeper pages</span>
+        <span class="future-chip">Primary workflow kept focused</span>
       </div>
     </div>
   )

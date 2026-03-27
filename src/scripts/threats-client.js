@@ -61,19 +61,56 @@ function formatDate(value) {
   return formatEasternDate(value);
 }
 
+function formatThreatAge(value) {
+  const publishedAt = new Date(value);
+  if (Number.isNaN(publishedAt.getTime())) return 'Unknown age';
+
+  const diffMs = Date.now() - publishedAt.getTime();
+  const diffDays = Math.max(0, Math.floor(diffMs / 86400000));
+
+  if (diffDays === 0) return 'Published today';
+  if (diffDays === 1) return '1 day old';
+  if (diffDays < 14) return `${diffDays} days old`;
+
+  const diffWeeks = Math.floor(diffDays / 7);
+  if (diffWeeks === 1) return '1 week old';
+  if (diffWeeks < 8) return `${diffWeeks} weeks old`;
+
+  const diffMonths = Math.floor(diffDays / 30);
+  if (diffMonths <= 1) return '1 month old';
+  return `${diffMonths} months old`;
+}
+
 function resultCard(threat) {
   const models = threat.models.map((model) => badge(shortModel(model), 'b-model')).join('');
   const vectors = threat.vectors.map((vector) => badge(vector, 'b-gray')).join('');
   const ttpIds = threat.ttps.map((ttp) => `<span class="ttp-tag">${escapeHtml(ttp.id)}</span>`).join('');
   const patchLine = threat.patchVersion ? `Patch ${escapeHtml(threat.patchVersion)}` : 'Patch not listed';
   const detailHref = getThreatDetailHref(threat);
+  const topModels = threat.models.slice(0, 2).map((model) => shortModel(model)).join(', ');
+  const topVectors = threat.vectors.slice(0, 2).join(', ');
+  const ageLabel = formatThreatAge(threat.publishedAt);
 
   return `
     <article class="threat-row">
+      <div class="threat-row-eyebrow">
+        <div class="tc-meta">
+          ${badge(threat.severity.toUpperCase(), severityClasses[threat.severity] ?? 'b-gray')}
+          ${badge(threat.status, statusClasses[threat.status] ?? 'b-gray')}
+          ${badge(threat.type, 'b-gray')}
+          ${threat.cve ? `<span class="ttp-tag">${escapeHtml(threat.cve)}</span>` : ''}
+        </div>
+        <div class="threat-row-date">
+          <div>Published ${formatDate(threat.publishedAt)}</div>
+          <div>Updated ${formatDate(threat.updatedAt)}</div>
+        </div>
+      </div>
+
       <div class="threat-row-head">
         <div>
           <div class="threat-row-title"><a class="threat-row-link" href="${detailHref}">${escapeHtml(threat.title)}</a></div>
           <div class="threat-row-source">${escapeHtml(threat.source)}</div>
+          <div class="tc-meta-line">${threat.models.length} model targets · ${threat.vectors.length} mapped vectors · ${threat.iocs.length} IOC${threat.iocs.length === 1 ? '' : 's'}</div>
         </div>
         <div class="tc-score-card">
           <span class="tc-score-label">Blended score</span>
@@ -81,14 +118,27 @@ function resultCard(threat) {
         </div>
       </div>
 
-      <div class="threat-row-meta">
-        <div class="tc-meta">
-          ${badge(threat.severity.toUpperCase(), severityClasses[threat.severity] ?? 'b-gray')}
-          ${badge(threat.status, statusClasses[threat.status] ?? 'b-gray')}
-          ${badge(threat.type, 'b-gray')}
-          ${threat.cve ? `<span class="ttp-tag">${escapeHtml(threat.cve)}</span>` : ''}
+      <div class="threat-row-scan">
+        <div class="threat-row-scan-item">
+          <span>Severity</span>
+          <strong>${escapeHtml(threat.severity.toUpperCase())}</strong>
+          <p>${escapeHtml(threat.status)} workflow state</p>
         </div>
-        <div class="tc-meta-line">Published ${formatDate(threat.publishedAt)} | Updated ${formatDate(threat.updatedAt)}</div>
+        <div class="threat-row-scan-item">
+          <span>Models</span>
+          <strong>${escapeHtml(topModels || 'None listed')}</strong>
+          <p>${threat.models.length} model family${threat.models.length === 1 ? '' : 'ies'} in scope</p>
+        </div>
+        <div class="threat-row-scan-item">
+          <span>Vectors</span>
+          <strong>${escapeHtml(topVectors || 'None listed')}</strong>
+          <p>${threat.vectors.length} delivery path${threat.vectors.length === 1 ? '' : 's'} tracked</p>
+        </div>
+        <div class="threat-row-scan-item">
+          <span>Age and patch</span>
+          <strong>${escapeHtml(ageLabel)}</strong>
+          <p>${patchLine}</p>
+        </div>
       </div>
 
       <div class="threat-row-summary">${escapeHtml(threat.description)}</div>

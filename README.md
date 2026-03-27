@@ -2,12 +2,12 @@
 
 ThreatParallax is an AI Threat Intelligence Platform for security leaders and analysts tracking model-linked threats, distribution vectors, operational exposure, and conservative regional map context across the current non-production deployment.
 
-Phase IV keeps the existing Vercel deployment model and current repo name in place while upgrading Threat Map into a projected world-map surface, repairing map interaction resilience, and normalizing visible product timestamps to America/New_York with DST-aware EST/EDT output. Domain cutover remains out of scope.
+Phase V keeps the existing Vercel deployment model and current repo name in place while polishing analyst usability: stronger overview metric hierarchy, faster threat-feed scanning, calmer loading states, and a tighter primary UX with SIEM removed from the current main workflow. Threat Map and timestamp normalization from Phase IV remain intact. Domain cutover remains out of scope.
 
 ## Product surfaces
 
 - `/overview`: primary leadership and analyst workspace, including the existing dashboard/feed internals
-- `/threats`: operator-oriented corpus scanning with search, filters, and sort controls
+- `/threats`: operator-oriented corpus scanning with search, filters, sort controls, and faster row-level scanning context
 - `/threats/[slug]`: canonical threat detail pages for direct review and deep linking
 - `/threat-map`: conservative projected world map surface for observed infrastructure and exposure geography with regional drilldowns
 - `/research`: light methodology, source, and cadence framing
@@ -16,6 +16,7 @@ Phase IV keeps the existing Vercel deployment model and current repo name in pla
 
 - Visible product timestamps render in `America/New_York` and use the correct short timezone abbreviation automatically (`EST` or `EDT`).
 - Threat Map remains limited to observed infrastructure and exposure geography. It does not claim actor origin, victim geography, or live attack traffic.
+- SIEM integration remains available in code and environment configuration, but it is intentionally hidden from the current primary user-facing workflow.
 
 ## Stack
 
