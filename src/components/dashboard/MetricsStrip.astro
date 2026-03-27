@@ -3,73 +3,141 @@ const { initialStats } = Astro.props;
 
 const metrics = [
   {
-    label: 'Critical severity',
-    description: 'Highest-priority issues still active and likely to drive escalation decisions.',
-    accent: 'CRI',
-    accentClass: 'crit',
+    label: 'Critical active',
+    note: 'Leadership visibility',
     value: initialStats.activeCritical,
     valueId: 'm-crit',
     valueClass: 'crit',
-    context: 'Immediate attention window',
     deltaId: 'm-crit-d',
     deltaClass: 'up',
-    cardClass: 'primary',
   },
   {
-    label: 'Active campaigns',
-    description: 'Current threat records requiring ongoing monitoring in the platform queue.',
-    accent: 'ACT',
+    label: 'Tracked queue',
+    note: 'Current corpus',
     value: initialStats.totalThreats,
     valueId: 'm-total',
-    context: 'Across the current tracked set',
     deltaId: 'm-total-d',
   },
   {
-    label: 'New this week',
-    description: 'Fresh entries added during the current seven-day review cycle.',
-    accent: 'NEW',
-    accentClass: 'amber',
+    label: 'New in seven days',
+    note: 'Fresh pressure',
     value: initialStats.newThisWeek,
     valueId: 'm-week',
     valueClass: 'amber',
-    context: 'Recent change pressure',
     deltaId: 'm-week-d',
   },
   {
-    label: 'Models affected',
-    description: 'Distinct tracked model tags showing exposure in the current feed.',
-    accent: 'MOD',
-    accentClass: 'info',
+    label: 'Models in scope',
+    note: 'Distinct model tags',
     value: initialStats.modelsAffected,
     valueId: 'm-models',
-    context: 'Distinct model tags in scope',
+    valueClass: 'info',
     deltaId: 'm-models-d',
     deltaClass: 'dn',
   },
 ];
 ---
 
-<div class="metrics" id="metrics-strip">
+<div class="overview-kpi-band" id="metrics-strip">
   {
     metrics.map((metric) => (
-      <div class:list={['metric', metric.cardClass]}>
-        <div class="metric-top">
-          <div>
-            <div class="m-label">{metric.label}</div>
-            <p>{metric.description}</p>
-          </div>
-          <div class:list={['metric-accent', metric.accentClass]}>{metric.accent}</div>
+      <div class:list={['overview-kpi-card', metric.valueClass]}>
+        <div class="overview-kpi-head">
+          <div class="m-label">{metric.label}</div>
+          <div class="overview-kpi-note">{metric.note}</div>
         </div>
-        <div class="metric-bottom">
-          <div>
-            <div class:list={['m-val', metric.valueClass]} id={metric.valueId}>
-              {metric.value}
-            </div>
-            <div class="m-context">{metric.context}</div>
+        <div class="overview-kpi-body">
+          <div class:list={['overview-kpi-value', metric.valueClass]} id={metric.valueId}>
+            {metric.value}
           </div>
-          <div class:list={['m-delta', metric.deltaClass]} id={metric.deltaId}></div>
+          <div class:list={['overview-kpi-delta', metric.deltaClass]} id={metric.deltaId}></div>
         </div>
       </div>
     ))
   }
 </div>
+
+<style>
+  .overview-kpi-band {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .overview-kpi-card {
+    min-height: 122px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+    box-shadow: var(--shadow-soft);
+    display: grid;
+    gap: 14px;
+    align-content: space-between;
+  }
+
+  .overview-kpi-card.crit {
+    background: linear-gradient(180deg, rgba(255,122,122,.14), rgba(255,122,122,.05));
+    border-color: rgba(255,122,122,.2);
+  }
+
+  .overview-kpi-head {
+    display: grid;
+    gap: 6px;
+  }
+
+  .overview-kpi-note {
+    color: var(--txt3);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .overview-kpi-body {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .overview-kpi-value {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 3vw, 38px);
+    line-height: 0.95;
+    letter-spacing: -0.05em;
+  }
+
+  .overview-kpi-value.crit {
+    color: var(--crit);
+  }
+
+  .overview-kpi-value.amber {
+    color: var(--med);
+  }
+
+  .overview-kpi-value.info {
+    color: var(--info);
+  }
+
+  .overview-kpi-delta {
+    color: var(--txt3);
+    font-size: 11px;
+    font-weight: 700;
+    text-align: right;
+    max-width: 10ch;
+    line-height: 1.4;
+  }
+
+  .overview-kpi-delta.up {
+    color: var(--crit);
+  }
+
+  .overview-kpi-delta.dn {
+    color: var(--low);
+  }
+
+  @media (max-width: 960px) {
+    .overview-kpi-band {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
