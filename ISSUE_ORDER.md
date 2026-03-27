@@ -77,3 +77,10 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Hid the SIEM workspace tab and panel behind a recoverable feature flag, then tightened the surrounding workspace copy so the primary UX stays focused on the active analyst surfaces.
 5. P5-05 [#35](https://github.com/nvrenuf/aitid/issues/35) Final regression sweep, docs touch-up, and PR polish - completed
    Note: Re-ran the final build/test pass, refreshed README for the Phase V analyst UX state, and prepared the branch as the single draft PR review surface for Phase V.
+
+## Runtime Fixes
+
+1. RF-01 [#38](https://github.com/nvrenuf/aitid/issues/38) Pipeline cron reliability and explicit route error handling - completed
+   Note: Reworked `/api/pipeline/run` around shared cron/manual request parsing, added explicit JSON responses and route-level error logging, and removed the current 503 path for valid Vercel cron GET requests when `CRON_SECRET` is absent.
+2. RF-02 [#39](https://github.com/nvrenuf/aitid/issues/39) Reduce duplicate overview stats and threats fetches - pending
+   Note: Reduce the confirmed duplicate `/api/stats` and `/api/threats` requests on `/overview` while preserving the current server-rendered route behavior.
