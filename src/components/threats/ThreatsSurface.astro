@@ -238,6 +238,24 @@ const initialThreats = JSON.stringify(threats);
     font: inherit;
   }
 
+  .threats-select {
+    color-scheme: dark;
+    appearance: none;
+  }
+
+  .threats-select option,
+  .threats-select optgroup {
+    background: #101a25;
+    color: var(--txt);
+  }
+
+  .threats-select option:checked,
+  .threats-select option:hover,
+  .threats-select option:focus {
+    background: #17314a;
+    color: var(--txt);
+  }
+
   .threats-input::placeholder {
     color: var(--txt3);
   }

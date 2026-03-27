@@ -1,7 +1,7 @@
 ---
 import DashboardShell from '../dashboard/DashboardShell.astro';
 import { getRouteMeta } from '../../lib/product-navigation.js';
-import { getStats } from '../../lib/store.js';
+import { getStats, computeAndSaveStats } from '../../lib/store.js';
 import { formatEasternRefreshTimestamp } from '../../lib/time.js';
 import '../../styles/threatparallax.css';
 
@@ -16,7 +16,8 @@ const routeMeta = getRouteMeta(currentPath);
 
 let headerUpdatedLabel = 'unavailable';
 try {
-  const stats = await getStats();
+  let stats = await getStats();
+  if (!stats) stats = await computeAndSaveStats();
   headerUpdatedLabel = formatEasternRefreshTimestamp(stats?.lastUpdated);
 } catch {
   headerUpdatedLabel = 'unavailable';

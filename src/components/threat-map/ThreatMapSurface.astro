@@ -325,6 +325,21 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     color: var(--txt);
     padding: 11px 13px;
     font: inherit;
+    color-scheme: dark;
+    appearance: none;
+  }
+
+  .threat-map-filter select option,
+  .threat-map-filter select optgroup {
+    background: #101a25;
+    color: var(--txt);
+  }
+
+  .threat-map-filter select option:checked,
+  .threat-map-filter select option:hover,
+  .threat-map-filter select option:focus {
+    background: #17314a;
+    color: var(--txt);
   }
 
   .threat-map-workspace {
