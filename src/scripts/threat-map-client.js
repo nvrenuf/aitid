@@ -265,6 +265,8 @@ function render() {
     return;
   }
 
+  clearStageFallback();
+
   if (!filteredRegions.some((region) => region.regionKey === state.activeRegion)) {
     state.activeRegion = filteredRegions[0]?.regionKey ?? '';
   }
@@ -274,8 +276,6 @@ function render() {
       'No mapped regions match the current filters',
       'Adjust severity, model, or vector filters to restore mapped regional coverage. Regional summaries remain available here when no markers qualify.',
     );
-  } else {
-    clearStageFallback();
   }
 
   renderNodes(filteredRegions);
@@ -289,46 +289,6 @@ function render() {
       render();
     });
   });
-}
-
-function renderWhenStageReady() {
-  const stage = document.getElementById('threat-map-stage');
-  if (!stage) {
-    renderStageFallback(
-      'Projected map unavailable',
-      'The map stage is unavailable, so the regional summary remains visible while the visualization is degraded.',
-    );
-    renderRegionDetails(dataset.points, dataset.regions);
-    renderUnmapped(dataset.unmappedThreats);
-    renderFilterSummary([], dataset.unmappedThreats);
-    return;
-  }
-
-  let attempts = 0;
-  const maxAttempts = 12;
-
-  const attemptRender = () => {
-    if (stage.clientWidth > 0 && stage.clientHeight > 0) {
-      render();
-      return;
-    }
-
-    attempts += 1;
-    if (attempts >= maxAttempts) {
-      renderStageFallback(
-        'Projected map unavailable',
-        'The map stage could not be measured, so the regional summary remains visible while the visualization is degraded.',
-      );
-      renderRegionDetails(dataset.points, dataset.regions);
-      renderUnmapped(dataset.unmappedThreats);
-      renderFilterSummary([], dataset.unmappedThreats);
-      return;
-    }
-
-    window.requestAnimationFrame(attemptRender);
-  };
-
-  window.requestAnimationFrame(attemptRender);
 }
 
 function bindSelect(id, key) {
@@ -360,4 +320,4 @@ bindSelect('threat-map-filter-severity', 'severity');
 bindSelect('threat-map-filter-model', 'model');
 bindSelect('threat-map-filter-vector', 'vector');
 document.getElementById('threat-map-reset-filters')?.addEventListener('click', resetFilters);
-renderWhenStageReady();
+render();
