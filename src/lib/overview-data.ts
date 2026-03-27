@@ -1,6 +1,6 @@
 import { SEED_THREATS } from './seed.js';
 import { getStats } from './store.js';
-import { formatEasternTime, formatEasternTimestamp } from './time.js';
+import { formatEasternTimestamp } from './time.js';
 
 export async function getOverviewPageData() {
   let stats;
@@ -42,6 +42,5 @@ export async function getOverviewPageData() {
     overviewPriority,
     overviewStatus,
     overviewUpdated,
-    now: formatEasternTime(),
   };
 }

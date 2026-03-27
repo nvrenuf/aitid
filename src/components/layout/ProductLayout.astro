@@ -1,17 +1,26 @@
 ---
 import DashboardShell from '../dashboard/DashboardShell.astro';
 import { getRouteMeta } from '../../lib/product-navigation.js';
+import { getStats } from '../../lib/store.js';
+import { formatEasternRefreshTimestamp } from '../../lib/time.js';
 import '../../styles/threatparallax.css';
 
 const {
   title = 'ThreatParallax | AI Threat Intelligence Platform',
   description = 'ThreatParallax is an AI Threat Intelligence Platform for security leaders and analysts monitoring model-linked threats, exposure vectors, and operational risk.',
-  now,
   currentPath = '/overview',
   showWorkspaceNav = false,
 } = Astro.props;
 
 const routeMeta = getRouteMeta(currentPath);
+
+let headerUpdatedLabel = 'unavailable';
+try {
+  const stats = await getStats();
+  headerUpdatedLabel = formatEasternRefreshTimestamp(stats?.lastUpdated);
+} catch {
+  headerUpdatedLabel = 'unavailable';
+}
 ---
 
 <!DOCTYPE html>
@@ -299,7 +308,7 @@ const routeMeta = getRouteMeta(currentPath);
 </head>
 <body>
   <div id="app">
-    <DashboardShell now={now} currentPath={currentPath} routeMeta={routeMeta} showWorkspaceNav={showWorkspaceNav} />
+    <DashboardShell headerUpdatedLabel={headerUpdatedLabel} currentPath={currentPath} routeMeta={routeMeta} showWorkspaceNav={showWorkspaceNav} />
     <slot />
   </div>
 </body>

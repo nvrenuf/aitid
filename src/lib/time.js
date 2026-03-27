@@ -44,3 +44,12 @@ export function formatEasternTimestamp(value) {
 export function formatEasternDate(value) {
   return easternDateFormatter.format(toDate(value));
 }
+
+export function formatEasternRefreshTimestamp(value) {
+  if (!value) return 'unavailable';
+
+  const date = toDate(value);
+  if (Number.isNaN(date.getTime())) return 'unavailable';
+
+  return formatEasternTimestamp(date);
+}

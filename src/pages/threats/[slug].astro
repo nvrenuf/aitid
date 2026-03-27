@@ -2,9 +2,7 @@
 import ProductLayout from '../../components/layout/ProductLayout.astro';
 import ThreatDetailSurface from '../../components/threats/ThreatDetailSurface.astro';
 import { getThreatBySlug } from '../../lib/threats.js';
-import { formatEasternTime } from '../../lib/time.js';
 
-const now = formatEasternTime();
 const slug = Astro.params.slug ?? '';
 const threat = await getThreatBySlug(slug);
 
@@ -14,7 +12,6 @@ if (!threat) {
 ---
 
 <ProductLayout
-  now={now}
   currentPath="/threats"
   title={threat ? `${threat.title} | ThreatParallax` : 'Threat not found | ThreatParallax'}
   description={threat ? threat.description : 'The requested threat record could not be found in the current ThreatParallax corpus.'}

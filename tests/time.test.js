@@ -1,7 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { formatEasternDate, formatEasternTime, formatEasternTimestamp } from '../src/lib/time.js';
+import {
+  formatEasternDate,
+  formatEasternRefreshTimestamp,
+  formatEasternTime,
+  formatEasternTimestamp,
+} from '../src/lib/time.js';
 
 test('formatEasternTime uses EST during standard time', () => {
   assert.equal(
@@ -22,4 +27,16 @@ test('formatEasternDate keeps date-only rendering pinned to Eastern Time', () =>
     formatEasternDate('2026-07-15T02:30:00Z'),
     'Jul 14, 2026',
   );
+});
+
+test('formatEasternRefreshTimestamp matches the canonical header shape', () => {
+  assert.equal(
+    formatEasternRefreshTimestamp('2026-03-27T04:15:00Z'),
+    'Mar 27, 12:15 AM EDT',
+  );
+});
+
+test('formatEasternRefreshTimestamp falls back to unavailable when no real timestamp exists', () => {
+  assert.equal(formatEasternRefreshTimestamp(undefined), 'unavailable');
+  assert.equal(formatEasternRefreshTimestamp('not-a-date'), 'unavailable');
 });

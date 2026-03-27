@@ -6,7 +6,7 @@ import {
   sortThreats,
 } from '../lib/dashboard-utils.js';
 import { getThreatDetailHref } from '../lib/threats-utils.js';
-import { formatEasternDate, formatEasternTime, formatEasternTimestamp } from '../lib/time.js';
+import { formatEasternDate, formatEasternRefreshTimestamp, formatEasternTimestamp } from '../lib/time.js';
 
 let allThreats = [];
 let overviewFilter = 'all';
@@ -409,6 +409,7 @@ function renderAll() {
 function applyOverviewStats(stats) {
   const statusText = stats.pipelineStatus === 'healthy' ? 'Collection healthy' : 'Collection needs review';
   const updatedText = formatEasternTimestamp(stats.lastUpdated);
+  const headerUpdatedText = formatEasternRefreshTimestamp(stats.lastUpdated);
 
   safeSetText('m-total', stats.totalThreats);
   safeSetText('m-crit', stats.activeCritical);
@@ -420,6 +421,7 @@ function applyOverviewStats(stats) {
   safeSetText('m-models-d', 'distinct model tags in current corpus');
   safeSetText('overview-status', statusText);
   safeSetText('overview-updated', updatedText);
+  safeSetText('hdr-time', headerUpdatedText);
   safeSetText('overview-critical', stats.activeCritical);
   safeSetText('overview-models', stats.modelsAffected);
   safeSetText('overview-week', stats.newThisWeek);
@@ -609,12 +611,6 @@ function saveSiemConfig() {
   alert('SIEM config saved. Set SIEM_TYPE, SIEM_WEBHOOK_URL, SIEM_SECRET, and SIEM_MIN_SEVERITY in your Vercel environment variables to activate live forwarding.');
 }
 
-function initClock() {
-  window.setInterval(() => {
-    safeSetText('hdr-time', formatEasternTime());
-  }, 30000);
-}
-
 function initResize() {
   const handle = document.getElementById('sidebar-resize-handle');
   const sidebar = document.getElementById('overview-sidebar');
@@ -664,7 +660,6 @@ initOverviewFilters();
 initThreatInteractions();
 initModelSubnavs();
 initVectorToggle();
-initClock();
 initResize();
 const initialOverviewStats = readInitialOverviewStats();
 if (initialOverviewStats) {
