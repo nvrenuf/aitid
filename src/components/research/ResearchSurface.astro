@@ -1,0 +1,128 @@
+---
+const researchTracks = [
+  {
+    label: 'Current direction',
+    title: 'AI-native attack surfaces in developer and productivity tooling',
+    body: 'Phase II keeps research centered on model-linked operational risk: agent file abuse, tool-call trust boundaries, registry exposure, and enterprise workflow injection paths.',
+  },
+  {
+    label: 'Methodology',
+    title: 'Observed incidents first, normalized into a common review model',
+    body: 'Each tracked item starts from a concrete advisory, disclosure, or defensible source, then gets normalized into shared fields for severity, vectors, affected models, ATLAS context, and mitigation posture.',
+  },
+  {
+    label: 'Cadence',
+    title: 'Lightweight, rolling refresh rather than editorial theater',
+    body: 'The current product shape favors steady curation of meaningful items over a padded publishing calendar. The intent is to support operator trust, not to simulate a media property.',
+  },
+];
+
+const methodRows = [
+  ['Source intake', 'Vendor advisories, public disclosures, credible independent research, and structured ecosystem feeds.'],
+  ['Normalization', 'Threats are translated into a common contract for vectors, models, severity, status, and mitigation notes.'],
+  ['Map policy', 'Geography is included only when observed infrastructure or exposure context can be stated defensibly.'],
+  ['Analyst posture', 'Unknowns stay visible. Unmapped items are not forced into regions, and incomplete evidence is left coarse.'],
+];
+
+const futureEdges = [
+  'Research landing surface is designed to expand into advisories and disclosures later without requiring a routing rewrite.',
+  'Method and source framing now live next to the product, which makes later deeper research work easier to add without padding the current experience.',
+];
+---
+
+<section class="page-panel research-shell">
+  <div class="research-hero">
+    <div class="page-copy">
+      <span class="page-eyebrow">Research</span>
+      <div>
+        <div class="page-kicker">Method and cadence</div>
+        <h1 class="page-headline">A light research surface that explains how ThreatParallax earns trust.</h1>
+      </div>
+      <p>
+        Research remains intentionally light in Phase II. The goal is not to ship a full archive or
+        disclosure workflow, but to show the product’s analytical posture clearly enough that security
+        buyers understand what is being tracked, how it is normalized, and where the current edges are.
+      </p>
+    </div>
+
+    <div class="research-track-grid">
+      {
+        researchTracks.map((track) => (
+          <div class="info-card">
+            <span>{track.label}</span>
+            <strong>{track.title}</strong>
+            <p>{track.body}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="research-layout">
+    <section class="research-method">
+      <div class="page-kicker">Method summary</div>
+      <div class="page-list">
+        {
+          methodRows.map(([label, body]) => (
+            <div class="page-list-item">
+              <strong>{label}</strong>
+              <p>{body}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="research-rail">
+      <div class="info-card">
+        <span>Source framing</span>
+        <strong>Operationally useful over exhaustive</strong>
+        <p>
+          ThreatParallax is currently biased toward incidents that change security posture, response, or
+          control design for security leaders and analysts.
+        </p>
+      </div>
+      <div class="info-card">
+        <span>What this is not</span>
+        <strong>No CMS, no filler archive, no disclosure theatre</strong>
+        <p>
+          Phase II stops short of editorial sprawl. If an item does not improve product credibility or
+          operator understanding, it does not need a surface yet.
+        </p>
+      </div>
+      <div class="info-card">
+        <span>Future-ready edge</span>
+        <strong>Structured for later expansion</strong>
+        <p>{futureEdges[0]}</p>
+        <p>{futureEdges[1]}</p>
+      </div>
+    </section>
+  </div>
+</section>
+
+<style>
+  .research-shell,
+  .research-hero,
+  .research-layout,
+  .research-track-grid,
+  .research-method,
+  .research-rail {
+    display: grid;
+    gap: 18px;
+  }
+
+  .research-track-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .research-layout {
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  }
+
+  @media (max-width: 1080px) {
+    .research-track-grid,
+    .research-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
