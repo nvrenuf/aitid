@@ -1,0 +1,25 @@
+---
+import MetricsStrip from './MetricsStrip.astro';
+import OverviewPanel from './OverviewPanel.astro';
+import SecondaryPanels from './SecondaryPanels.astro';
+
+const {
+  initialStats,
+  overviewPosture,
+  overviewPriority,
+  overviewStatus,
+  overviewUpdated,
+} = Astro.props;
+---
+
+<div class="workspace-shell">
+  <MetricsStrip initialStats={initialStats} />
+  <OverviewPanel
+    initialStats={initialStats}
+    overviewPosture={overviewPosture}
+    overviewPriority={overviewPriority}
+    overviewStatus={overviewStatus}
+    overviewUpdated={overviewUpdated}
+  />
+  <SecondaryPanels />
+</div>

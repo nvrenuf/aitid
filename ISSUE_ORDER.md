@@ -25,3 +25,12 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Added a lightweight `node:test` smoke suite around shared dashboard helper logic and introduced a real `npm test` entrypoint so Phase 1.5 work is no longer validated by build alone.
 4. P1.5-04 [#11](https://github.com/nvrenuf/aitid/issues/11) Final regression sweep and PR polish - completed
    Note: Ran the final build and smoke-test pass, refreshed README usage notes for the new test entrypoint, updated user-facing export filenames to ThreatParallax, and appended the Phase 1.5 addendum to draft PR #7.
+
+## Phase II Execution Order
+
+1. P2-01 [#13](https://github.com/nvrenuf/aitid/issues/13) Route structure and navigation transition - completed
+   Note: Split the dashboard into route-based Overview, Threat Map, and Research surfaces, redirected `/` into the Overview route, and kept the existing workspace tabs active inside the Overview page.
+2. P2-02 [#14](https://github.com/nvrenuf/aitid/issues/14) Threat Map data contract and geographic aggregation model - in progress
+3. P2-03 [#15](https://github.com/nvrenuf/aitid/issues/15) Threat Map UI and regional detail experience - pending
+4. P2-04 [#16](https://github.com/nvrenuf/aitid/issues/16) Research landing surface and methodology placeholder - pending
+5. P2-05 [#17](https://github.com/nvrenuf/aitid/issues/17) Final regression sweep, documentation touch-up, and PR polish - pending

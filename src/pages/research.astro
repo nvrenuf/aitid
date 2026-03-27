@@ -1,0 +1,40 @@
+---
+import ProductLayout from '../components/layout/ProductLayout.astro';
+
+const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+---
+
+<ProductLayout now={now} currentPath="/research">
+  <section class="page-panel grid">
+    <div class="page-copy">
+      <span class="page-eyebrow">Research surface</span>
+      <div>
+        <div class="page-kicker">Research</div>
+        <h1 class="page-headline">Light methodology framing without pretending a full portal exists.</h1>
+      </div>
+      <p>
+        Research is now a first-class route so ThreatParallax reads like a product instead of a single
+        dashboard shell. This page remains intentionally light until the methodology, cadence, and
+        source framing are added in the next issue.
+      </p>
+      <p>
+        The scope stays narrow for Phase II: credible positioning for security buyers, no padded
+        archive, and no premature disclosures workflow.
+      </p>
+    </div>
+    <div class="page-list">
+      <div class="page-list-item">
+        <strong>Planned in this phase</strong>
+        <p>Methodology summary, source framing, and clear signals about research cadence.</p>
+      </div>
+      <div class="page-list-item">
+        <strong>Not planned in this phase</strong>
+        <p>Full CMS, advisory archive, or expanded disclosure operations.</p>
+      </div>
+      <div class="page-list-item">
+        <strong>Reason for the route now</strong>
+        <p>The product structure is established before deeper research content lands.</p>
+      </div>
+    </div>
+  </section>
+</ProductLayout>
