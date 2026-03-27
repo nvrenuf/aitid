@@ -13,6 +13,7 @@ const threats = [
   {
     id: 'critical-openai',
     severity: 'critical',
+    status: 'active',
     type: 'jailbreak',
     models: ['openai-gpt4o'],
     vectors: ['api'],
@@ -21,6 +22,7 @@ const threats = [
   {
     id: 'high-copilot',
     severity: 'high',
+    status: 'investigating',
     type: 'supply-chain',
     models: ['microsoft-copilot-github'],
     vectors: ['npm'],
@@ -29,6 +31,7 @@ const threats = [
   {
     id: 'medium-oss',
     severity: 'medium',
+    status: 'patched',
     type: 'model-poisoning',
     models: ['huggingface-oss'],
     vectors: ['huggingface'],
@@ -74,6 +77,6 @@ test('helper formatting keeps dashboard labels stable', () => {
   assert.equal(shortModel('microsoft-copilot-github'), 'copilot-github');
   assert.equal(
     buildDrawerSubtitle(threats[0]),
-    'jailbreak | CRITICAL | score 9.2',
+    'CRITICAL · active · jailbreak',
   );
 });

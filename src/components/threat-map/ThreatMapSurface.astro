@@ -21,18 +21,11 @@ const fallbackRegions = dataset.regions.slice(0, 4);
         <span class="page-eyebrow">Observed geography only</span>
         <div>
           <div class="page-kicker">Threat map</div>
-          <h1 class="page-headline">Regional posture framed like analysis, not like a demo surface.</h1>
+          <h1 class="page-headline">Regional posture from observed geography.</h1>
         </div>
         <p>
-          ThreatParallax keeps geography conservative: coarse regional anchors, explicit coverage limits,
-          and no claim about actor origin, customer geography, or live attack traffic.
+          Coarse regional anchors only. No actor-origin, customer-geography, or live-telemetry claims.
         </p>
-      </div>
-
-      <div class="surface-chips threat-map-heading-chips">
-        <span class="future-chip">observed infrastructure only</span>
-        <span class="future-chip">coarse regional anchors</span>
-        <span class="future-chip">unmapped records retained</span>
       </div>
     </div>
 
@@ -40,17 +33,17 @@ const fallbackRegions = dataset.regions.slice(0, 4);
       <div class="info-card">
         <span>Mapped regions</span>
         <strong>{dataset.coverage.mappedRegionCount}</strong>
-        <p>Conservative grouping only.</p>
+        <p>Regional anchors only.</p>
       </div>
       <div class="info-card">
         <span>Mapped threats</span>
         <strong>{dataset.coverage.mappedThreatCount}</strong>
-        <p>Only records with defensible location support.</p>
+        <p>Defensible geography only.</p>
       </div>
       <div class="info-card">
         <span>Unmapped retained</span>
         <strong>{dataset.coverage.unmappedThreatCount}</strong>
-        <p>Coverage gaps stay explicit instead of being placed on the map.</p>
+        <p>Coverage gaps stay explicit.</p>
       </div>
     </div>
   </div>
@@ -59,7 +52,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     <div class="threat-map-filter-summary">
       <div class="page-kicker">Filter rail</div>
       <strong id="threat-map-filter-count">{dataset.coverage.pointCount} mapped observations</strong>
-      <p>Severity, model, and vector narrow the current corpus only. They do not change map meaning.</p>
+      <p>Filters narrow the current corpus only. They do not change map meaning.</p>
     </div>
 
     <div class="threat-map-filter-controls">
@@ -175,7 +168,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
                 <div>
                   <div class="page-kicker">Regional brief</div>
                   <h2>{initialRegion.regionName}</h2>
-                  <p class="threat-map-detail-copy">Approximate posture based on the mapped observations currently in scope.</p>
+                  <p class="threat-map-detail-copy">Based on the mapped observations currently in scope.</p>
                 </div>
                 <div class="threat-map-detail-stat">
                   <span>Tracked threats</span>
@@ -193,7 +186,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
                 <div class="info-card">
                   <span>Dominant vectors</span>
                   <strong>{initialRegion.dominantVectors.join(', ')}</strong>
-                  <p>Vector labels remain tied to the filtered mapped threats.</p>
+                  <p>Derived from the filtered mapped records.</p>
                 </div>
               </div>
 
@@ -239,7 +232,7 @@ const fallbackRegions = dataset.regions.slice(0, 4);
         <div class="page-kicker">Unmapped coverage</div>
         <div class="page-list-item">
           <strong>{dataset.coverage.unmappedThreatCount} threats remain off-map</strong>
-          <p>Threats stay off-map until defensible geography exists. Reason categories below explain why.</p>
+          <p>Threats stay off-map until defensible geography exists.</p>
         </div>
         {
           [...new Map(dataset.unmappedThreats.map((threat) => [threat.reasonCategory, threat])).values()].map((threat) => (
@@ -273,10 +266,6 @@ const fallbackRegions = dataset.regions.slice(0, 4);
     display: grid;
     gap: 18px;
     grid-template-columns: minmax(0, 1.16fr) minmax(320px, 0.84fr);
-  }
-
-  .threat-map-heading-chips {
-    align-items: center;
   }
 
   .threat-map-stats {

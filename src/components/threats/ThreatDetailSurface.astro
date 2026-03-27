@@ -79,11 +79,11 @@ const detailContext = buildThreatDetailContext(threat);
       <div class="info-card threat-detail-summary">
         <span>Review framing</span>
         <strong>{buildDrawerSubtitle(threat)}</strong>
-        <p>Structured for direct review, internal linking, and source-backed prioritization.</p>
+        <p>Built for direct review and analyst handoff.</p>
       </div>
 
       <div class="info-card threat-detail-summary">
-        <span>Affected scope</span>
+        <span>Affected models</span>
         <strong>{threat.models.map(shortModel).join(', ')}</strong>
         <p>{threat.vectors.join(', ')}</p>
       </div>
@@ -95,7 +95,7 @@ const detailContext = buildThreatDetailContext(threat);
       <div class="threat-detail-panel-head">
         <div>
           <div class="page-kicker">Source transparency</div>
-          <h2>Evidence is explicit and reviewable.</h2>
+          <h2>References and evidence</h2>
         </div>
       </div>
 
@@ -122,7 +122,7 @@ const detailContext = buildThreatDetailContext(threat);
       <div class="threat-detail-panel-head">
         <div>
           <div class="page-kicker">Operational read</div>
-          <h2>What matters now</h2>
+          <h2>Operational read</h2>
         </div>
       </div>
 
@@ -152,7 +152,7 @@ const detailContext = buildThreatDetailContext(threat);
       <div class="threat-detail-panel-head">
         <div>
           <div class="page-kicker">Methodology</div>
-          <h2>Normalization notes remain visible.</h2>
+          <h2>Method and scoring</h2>
         </div>
       </div>
 
@@ -176,7 +176,7 @@ const detailContext = buildThreatDetailContext(threat);
       <div class="threat-detail-panel-head">
         <div>
           <div class="page-kicker">Response guidance</div>
-          <h2>Action, indicators, and constraints are separated cleanly.</h2>
+          <h2>Response guidance</h2>
         </div>
       </div>
 
@@ -205,7 +205,7 @@ const detailContext = buildThreatDetailContext(threat);
       <div class="threat-detail-panel-head">
         <div>
           <div class="page-kicker">Indicators and references</div>
-          <h2>Linked source material and technical markers</h2>
+          <h2>Indicators</h2>
         </div>
       </div>
 
@@ -228,7 +228,7 @@ const detailContext = buildThreatDetailContext(threat);
       <div class="threat-detail-panel-head">
         <div>
           <div class="page-kicker">Limits and trust boundaries</div>
-          <h2>What this record does and does not claim</h2>
+          <h2>Limits</h2>
         </div>
       </div>
 

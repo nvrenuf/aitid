@@ -33,5 +33,5 @@ export function filterThreats(threats, filter) {
 }
 
 export function buildDrawerSubtitle(threat) {
-  return `${threat.type} | ${threat.severity.toUpperCase()} | score ${threat.score.blended.toFixed(1)}`;
+  return `${threat.severity.toUpperCase()} · ${threat.status} · ${threat.type}`;
 }
