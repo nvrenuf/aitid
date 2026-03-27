@@ -32,6 +32,7 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Split the dashboard into route-based Overview, Threat Map, and Research surfaces, redirected `/` into the Overview route, and kept the existing workspace tabs active inside the Overview page.
 2. P2-02 [#14](https://github.com/nvrenuf/aitid/issues/14) Threat Map data contract and geographic aggregation model - completed
    Note: Added an explicit Threat Map observation contract, conservative regional aggregation logic, unmapped coverage tracking, and a dedicated API payload that keeps map meaning limited to observed infrastructure and exposure geography.
-3. P2-03 [#15](https://github.com/nvrenuf/aitid/issues/15) Threat Map UI and regional detail experience - in progress
-4. P2-04 [#16](https://github.com/nvrenuf/aitid/issues/16) Research landing surface and methodology placeholder - pending
+3. P2-03 [#15](https://github.com/nvrenuf/aitid/issues/15) Threat Map UI and regional detail experience - completed
+   Note: Replaced the placeholder route with a restrained interactive Threat Map page that exposes regional counts, top threats, dominant vectors, affected models, and unmapped coverage without overstating coordinate precision.
+4. P2-04 [#16](https://github.com/nvrenuf/aitid/issues/16) Research landing surface and methodology placeholder - in progress
 5. P2-05 [#17](https://github.com/nvrenuf/aitid/issues/17) Final regression sweep, documentation touch-up, and PR polish - pending

@@ -1,44 +1,12 @@
 ---
 import ProductLayout from '../components/layout/ProductLayout.astro';
+import ThreatMapSurface from '../components/threat-map/ThreatMapSurface.astro';
+import { getThreatMapDataset } from '../lib/threat-map.js';
 
 const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const dataset = await getThreatMapDataset();
 ---
 
 <ProductLayout now={now} currentPath="/threat-map">
-  <section class="page-panel grid">
-    <div class="page-copy">
-      <span class="page-eyebrow">Phase II foundation</span>
-      <div>
-        <div class="page-kicker">Threat Map</div>
-        <h1 class="page-headline">Observed infrastructure and exposure geography, not theater.</h1>
-      </div>
-      <p>
-        This surface is now a real route in the product structure. Its meaning remains deliberately
-        narrow: Threat Map will represent observed infrastructure and exposure geography only, using
-        conservative aggregation where source quality does not support precise points.
-      </p>
-      <p>
-        Phase II implementation will add the underlying data contract first, then the restrained map
-        interface on top of that contract. No live-attack globe, attribution theater, or customer
-        geography is implied here.
-      </p>
-    </div>
-    <div class="page-list">
-      <div class="info-card">
-        <span>Current focus</span>
-        <strong>Map contract before map theatrics</strong>
-        <p>Region-level aggregation and source-quality framing land before richer interaction.</p>
-      </div>
-      <div class="info-card">
-        <span>Guardrails</span>
-        <strong>Precision follows evidence</strong>
-        <p>When coordinates are unavailable, the product will fall back to coarse regional summaries.</p>
-      </div>
-      <div class="info-card">
-        <span>Audience fit</span>
-        <strong>Leadership scan and analyst follow-up</strong>
-        <p>The page is being shaped for quick regional posture review plus deeper threat inspection.</p>
-      </div>
-    </div>
-  </section>
+  <ThreatMapSurface dataset={dataset} />
 </ProductLayout>
