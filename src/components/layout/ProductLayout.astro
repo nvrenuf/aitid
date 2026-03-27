@@ -65,12 +65,15 @@ const routeMeta = getRouteMeta(currentPath);
     .tbadge { font-size: 10px; font-family: var(--font-sans); padding: 1px 5px; border-radius: 3px; background: var(--bg2); color: var(--txt3); transition: background .1s; }
     .tab.active .tbadge { background: var(--txt); color: var(--bg); }
     .tbadge.warn { background: var(--crit-bg); color: var(--crit); }
-    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; flex-shrink: 0; }
-    .metric { padding: 18px 20px 20px; display: grid; gap: 14px; position: relative; overflow: hidden; }
+    .metrics { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; flex-shrink: 0; }
+    .metric { grid-column: span 3; padding: 18px 20px 20px; display: grid; gap: 14px; position: relative; overflow: hidden; }
     .metric::before { content: ''; position: absolute; inset: 0 0 auto; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent); opacity: .8; }
+    .metric.primary { grid-column: span 6; padding: 22px 24px 24px; background: linear-gradient(180deg, rgba(255,107,107,.12), rgba(255,107,107,.04) 52%, rgba(255,255,255,.02)); border-color: rgba(255,107,107,.18); box-shadow: 0 18px 40px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.06); }
+    .metric.primary::after { content: 'Priority'; position: absolute; top: 16px; right: 18px; padding: 5px 9px; border-radius: 999px; border: 1px solid rgba(255,107,107,.24); background: rgba(255,107,107,.08); color: var(--crit); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
     .metric-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
     .metric-top .m-label { margin-bottom: 6px; }
     .metric-top p { color: var(--txt2); font-size: 12px; line-height: 1.5; max-width: 24ch; }
+    .metric.primary .metric-top p { max-width: 36ch; font-size: 13px; }
     .metric-accent { width: 38px; height: 38px; border-radius: 12px; border: 1px solid var(--border2); background: rgba(255,255,255,.04); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: var(--txt2); box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
     .metric-accent.crit { color: var(--crit); background: rgba(255,107,107,.08); border-color: var(--crit-border); }
     .metric-accent.amber { color: var(--med); background: rgba(255,211,105,.08); border-color: var(--med-border); }
@@ -78,6 +81,7 @@ const routeMeta = getRouteMeta(currentPath);
     .metric-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
     .m-label { margin-bottom: 8px; }
     .m-val { font-size: clamp(32px, 4vw, 40px); font-weight: 600; font-family: var(--font-display); line-height: .95; margin-bottom: 6px; letter-spacing: -0.05em; }
+    .metric.primary .m-val { font-size: clamp(42px, 5vw, 56px); margin-bottom: 8px; }
     .m-val.crit { color: var(--crit); }
     .m-val.amber { color: var(--med); }
     .m-context { font-size: 11px; color: var(--txt3); font-weight: 700; }
@@ -115,6 +119,8 @@ const routeMeta = getRouteMeta(currentPath);
     .overview-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .overview-stat { padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: rgba(7,16,24,.44); }
     .overview-stat span { display: block; margin-top: 6px; color: var(--txt); font-size: 17px; font-weight: 700; letter-spacing: -0.03em; }
+    .overview-stat.critical { background: linear-gradient(180deg, rgba(255,107,107,.12), rgba(255,107,107,.04)); border-color: rgba(255,107,107,.22); box-shadow: inset 0 1px 0 rgba(255,255,255,.05); }
+    .overview-stat.critical span { color: var(--crit); font-size: 26px; }
     .body { display: grid; grid-template-columns: 1fr 260px; flex: 1; min-height: 0; }
     .feed-col { overflow-y: auto; }
     .sidebar { overflow-y: auto; }
@@ -245,6 +251,8 @@ const routeMeta = getRouteMeta(currentPath);
       .overview-frame { grid-template-columns: 1fr; }
       .overview-grid { grid-template-columns: 1fr; }
       .metrics { grid-template-columns: repeat(2, 1fr); }
+      .metric,
+      .metric.primary { grid-column: span 1; }
       .tc-band { grid-template-columns: 1fr; }
       .drawer-hero { grid-template-columns: 1fr; }
       .drawer-grid { grid-template-columns: 1fr; }

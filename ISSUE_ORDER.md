@@ -64,3 +64,16 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Rebalanced the filter bar and workspace proportions, added a reset path and stage caption, and reshaped the regional detail panel into a stickier, faster-scanning operator brief without changing the underlying map meaning.
 5. P4-05 [#29](https://github.com/nvrenuf/aitid/issues/29) Final regression sweep, documentation touch-up, and PR polish - completed
    Note: Re-ran the final build and test pass, refreshed README for the projected Threat Map and Eastern Time behavior, verified the preserved route surfaces, and prepared the branch as the single draft PR review surface for Phase IV.
+
+## Phase V Execution Order
+
+1. P5-01 [#31](https://github.com/nvrenuf/aitid/issues/31) Overview metric hierarchy and dashboard emphasis polish - completed
+   Note: Promoted the critical KPI into the lead metric treatment, strengthened its supporting summary stat, and improved at-a-glance emphasis without changing the underlying metrics model or widening into a dashboard redesign.
+2. P5-02 [#32](https://github.com/nvrenuf/aitid/issues/32) Threat feed scanability and filter placement refinement - pending
+   Note: Tighten threat row anatomy and move filter interaction closer to the operator feed workflow without regressing current search/filter behavior.
+3. P5-03 [#33](https://github.com/nvrenuf/aitid/issues/33) Loading skeletons and perceived-performance polish - pending
+   Note: Replace bare loading text with restrained skeleton states on the most visible product surfaces.
+4. P5-04 [#34](https://github.com/nvrenuf/aitid/issues/34) Hide SIEM from primary UX and tighten navigation polish - pending
+   Note: Remove SIEM from the primary user-facing navigation and surfaces while keeping restoration practical later.
+5. P5-05 [#35](https://github.com/nvrenuf/aitid/issues/35) Final regression sweep, docs touch-up, and PR polish - pending
+   Note: Re-run the final build/test pass, refresh docs where needed, and prepare the branch as the single draft PR review surface for Phase V.

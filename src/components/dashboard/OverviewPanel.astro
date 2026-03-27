@@ -18,7 +18,7 @@ const overviewFilters = [
 ];
 
 const overviewStats = [
-  { label: 'Critical active', id: 'overview-critical', value: initialStats.activeCritical },
+  { label: 'Critical active', id: 'overview-critical', value: initialStats.activeCritical, className: 'critical' },
   { label: 'Models in scope', id: 'overview-models', value: initialStats.modelsAffected },
   { label: 'New this week', id: 'overview-week', value: initialStats.newThisWeek },
   { label: 'Tracked items', id: 'overview-total', value: initialStats.totalThreats },
@@ -53,7 +53,7 @@ const overviewStats = [
           <div class="overview-grid">
             {
               overviewStats.map((stat) => (
-                <div class="overview-stat">
+                <div class:list={['overview-stat', stat.className]}>
                   <div class="m-label">{stat.label}</div>
                   <span id={stat.id}>{stat.value}</span>
                 </div>

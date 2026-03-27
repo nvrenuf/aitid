@@ -3,15 +3,6 @@ const { initialStats } = Astro.props;
 
 const metrics = [
   {
-    label: 'Active campaigns',
-    description: 'Current threat records requiring ongoing monitoring in the platform queue.',
-    accent: 'ACT',
-    value: initialStats.totalThreats,
-    valueId: 'm-total',
-    context: 'Across the current tracked set',
-    deltaId: 'm-total-d',
-  },
-  {
     label: 'Critical severity',
     description: 'Highest-priority issues still active and likely to drive escalation decisions.',
     accent: 'CRI',
@@ -22,6 +13,16 @@ const metrics = [
     context: 'Immediate attention window',
     deltaId: 'm-crit-d',
     deltaClass: 'up',
+    cardClass: 'primary',
+  },
+  {
+    label: 'Active campaigns',
+    description: 'Current threat records requiring ongoing monitoring in the platform queue.',
+    accent: 'ACT',
+    value: initialStats.totalThreats,
+    valueId: 'm-total',
+    context: 'Across the current tracked set',
+    deltaId: 'm-total-d',
   },
   {
     label: 'New this week',
@@ -51,7 +52,7 @@ const metrics = [
 <div class="metrics" id="metrics-strip">
   {
     metrics.map((metric) => (
-      <div class="metric">
+      <div class:list={['metric', metric.cardClass]}>
         <div class="metric-top">
           <div>
             <div class="m-label">{metric.label}</div>
