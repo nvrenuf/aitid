@@ -38,3 +38,16 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Upgraded the Research route into a credible landing surface with current direction, methodology, and source/cadence framing while keeping the page intentionally lighter than a full advisories portal.
 5. P2-05 [#17](https://github.com/nvrenuf/aitid/issues/17) Final regression sweep, documentation touch-up, and PR polish - completed
    Note: Ran the final build and smoke-test pass again, updated README for the new route structure and Threat Map API surface, and prepared the branch as the single draft PR review surface for Phase II.
+
+## Phase III Execution Order
+
+1. P3-01 [#19](https://github.com/nvrenuf/aitid/issues/19) Threats index route and operator filter workflow - completed
+   Note: Added a dedicated `/threats` route with operator-oriented search, filtering, sorting, and corpus summary cues while preserving the current ThreatParallax visual language.
+2. P3-02 [#20](https://github.com/nvrenuf/aitid/issues/20) Canonical threat detail pages and deep-link routing - pending
+   Note: Promote threats into canonical deep-linkable routes and reduce drawer-only dependency across Overview, Threats, and Threat Map.
+3. P3-03 [#21](https://github.com/nvrenuf/aitid/issues/21) Evidence, source transparency, and score/method context on threat detail - pending
+   Note: Add explicit evidence, source, methodology, and confidence framing to detail pages without overstating dataset fidelity.
+4. P3-04 [#22](https://github.com/nvrenuf/aitid/issues/22) Threat Map drilldowns, filters, and unmapped reason categories - pending
+   Note: Add usable map filters, route drilldowns into canonical detail pages, and clearer unmapped reason framing.
+5. P3-05 [#23](https://github.com/nvrenuf/aitid/issues/23) Final regression sweep, documentation touch-up, and PR polish - pending
+   Note: Run the final build and test pass, update docs where needed, and create the single Phase III draft PR to `main`.
