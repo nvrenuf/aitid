@@ -1,5 +1,6 @@
 ---
 import { buildDrawerSubtitle, shortModel } from '../../lib/dashboard-utils.js';
+import { buildThreatDetailContext } from '../../lib/threat-detail-utils.js';
 import { getThreatDetailHref } from '../../lib/threats-utils.js';
 
 const { threat } = Astro.props;
@@ -22,6 +23,8 @@ const statusClasses = {
 
 const formatDate = (value) =>
   new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+const detailContext = buildThreatDetailContext(threat);
 ---
 
 <section class="page-panel threat-detail-shell">
@@ -81,6 +84,37 @@ const formatDate = (value) =>
 
   <div class="threat-detail-sections">
     <section class="threat-detail-section">
+      <div class="page-kicker">Evidence and source transparency</div>
+      <div class="threat-detail-section two-column">
+        <div>
+          <div class="page-kicker">Source references</div>
+          <div class="page-list">
+            {detailContext.sourceReferences.map((reference) => (
+              <div class="page-list-item">
+                <strong>{reference.title}</strong>
+                <p>
+                  {reference.href ? <a class="drawer-link" href={reference.href} target="_blank" rel="noreferrer">{reference.detail}</a> : reference.detail}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div class="page-kicker">Evidence and support</div>
+          <div class="page-list">
+            {detailContext.evidenceHighlights.map((item) => (
+              <div class="page-list-item">
+                <strong>{item.title}</strong>
+                <p>{item.detail}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="threat-detail-section">
       <div class="page-kicker">Exposure coverage</div>
       <div class="threat-detail-bands">
         <div class="threat-detail-band">
@@ -100,17 +134,23 @@ const formatDate = (value) =>
     </section>
 
     <section class="threat-detail-section">
-      <div class="page-kicker">Operational notes</div>
-      <div class="page-list">
-        <div class="page-list-item">
-          <strong>Severity rationale</strong>
-          <p>{threat.score.rationale}</p>
+      <div class="page-kicker">Methodology and score context</div>
+      <div class="threat-detail-section two-column">
+        <div class="page-list">
+          {detailContext.scoreContext.map((item) => (
+            <div class="page-list-item">
+              <strong>{item.title}</strong>
+              <p>{item.detail}</p>
+            </div>
+          ))}
         </div>
-        <div class="page-list-item">
-          <strong>Direct reference</strong>
-          <p>
-            {threat.sourceUrl ? <a class="drawer-link" href={threat.sourceUrl} target="_blank" rel="noreferrer">Open source advisory</a> : 'No direct source URL is available in the current dataset.'}
-          </p>
+        <div class="page-list">
+          {detailContext.methodologyNotes.map((note) => (
+            <div class="page-list-item">
+              <strong>Normalization note</strong>
+              <p>{note}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -142,6 +182,22 @@ const formatDate = (value) =>
               <p>{mitigation}</p>
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="threat-detail-section">
+      <div class="page-kicker">Limitations and confidence framing</div>
+      <div class="page-list">
+        {detailContext.limitations.map((item) => (
+          <div class="page-list-item">
+            <strong>Limitation</strong>
+            <p>{item}</p>
+          </div>
+        ))}
+        <div class="page-list-item">
+          <strong>Confidence framing</strong>
+          <p>{detailContext.confidenceFraming}</p>
         </div>
       </div>
     </section>
