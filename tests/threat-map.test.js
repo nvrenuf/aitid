@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { aggregateThreatMapRegions, buildThreatMapDataset, THREAT_MAP_MEANING } from '../src/lib/threat-map-core.js';
+import { projectThreatMapAnchor } from '../src/lib/threat-map-projection.js';
 
 const threats = [
   {
@@ -81,4 +82,16 @@ test('aggregateThreatMapRegions groups regional detail and orders top threats by
   assert.deepEqual(regions[0].topThreats.map((threat) => threat.id), ['t-critical', 't-high']);
   assert.deepEqual(regions[0].dominantVectors, ['api', 'npm']);
   assert.deepEqual(regions[0].affectedModels, ['openai-gpt4o', 'multi-model']);
+});
+
+test('projectThreatMapAnchor clamps edge anchors into the visible stage', () => {
+  assert.deepEqual(
+    projectThreatMapAnchor({ lat: 89, lng: -179 }),
+    { x: 6, y: 10 },
+  );
+
+  assert.deepEqual(
+    projectThreatMapAnchor({ lat: -88, lng: 179 }),
+    { x: 94, y: 90 },
+  );
 });

@@ -1,19 +1,34 @@
 import { getThreatDetailHref } from '../lib/threats-utils.js';
 import { aggregateThreatMapRegions } from '../lib/threat-map-core.js';
+import { projectThreatMapAnchor } from '../lib/threat-map-projection.js';
 
 const datasetNode = document.getElementById('threat-map-dataset');
-
-if (!datasetNode) {
-  throw new Error('Threat Map dataset payload is missing.');
-}
-
-const dataset = JSON.parse(datasetNode.textContent ?? '{}');
 const state = {
   severity: '',
   model: '',
   vector: '',
-  activeRegion: dataset.regions?.[0]?.regionKey ?? '',
+  activeRegion: '',
 };
+
+function readDataset(node) {
+  if (!node) {
+    return { points: [], regions: [], unmappedThreats: [] };
+  }
+
+  try {
+    const parsed = JSON.parse(node.textContent ?? '{}');
+    return {
+      points: parsed.points ?? [],
+      regions: parsed.regions ?? [],
+      unmappedThreats: parsed.unmappedThreats ?? [],
+    };
+  } catch {
+    return { points: [], regions: [], unmappedThreats: [] };
+  }
+}
+
+const dataset = readDataset(datasetNode);
+state.activeRegion = dataset.regions[0]?.regionKey ?? '';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -22,13 +37,6 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
-}
-
-function projectAnchor(anchor) {
-  return {
-    x: ((anchor.lng + 180) / 360) * 100,
-    y: ((90 - anchor.lat) / 180) * 100,
-  };
 }
 
 function filterPoints(points) {
@@ -55,11 +63,11 @@ function renderNodes(regions) {
 
   container.innerHTML = regions
     .map((region) => {
-      const point = projectAnchor(region.anchor);
+      const point = projectThreatMapAnchor(region.anchor);
       const size = Math.min(72, 28 + region.threatCount * 8);
       const isActive = region.regionKey === state.activeRegion;
 
-      return `<button
+      return `<button type="button"
         class="map-region-node ${isActive ? 'active' : ''}"
         data-region-node="${escapeHtml(region.regionKey)}"
         style="left:${point.x}%;top:${point.y}%;width:${size}px;height:${size}px;"
@@ -70,6 +78,38 @@ function renderNodes(regions) {
       </button>`;
     })
     .join('');
+}
+
+function renderStageFallback(title, copy, regions = dataset.regions) {
+  const stage = document.getElementById('threat-map-stage');
+  const fallback = document.getElementById('threat-map-stage-fallback');
+  const titleNode = document.getElementById('threat-map-stage-fallback-title');
+  const copyNode = document.getElementById('threat-map-stage-fallback-copy');
+  const listNode = document.getElementById('threat-map-stage-fallback-list');
+
+  if (stage) stage.dataset.mapState = 'fallback';
+  if (titleNode) titleNode.textContent = title;
+  if (copyNode) copyNode.textContent = copy;
+  if (listNode) {
+    listNode.innerHTML = regions.length
+      ? regions.slice(0, 4).map((region) => `<div class="page-list-item">
+          <strong>${escapeHtml(region.regionName)}</strong>
+          <p>${region.threatCount} tracked threats · ${region.pointCount} mapped observations · ${escapeHtml(region.anchor.label)}</p>
+        </div>`).join('')
+      : `<div class="page-list-item">
+          <strong>No regional summary available</strong>
+          <p>The current dataset does not contain any defensible regional observations to display.</p>
+        </div>`;
+  }
+  if (fallback) fallback.hidden = false;
+}
+
+function clearStageFallback() {
+  const stage = document.getElementById('threat-map-stage');
+  const fallback = document.getElementById('threat-map-stage-fallback');
+
+  if (stage) stage.dataset.mapState = 'ready';
+  if (fallback) fallback.hidden = true;
 }
 
 function renderRegionDetails(points, regions) {
@@ -85,6 +125,7 @@ function renderRegionDetails(points, regions) {
         <div>
           <div class="page-kicker">Regional detail</div>
           <h2>No mapped regions match the current filters</h2>
+          <p class="threat-map-detail-copy">Adjust the current filters to restore mapped regional posture in the detail panel.</p>
         </div>
       </div>
       <div class="page-list">
@@ -103,11 +144,16 @@ function renderRegionDetails(points, regions) {
       <div>
         <div class="page-kicker">Regional detail</div>
         <h2>${escapeHtml(activeRegion.regionName)}</h2>
+        <p class="threat-map-detail-copy">Approximate regional posture based on the mapped observations currently in scope.</p>
       </div>
-      <span class="page-eyebrow">${activeRegion.threatCount} tracked threats</span>
+      <div class="threat-map-detail-stat">
+        <span>Tracked threats</span>
+        <strong>${activeRegion.threatCount}</strong>
+        <p>${activeRegion.pointCount} mapped observations</p>
+      </div>
     </div>
 
-    <div class="info-card-grid">
+    <div class="info-card-grid threat-map-detail-grid">
       <div class="info-card">
         <span>Precision</span>
         <strong>${escapeHtml(activeRegion.precisions.join(', '))}</strong>
@@ -130,24 +176,26 @@ function renderRegionDetails(points, regions) {
       </div>
     </div>
 
-    <div class="threat-map-section">
-      <div class="page-kicker">Top threats</div>
-      <div class="page-list">
-        ${activeRegion.topThreats.map((threat) => `<div class="page-list-item">
-          <strong><a class="drawer-link" href="${getThreatDetailHref({ title: threat.title })}">${escapeHtml(threat.title)}</a></strong>
-          <p>Severity ${escapeHtml(threat.severity)} · blended score ${threat.score.toFixed(1)}</p>
-        </div>`).join('')}
-      </div>
-    </div>
+    <div class="threat-map-detail-columns">
+      <section class="threat-map-section-card">
+        <div class="page-kicker">Top threats</div>
+        <div class="page-list">
+          ${activeRegion.topThreats.map((threat) => `<div class="page-list-item">
+            <strong><a class="drawer-link" href="${getThreatDetailHref({ title: threat.title })}">${escapeHtml(threat.title)}</a></strong>
+            <p>Severity ${escapeHtml(threat.severity)} · blended score ${threat.score.toFixed(1)}</p>
+          </div>`).join('')}
+        </div>
+      </section>
 
-    <div class="threat-map-section">
-      <div class="page-kicker">Observation notes</div>
-      <div class="page-list">
-        ${regionPoints.map((point) => `<div class="page-list-item">
-          <strong><a class="drawer-link" href="${getThreatDetailHref({ title: point.threatTitle })}">${escapeHtml(point.threatTitle)}</a></strong>
-          <p>${escapeHtml(point.summary)}<br />Scope: ${escapeHtml(point.scope)} · Quality: ${escapeHtml(point.sourceQuality)}</p>
-        </div>`).join('')}
-      </div>
+      <section class="threat-map-section-card">
+        <div class="page-kicker">Observation notes</div>
+        <div class="page-list">
+          ${regionPoints.map((point) => `<div class="page-list-item">
+            <strong><a class="drawer-link" href="${getThreatDetailHref({ title: point.threatTitle })}">${escapeHtml(point.threatTitle)}</a></strong>
+            <p>${escapeHtml(point.summary)}<br />Scope: ${escapeHtml(point.scope)} · Quality: ${escapeHtml(point.sourceQuality)}</p>
+          </div>`).join('')}
+        </div>
+      </section>
     </div>
   </section>`;
 }
@@ -200,12 +248,34 @@ function renderFilterSummary(points, unmappedThreats) {
 }
 
 function render() {
-  const filteredPoints = filterPoints(dataset.points ?? []);
+  const stage = document.getElementById('threat-map-stage');
+  const nodes = document.getElementById('threat-map-nodes');
+  const filteredPoints = filterPoints(dataset.points);
   const filteredRegions = aggregateThreatMapRegions(filteredPoints);
-  const filteredUnmapped = filterUnmapped(dataset.unmappedThreats ?? []);
+  const filteredUnmapped = filterUnmapped(dataset.unmappedThreats);
+
+  if (!stage || !nodes) {
+    renderStageFallback(
+      'Projected map unavailable',
+      'The map stage is unavailable, so the regional summary remains visible while the visualization is degraded.',
+    );
+    renderRegionDetails(dataset.points, dataset.regions);
+    renderUnmapped(dataset.unmappedThreats);
+    renderFilterSummary([], dataset.unmappedThreats);
+    return;
+  }
+
+  clearStageFallback();
 
   if (!filteredRegions.some((region) => region.regionKey === state.activeRegion)) {
     state.activeRegion = filteredRegions[0]?.regionKey ?? '';
+  }
+
+  if (filteredRegions.length === 0) {
+    renderStageFallback(
+      'No mapped regions match the current filters',
+      'Adjust severity, model, or vector filters to restore mapped regional coverage. Regional summaries remain available here when no markers qualify.',
+    );
   }
 
   renderNodes(filteredRegions);
@@ -230,7 +300,24 @@ function bindSelect(id, key) {
   });
 }
 
+function resetFilters() {
+  state.severity = '';
+  state.model = '';
+  state.vector = '';
+
+  const severity = document.getElementById('threat-map-filter-severity');
+  const model = document.getElementById('threat-map-filter-model');
+  const vector = document.getElementById('threat-map-filter-vector');
+
+  if (severity) severity.value = '';
+  if (model) model.value = '';
+  if (vector) vector.value = '';
+
+  render();
+}
+
 bindSelect('threat-map-filter-severity', 'severity');
 bindSelect('threat-map-filter-model', 'model');
 bindSelect('threat-map-filter-vector', 'vector');
+document.getElementById('threat-map-reset-filters')?.addEventListener('click', resetFilters);
 render();

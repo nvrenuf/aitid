@@ -2,6 +2,7 @@
 import { buildDrawerSubtitle, shortModel } from '../../lib/dashboard-utils.js';
 import { buildThreatDetailContext } from '../../lib/threat-detail-utils.js';
 import { getThreatDetailHref } from '../../lib/threats-utils.js';
+import { formatEasternDate } from '../../lib/time.js';
 
 const { threat } = Astro.props;
 
@@ -20,9 +21,6 @@ const statusClasses = {
   patched: 'b-low',
   disputed: 'b-gray',
 };
-
-const formatDate = (value) =>
-  new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 const detailContext = buildThreatDetailContext(threat);
 ---
@@ -62,8 +60,8 @@ const detailContext = buildThreatDetailContext(threat);
   <div class="info-card-grid threat-detail-grid">
     <div class="info-card">
       <span>Published</span>
-      <strong>{formatDate(threat.publishedAt)}</strong>
-      <p>Last updated {formatDate(threat.updatedAt)}</p>
+      <strong>{formatEasternDate(threat.publishedAt)}</strong>
+      <p>Last updated {formatEasternDate(threat.updatedAt)}</p>
     </div>
     <div class="info-card">
       <span>Source</span>

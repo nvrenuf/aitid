@@ -2,15 +2,20 @@
 
 ThreatParallax is an AI Threat Intelligence Platform for security leaders and analysts tracking model-linked threats, distribution vectors, operational exposure, and conservative regional map context across the current non-production deployment.
 
-Phase III keeps the existing Vercel deployment model and current repo name in place while extending the route-based product with a dedicated Threats workflow, canonical threat detail pages, clearer evidence framing, and more operational Threat Map drilldowns. Domain cutover remains out of scope.
+Phase IV keeps the existing Vercel deployment model and current repo name in place while upgrading Threat Map into a projected world-map surface, repairing map interaction resilience, and normalizing visible product timestamps to America/New_York with DST-aware EST/EDT output. Domain cutover remains out of scope.
 
 ## Product surfaces
 
 - `/overview`: primary leadership and analyst workspace, including the existing dashboard/feed internals
 - `/threats`: operator-oriented corpus scanning with search, filters, and sort controls
 - `/threats/[slug]`: canonical threat detail pages for direct review and deep linking
-- `/threat-map`: conservative map surface for observed infrastructure and exposure geography
+- `/threat-map`: conservative projected world map surface for observed infrastructure and exposure geography with regional drilldowns
 - `/research`: light methodology, source, and cadence framing
+
+## Operational conventions
+
+- Visible product timestamps render in `America/New_York` and use the correct short timezone abbreviation automatically (`EST` or `EDT`).
+- Threat Map remains limited to observed infrastructure and exposure geography. It does not claim actor origin, victim geography, or live attack traffic.
 
 ## Stack
 

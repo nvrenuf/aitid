@@ -1,19 +1,17 @@
 ---
 import { getThreatDetailHref } from '../../lib/threats-utils.js';
+import { projectThreatMapAnchor } from '../../lib/threat-map-projection.js';
+import ProjectedWorldMap from './ProjectedWorldMap.astro';
 
 const { dataset } = Astro.props;
 
 const initialRegion = dataset.regions[0] ?? null;
 
-const projectAnchor = (anchor) => ({
-  x: ((anchor.lng + 180) / 360) * 100,
-  y: ((90 - anchor.lat) / 180) * 100,
-});
-
 const severityOptions = [...new Set(dataset.points.map((point) => point.severity))];
 const modelOptions = [...new Set(dataset.points.flatMap((point) => point.models))].sort();
 const vectorOptions = [...new Set(dataset.points.flatMap((point) => point.vectors))].sort();
 const initialDataset = JSON.stringify(dataset);
+const fallbackRegions = dataset.regions.slice(0, 4);
 ---
 
 <section class="page-panel threat-map-shell">
@@ -50,9 +48,10 @@ const initialDataset = JSON.stringify(dataset);
   </div>
 
   <div class="threat-map-filterbar">
-    <div>
+    <div class="threat-map-filter-summary">
       <div class="page-kicker">Operational filters</div>
       <strong id="threat-map-filter-count">{dataset.coverage.pointCount} mapped observations</strong>
+      <p>Use severity, model, and vector together to narrow the current observed-geography corpus without changing map meaning.</p>
     </div>
     <div class="threat-map-filter-controls">
       <label class="threat-map-filter">
@@ -77,47 +76,28 @@ const initialDataset = JSON.stringify(dataset);
         </select>
       </label>
     </div>
-    <div class="surface-chips" id="threat-map-active-filters">
-      <span class="future-chip">All mapped threats</span>
-      <span class="future-chip">{dataset.coverage.unmappedThreatCount} unmapped remain</span>
+    <div class="threat-map-filter-rail">
+      <button type="button" class="expand-btn threat-map-reset-btn" id="threat-map-reset-filters">Reset filters</button>
+      <div class="surface-chips" id="threat-map-active-filters">
+        <span class="future-chip">All mapped threats</span>
+        <span class="future-chip">{dataset.coverage.unmappedThreatCount} unmapped remain</span>
+      </div>
     </div>
   </div>
 
   <div class="threat-map-workspace">
     <div class="threat-map-stage-wrap">
-      <div class="threat-map-stage">
-        <svg class="threat-map-backdrop" viewBox="0 0 1000 520" aria-hidden="true">
-          <defs>
-            <linearGradient id="oceanFade" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="rgba(125,196,255,0.18)" />
-              <stop offset="100%" stop-color="rgba(125,196,255,0.03)" />
-            </linearGradient>
-          </defs>
-          <rect x="0" y="0" width="1000" height="520" rx="28" fill="url(#oceanFade)" />
-          <g class="threat-map-grid">
-            <line x1="200" y1="0" x2="200" y2="520" />
-            <line x1="400" y1="0" x2="400" y2="520" />
-            <line x1="600" y1="0" x2="600" y2="520" />
-            <line x1="800" y1="0" x2="800" y2="520" />
-            <line x1="0" y1="130" x2="1000" y2="130" />
-            <line x1="0" y1="260" x2="1000" y2="260" />
-            <line x1="0" y1="390" x2="1000" y2="390" />
-          </g>
-          <g class="threat-map-land">
-            <path d="M88 128l120-44 112 18 44 56-26 44-78 40-26 76-96 8-52-72 16-72 50-54z" />
-            <path d="M372 102l102-22 92 14 82 42 16 56-30 36-64 16-40 44-48 8-70-48-42-76 2-70z" />
-            <path d="M610 128l88-24 128 30 78 50-18 52-54 24-18 48-78 34-90-24-46-66 10-76z" />
-            <path d="M790 338l90-26 74 26 20 42-36 58-84 26-72-18-16-52 24-56z" />
-          </g>
-        </svg>
+      <div class="threat-map-stage" id="threat-map-stage" data-map-state="ready">
+        <ProjectedWorldMap />
 
         <div id="threat-map-nodes">
           {
             dataset.regions.map((region) => {
-              const point = projectAnchor(region.anchor);
+              const point = projectThreatMapAnchor(region.anchor);
               const size = Math.min(72, 28 + region.threatCount * 8);
               return (
                 <button
+                  type="button"
                   class:list={['map-region-node', initialRegion?.regionKey === region.regionKey && 'active']}
                   data-region-node={region.regionKey}
                   style={`left:${point.x}%;top:${point.y}%;width:${size}px;height:${size}px;`}
@@ -129,6 +109,32 @@ const initialDataset = JSON.stringify(dataset);
               );
             })
           }
+        </div>
+
+        <section class="threat-map-stage-fallback" id="threat-map-stage-fallback" hidden>
+          <div class="page-kicker">Regional fallback</div>
+          <h2 id="threat-map-stage-fallback-title">Regional coverage remains available</h2>
+          <p id="threat-map-stage-fallback-copy">
+            If the projected map visualization degrades, the current regional coverage summary stays available here instead of leaving the page blank.
+          </p>
+          <div class="page-list" id="threat-map-stage-fallback-list">
+            {
+              fallbackRegions.map((region) => (
+                <div class="page-list-item">
+                  <strong>{region.regionName}</strong>
+                  <p>{region.threatCount} tracked threats · {region.pointCount} mapped observations · {region.anchor.label}</p>
+                </div>
+              ))
+            }
+          </div>
+        </section>
+
+        <div class="threat-map-stage-caption">
+          <div>
+            <span class="page-kicker">Projected surface</span>
+            <strong>Observed infrastructure / exposure only</strong>
+          </div>
+          <p>Approximate regional anchors only. Select a marker to update the regional brief and drill into canonical threat detail pages.</p>
         </div>
       </div>
 
@@ -153,11 +159,16 @@ const initialDataset = JSON.stringify(dataset);
                 <div>
                   <div class="page-kicker">Regional detail</div>
                   <h2>{initialRegion.regionName}</h2>
+                  <p class="threat-map-detail-copy">Approximate regional posture based on the mapped observations currently in scope.</p>
                 </div>
-                <span class="page-eyebrow">{initialRegion.threatCount} tracked threats</span>
+                <div class="threat-map-detail-stat">
+                  <span>Tracked threats</span>
+                  <strong>{initialRegion.threatCount}</strong>
+                  <p>{initialRegion.pointCount} mapped observations</p>
+                </div>
               </div>
 
-              <div class="info-card-grid">
+              <div class="info-card-grid threat-map-detail-grid">
                 <div class="info-card">
                   <span>Precision</span>
                   <strong>{initialRegion.precisions.join(', ')}</strong>
@@ -180,40 +191,42 @@ const initialDataset = JSON.stringify(dataset);
                 </div>
               </div>
 
-              <div class="threat-map-section">
-                <div class="page-kicker">Top threats</div>
-                <div class="page-list">
-                  {
-                    initialRegion.topThreats.map((threat) => (
-                      <div class="page-list-item">
-                        <strong><a class="drawer-link" href={getThreatDetailHref({ title: threat.title })}>{threat.title}</a></strong>
-                        <p>
-                          Severity {threat.severity} · blended score {threat.score.toFixed(1)}
-                        </p>
-                      </div>
-                    ))
-                  }
-                </div>
-              </div>
-
-              <div class="threat-map-section">
-                <div class="page-kicker">Observation notes</div>
-                <div class="page-list">
-                  {
-                    dataset.points
-                      .filter((point) => point.regionKey === initialRegion.regionKey)
-                      .map((point) => (
+              <div class="threat-map-detail-columns">
+                <section class="threat-map-section-card">
+                  <div class="page-kicker">Top threats</div>
+                  <div class="page-list">
+                    {
+                      initialRegion.topThreats.map((threat) => (
                         <div class="page-list-item">
-                          <strong><a class="drawer-link" href={getThreatDetailHref({ title: point.threatTitle })}>{point.threatTitle}</a></strong>
+                          <strong><a class="drawer-link" href={getThreatDetailHref({ title: threat.title })}>{threat.title}</a></strong>
                           <p>
-                            {point.summary}
-                            <br />
-                            Scope: {point.scope} · Quality: {point.sourceQuality}
+                            Severity {threat.severity} · blended score {threat.score.toFixed(1)}
                           </p>
                         </div>
                       ))
-                  }
-                </div>
+                    }
+                  </div>
+                </section>
+
+                <section class="threat-map-section-card">
+                  <div class="page-kicker">Observation notes</div>
+                  <div class="page-list">
+                    {
+                      dataset.points
+                        .filter((point) => point.regionKey === initialRegion.regionKey)
+                        .map((point) => (
+                          <div class="page-list-item">
+                            <strong><a class="drawer-link" href={getThreatDetailHref({ title: point.threatTitle })}>{point.threatTitle}</a></strong>
+                            <p>
+                              {point.summary}
+                              <br />
+                              Scope: {point.scope} · Quality: {point.sourceQuality}
+                            </p>
+                          </div>
+                        ))
+                    }
+                  </div>
+                </section>
               </div>
             </section>
           ) : null
@@ -271,13 +284,35 @@ const initialDataset = JSON.stringify(dataset);
     background: rgba(255, 255, 255, 0.02);
     padding: 18px;
     display: grid;
-    gap: 14px;
+    gap: 16px;
+    grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.4fr);
+    align-items: end;
+  }
+
+  .threat-map-filter-summary {
+    display: grid;
+    gap: 8px;
+  }
+
+  .threat-map-filter-summary p {
+    margin: 0;
+    color: var(--txt2);
+    max-width: 48ch;
   }
 
   .threat-map-filter-controls {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
+  }
+
+  .threat-map-filter-rail {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
   }
 
   .threat-map-filter {
@@ -301,7 +336,7 @@ const initialDataset = JSON.stringify(dataset);
   .threat-map-workspace {
     display: grid;
     gap: 18px;
-    grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.8fr);
+    grid-template-columns: minmax(0, 1.24fr) minmax(380px, 0.92fr);
   }
 
   .threat-map-stage-wrap,
@@ -325,13 +360,25 @@ const initialDataset = JSON.stringify(dataset);
     border-radius: 28px;
     overflow: hidden;
     background:
-      radial-gradient(circle at top, rgba(125, 196, 255, 0.18), transparent 34%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+      radial-gradient(circle at 50% 12%, rgba(125, 196, 255, 0.14), transparent 34%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      inset 0 -80px 120px rgba(0, 0, 0, 0.2);
   }
 
   .threat-map-backdrop {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
+    pointer-events: none;
+  }
+
+  :global(#threat-map-nodes) {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
   }
 
   .threat-map-grid line {
@@ -339,14 +386,41 @@ const initialDataset = JSON.stringify(dataset);
     stroke-width: 1;
   }
 
-  .threat-map-land path {
-    fill: rgba(139, 162, 191, 0.12);
-    stroke: rgba(139, 162, 191, 0.18);
-    stroke-width: 2;
+  .projected-world-map .world-grid line {
+    stroke: rgba(170, 195, 220, 0.12);
+    stroke-dasharray: 2 10;
   }
 
-  .map-region-node {
+  .projected-world-map .world-land-glow path {
+    fill: rgba(154, 201, 246, 0.12);
+    stroke: rgba(154, 201, 246, 0.1);
+    stroke-width: 6;
+  }
+
+  .projected-world-map .world-land path {
+    fill: url(#tp-land-fill);
+    stroke: rgba(202, 224, 244, 0.26);
+    stroke-width: 1.15;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .projected-world-map .world-land-highlight path {
+    fill: url(#tp-land-highlight);
+    opacity: 0.88;
+  }
+
+  .projected-world-map .world-land-lowlight path {
+    fill: url(#tp-land-lowlight);
+  }
+
+  .projected-world-map .world-atmosphere,
+  .projected-world-map .world-vignette {
+    mix-blend-mode: screen;
+  }
+
+  :global(.map-region-node) {
     position: absolute;
+    z-index: 3;
     transform: translate(-50%, -50%);
     border-radius: 999px;
     border: 1px solid rgba(125, 196, 255, 0.34);
@@ -357,22 +431,22 @@ const initialDataset = JSON.stringify(dataset);
     transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
   }
 
-  .map-region-node:hover,
-  .map-region-node.active {
+  :global(.map-region-node:hover),
+  :global(.map-region-node.active) {
     transform: translate(-50%, -50%) scale(1.05);
     border-color: rgba(255, 211, 105, 0.46);
     box-shadow: 0 0 0 12px rgba(255, 211, 105, 0.08), 0 18px 40px rgba(0, 0, 0, 0.34);
   }
 
-  .map-region-count,
-  .map-region-label {
+  :global(.map-region-count),
+  :global(.map-region-label) {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
     white-space: nowrap;
   }
 
-  .map-region-count {
+  :global(.map-region-count) {
     top: 50%;
     transform: translate(-50%, -50%);
     font-family: var(--font-display);
@@ -381,7 +455,7 @@ const initialDataset = JSON.stringify(dataset);
     letter-spacing: -0.04em;
   }
 
-  .map-region-label {
+  :global(.map-region-label) {
     top: calc(100% + 10px);
     font-size: 11px;
     font-weight: 700;
@@ -392,27 +466,138 @@ const initialDataset = JSON.stringify(dataset);
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .threat-map-stage-fallback {
+    position: absolute;
+    inset: 18px;
+    z-index: 4;
+    display: grid;
+    align-content: start;
+    gap: 14px;
+    padding: 22px;
+    border: 1px solid rgba(125, 196, 255, 0.2);
+    border-radius: 24px;
+    background:
+      linear-gradient(180deg, rgba(7, 16, 24, 0.92), rgba(7, 16, 24, 0.84)),
+      radial-gradient(circle at top, rgba(125, 196, 255, 0.14), transparent 52%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .threat-map-stage-fallback[hidden] {
+    display: none !important;
+  }
+
+  .threat-map-stage[data-map-state='fallback'] .threat-map-backdrop,
+  .threat-map-stage[data-map-state='fallback'] :global(#threat-map-nodes) {
+    opacity: 0.18;
+  }
+
+  .threat-map-stage-caption {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    z-index: 4;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: end;
+    padding: 14px 16px;
+    border: 1px solid rgba(125, 196, 255, 0.16);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(7, 16, 24, 0.8), rgba(7, 16, 24, 0.64));
+    backdrop-filter: blur(10px);
+  }
+
+  .threat-map-stage-caption strong {
+    display: block;
+    font-size: 14px;
+  }
+
+  .threat-map-stage-caption p {
+    margin: 0;
+    max-width: 42ch;
+    color: var(--txt2);
+    font-size: 12px;
+  }
+
   .threat-map-detail-stack {
     display: grid;
     gap: 16px;
+    align-self: start;
+    position: sticky;
+    top: 16px;
   }
 
-  .threat-map-detail,
-  .threat-map-unmapped {
+  :global(.threat-map-detail),
+  :global(.threat-map-unmapped) {
     padding: 18px;
     display: grid;
     gap: 18px;
   }
 
-  .threat-map-detail-head {
+  :global(.threat-map-detail-head) {
     display: flex;
     justify-content: space-between;
     gap: 16px;
     align-items: start;
   }
 
+  :global(.threat-map-detail-copy) {
+    margin: 8px 0 0;
+    color: var(--txt2);
+    max-width: 42ch;
+  }
+
+  :global(.threat-map-detail-stat) {
+    min-width: 132px;
+    padding: 14px 16px;
+    border: 1px solid rgba(125, 196, 255, 0.18);
+    border-radius: 18px;
+    background: rgba(125, 196, 255, 0.05);
+    display: grid;
+    gap: 6px;
+  }
+
+  :global(.threat-map-detail-stat span) {
+    color: var(--txt2);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  :global(.threat-map-detail-stat strong) {
+    font-family: var(--font-display);
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  :global(.threat-map-detail-stat p) {
+    margin: 0;
+    color: var(--txt2);
+    font-size: 12px;
+  }
+
+  :global(.threat-map-detail-grid) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  :global(.threat-map-detail-columns) {
+    display: grid;
+    gap: 14px;
+  }
+
   .threat-map-section,
-  .threat-map-unmapped-group {
+  :global(.threat-map-unmapped-group) {
+    display: grid;
+    gap: 12px;
+  }
+
+  :global(.threat-map-section-card) {
+    border: 1px solid rgba(125, 196, 255, 0.14);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 16px;
     display: grid;
     gap: 12px;
   }
@@ -420,9 +605,21 @@ const initialDataset = JSON.stringify(dataset);
   @media (max-width: 960px) {
     .threat-map-heading,
     .threat-map-workspace,
+    .threat-map-filterbar,
     .threat-map-filter-controls,
-    .threat-map-notes {
+    .threat-map-notes,
+    :global(.threat-map-detail-grid) {
       grid-template-columns: 1fr;
+    }
+
+    .threat-map-stage-caption,
+    :global(.threat-map-detail-head) {
+      grid-template-columns: 1fr;
+      display: grid;
+    }
+
+    .threat-map-detail-stack {
+      position: static;
     }
   }
 </style>

@@ -1,5 +1,6 @@
 import { SEED_THREATS } from './seed.js';
 import { getStats } from './store.js';
+import { formatEasternTime, formatEasternTimestamp } from './time.js';
 
 export async function getOverviewPageData() {
   let stats;
@@ -33,12 +34,7 @@ export async function getOverviewPageData() {
       ? `${initialStats.newThisWeek} items landed in the last seven days, with model and vector overlap concentrated in the main feed below.`
       : 'No new items entered the pipeline this week; the focus remains on validating remediation status in the current queue.';
   const overviewStatus = initialStats.pipelineStatus === 'healthy' ? 'Collection healthy' : 'Collection needs review';
-  const overviewUpdated = new Date(initialStats.lastUpdated).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
+  const overviewUpdated = formatEasternTimestamp(initialStats.lastUpdated);
 
   return {
     initialStats,
@@ -46,6 +42,6 @@ export async function getOverviewPageData() {
     overviewPriority,
     overviewStatus,
     overviewUpdated,
-    now: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    now: formatEasternTime(),
   };
 }
