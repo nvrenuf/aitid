@@ -89,7 +89,8 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
 
 1. DI-01 [#43](https://github.com/nvrenuf/aitid/issues/43) Shared visual system alignment - completed
    Note: Tightened the shared ThreatParallax theme tokens and shell/card typography primitives so the live routes now sit on a calmer, more disciplined design base before the page-specific redesign work.
-2. DI-02 [#47](https://github.com/nvrenuf/aitid/issues/47) Overview redesign implementation - pending
+2. DI-02 [#47](https://github.com/nvrenuf/aitid/issues/47) Overview redesign implementation - completed
+   Note: Compressed the `/overview` top composition, integrated the KPI band into the primary posture area, reduced helper copy, and tightened the watchlist framing without changing the feed, filters, or overview interactions.
 3. DI-03 [#44](https://github.com/nvrenuf/aitid/issues/44) Threats workbench redesign implementation - pending
 4. DI-04 [#45](https://github.com/nvrenuf/aitid/issues/45) Threat detail and map redesign implementation - pending
 5. DI-05 [#46](https://github.com/nvrenuf/aitid/issues/46) Final regression sweep, docs touch-up, and PR polish - pending

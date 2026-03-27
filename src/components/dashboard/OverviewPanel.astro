@@ -31,41 +31,49 @@ const initialStatsJson = JSON.stringify(initialStats);
   <div id="overview-layout" style="display:flex;flex:1;min-height:0;overflow:hidden">
     <div class="feed-col" id="overview-feed-col" style="flex:1;min-width:0;overflow-y:auto;border-right:none">
       <section class="overview-frame">
-        <div class="overview-stage">
-          <div class="overview-copy">
-            <div class="overview-kicker">Overview</div>
-            <div class="overview-title">Executive scanning with analyst-ready context.</div>
-            <p>
-              The overview keeps leadership posture, operational pressure, and the active feed in a
-              single control-center surface without inventing extra telemetry or changing the current
-              deployment model.
-            </p>
+        <div class="overview-hero">
+          <div class="overview-stage">
+            <div class="overview-copy">
+              <div class="overview-kicker">Overview</div>
+              <div class="overview-title">Current AI threat posture with analyst-ready depth.</div>
+              <p>
+                Review posture, current pressure, and the live queue from one surface, then step into
+                deeper model and vector context only when the feed warrants it.
+              </p>
+            </div>
+            <div class="overview-pills">
+              <span class="overview-pill"><strong>Status</strong> <span id="overview-status">{overviewStatus}</span></span>
+              <span class="overview-pill"><strong>Updated</strong> <span id="overview-updated">{overviewUpdated}</span></span>
+              <span class="overview-pill"><strong>Audience</strong> security leaders + analysts</span>
+            </div>
           </div>
-          <div class="overview-pills">
-            <span class="overview-pill"><strong>Status</strong> <span id="overview-status">{overviewStatus}</span></span>
-            <span class="overview-pill"><strong>Updated</strong> <span id="overview-updated">{overviewUpdated}</span></span>
-            <span class="overview-pill"><strong>Audience</strong> security leaders + analysts</span>
+
+          <div class="overview-hero-rail">
+            <div class="overview-card primary">
+              <div class="sb-title">Priority posture</div>
+              <p>{overviewPosture}</p>
+            </div>
+            <div class="overview-card">
+              <div class="sb-title">Executive focus</div>
+              <p>{overviewPriority}</p>
+            </div>
           </div>
         </div>
-        <div class="overview-summary">
-          <div class="overview-card primary">
-            <div class="sb-title">Posture</div>
-            <p>{overviewPosture}</p>
-          </div>
-          <div class="overview-grid">
-            {
-              overviewStats.map((stat) => (
-                <div class:list={['overview-stat', stat.className]}>
-                  <div class="m-label">{stat.label}</div>
-                  <span id={stat.id}>{stat.value}</span>
-                </div>
-              ))
-            }
-          </div>
+
+        <div class="overview-kpi-grid">
+          {
+            overviewStats.map((stat) => (
+              <div class:list={['overview-stat', 'overview-kpi-card', stat.className]}>
+                <div class="m-label">{stat.label}</div>
+                <span id={stat.id}>{stat.value}</span>
+              </div>
+            ))
+          }
         </div>
       </section>
+
       <div class="filterbar">
-        <span class="fl">Filter:</span>
+        <span class="fl">Scope</span>
         {
           overviewFilters.map((filter) => (
             <button class:list={['fpill', filter.active && 'active']} data-f={filter.value}>
@@ -74,7 +82,9 @@ const initialStatsJson = JSON.stringify(initialStats);
           ))
         }
       </div>
-      <div class="shdr"><span>Live threat feed</span><span>blended CVSS + ATLAS score</span></div>
+
+      <div class="shdr"><span>Active watchlist</span><span>severity + blended score</span></div>
+
       <div id="overview-feed">
         <div class="loading-shell" aria-live="polite" aria-label="Loading threat feed">
           <div class="loading-card">
@@ -112,24 +122,27 @@ const initialStatsJson = JSON.stringify(initialStats);
               <span class="loading-panel"></span>
             </div>
           </div>
-          <div class="loading-copy">Preparing current threats and score context.</div>
+          <div class="loading-copy">Preparing current watchlist and score context.</div>
         </div>
       </div>
+
       <script id="overview-initial-stats" type="application/json" set:html={initialStatsJson}></script>
     </div>
+
     <div class="resize-handle" id="sidebar-resize-handle"></div>
+
     <div class="sidebar" id="overview-sidebar" style="width:260px;min-width:160px;max-width:520px;overflow-y:auto;flex-shrink:0">
       <div class="sb-block executive">
-        <div class="sb-title">Executive readout</div>
-        <div class="sb-copy">{overviewPriority}</div>
+        <div class="sb-title">Analyst context</div>
+        <div class="sb-copy">Use the live queue for immediate review, then scan the trend and concentration panels to decide whether this is a localized spike or a broader posture shift.</div>
         <div class="sb-list">
           <div class="sb-list-item">
             <strong>{overviewStatus}</strong>
-            <span>Pipeline health and the current non-prod feed remain visible from the same shell.</span>
+            <span>Collection cadence and current feed health stay visible without pushing extra telemetry into the page.</span>
           </div>
           <div class="sb-list-item">
             <strong>{initialStats.modelsAffected} model families in scope</strong>
-            <span>The overview remains tuned for breadth first, with deeper per-model review pushed into the tabs.</span>
+            <span>Model and vector concentration stay available here so the top of the page can remain shorter and more decisive.</span>
           </div>
         </div>
       </div>
@@ -143,9 +156,68 @@ const initialStatsJson = JSON.stringify(initialStats);
         <div id="sb-models"></div>
       </div>
       <div class="sb-block">
-        <div class="sb-title">Vector × model</div>
+        <div class="sb-title">Vector x model</div>
         <div id="sb-matrix"></div>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  .overview-frame {
+    display: grid;
+    gap: 16px;
+    padding-bottom: 16px;
+  }
+
+  .overview-hero {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: minmax(0, 1.24fr) minmax(280px, 0.76fr);
+    align-items: start;
+  }
+
+  .overview-stage,
+  .overview-hero-rail,
+  .overview-kpi-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .overview-copy p {
+    max-width: 50ch;
+  }
+
+  .overview-hero-rail .overview-card {
+    min-height: 0;
+  }
+
+  .overview-kpi-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .overview-kpi-card {
+    min-height: 132px;
+    padding: 16px 16px 18px;
+  }
+
+  .overview-kpi-card span {
+    font-size: 28px;
+    line-height: 0.92;
+  }
+
+  .overview-kpi-card.critical span {
+    font-size: 34px;
+  }
+
+  .sb-block.executive {
+    background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+  }
+
+  @media (max-width: 960px) {
+    .overview-hero,
+    .overview-kpi-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
