@@ -1,19 +1,16 @@
 ---
 import { getThreatDetailHref } from '../../lib/threats-utils.js';
+import { projectThreatMapAnchor } from '../../lib/threat-map-projection.js';
 
 const { dataset } = Astro.props;
 
 const initialRegion = dataset.regions[0] ?? null;
 
-const projectAnchor = (anchor) => ({
-  x: ((anchor.lng + 180) / 360) * 100,
-  y: ((90 - anchor.lat) / 180) * 100,
-});
-
 const severityOptions = [...new Set(dataset.points.map((point) => point.severity))];
 const modelOptions = [...new Set(dataset.points.flatMap((point) => point.models))].sort();
 const vectorOptions = [...new Set(dataset.points.flatMap((point) => point.vectors))].sort();
 const initialDataset = JSON.stringify(dataset);
+const fallbackRegions = dataset.regions.slice(0, 4);
 ---
 
 <section class="page-panel threat-map-shell">
@@ -85,7 +82,7 @@ const initialDataset = JSON.stringify(dataset);
 
   <div class="threat-map-workspace">
     <div class="threat-map-stage-wrap">
-      <div class="threat-map-stage">
+      <div class="threat-map-stage" id="threat-map-stage" data-map-state="ready">
         <svg class="threat-map-backdrop" viewBox="0 0 1000 520" aria-hidden="true">
           <defs>
             <linearGradient id="oceanFade" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -114,10 +111,11 @@ const initialDataset = JSON.stringify(dataset);
         <div id="threat-map-nodes">
           {
             dataset.regions.map((region) => {
-              const point = projectAnchor(region.anchor);
+              const point = projectThreatMapAnchor(region.anchor);
               const size = Math.min(72, 28 + region.threatCount * 8);
               return (
                 <button
+                  type="button"
                   class:list={['map-region-node', initialRegion?.regionKey === region.regionKey && 'active']}
                   data-region-node={region.regionKey}
                   style={`left:${point.x}%;top:${point.y}%;width:${size}px;height:${size}px;`}
@@ -130,6 +128,24 @@ const initialDataset = JSON.stringify(dataset);
             })
           }
         </div>
+
+        <section class="threat-map-stage-fallback" id="threat-map-stage-fallback" hidden>
+          <div class="page-kicker">Regional fallback</div>
+          <h2 id="threat-map-stage-fallback-title">Regional coverage remains available</h2>
+          <p id="threat-map-stage-fallback-copy">
+            If the projected map visualization degrades, the current regional coverage summary stays available here instead of leaving the page blank.
+          </p>
+          <div class="page-list" id="threat-map-stage-fallback-list">
+            {
+              fallbackRegions.map((region) => (
+                <div class="page-list-item">
+                  <strong>{region.regionName}</strong>
+                  <p>{region.threatCount} tracked threats · {region.pointCount} mapped observations · {region.anchor.label}</p>
+                </div>
+              ))
+            }
+          </div>
+        </section>
       </div>
 
       <div class="info-card-grid threat-map-notes">
@@ -330,8 +346,17 @@ const initialDataset = JSON.stringify(dataset);
   }
 
   .threat-map-backdrop {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
+    pointer-events: none;
+  }
+
+  #threat-map-nodes {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
   }
 
   .threat-map-grid line {
@@ -347,6 +372,7 @@ const initialDataset = JSON.stringify(dataset);
 
   .map-region-node {
     position: absolute;
+    z-index: 3;
     transform: translate(-50%, -50%);
     border-radius: 999px;
     border: 1px solid rgba(125, 196, 255, 0.34);
@@ -390,6 +416,27 @@ const initialDataset = JSON.stringify(dataset);
 
   .threat-map-notes {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .threat-map-stage-fallback {
+    position: absolute;
+    inset: 18px;
+    z-index: 4;
+    display: grid;
+    align-content: start;
+    gap: 14px;
+    padding: 22px;
+    border: 1px solid rgba(125, 196, 255, 0.2);
+    border-radius: 24px;
+    background:
+      linear-gradient(180deg, rgba(7, 16, 24, 0.92), rgba(7, 16, 24, 0.84)),
+      radial-gradient(circle at top, rgba(125, 196, 255, 0.14), transparent 52%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .threat-map-stage[data-map-state='fallback'] .threat-map-backdrop,
+  .threat-map-stage[data-map-state='fallback'] #threat-map-nodes {
+    opacity: 0.18;
   }
 
   .threat-map-detail-stack {

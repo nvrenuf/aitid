@@ -1,19 +1,34 @@
 import { getThreatDetailHref } from '../lib/threats-utils.js';
 import { aggregateThreatMapRegions } from '../lib/threat-map-core.js';
+import { projectThreatMapAnchor } from '../lib/threat-map-projection.js';
 
 const datasetNode = document.getElementById('threat-map-dataset');
-
-if (!datasetNode) {
-  throw new Error('Threat Map dataset payload is missing.');
-}
-
-const dataset = JSON.parse(datasetNode.textContent ?? '{}');
 const state = {
   severity: '',
   model: '',
   vector: '',
-  activeRegion: dataset.regions?.[0]?.regionKey ?? '',
+  activeRegion: '',
 };
+
+function readDataset(node) {
+  if (!node) {
+    return { points: [], regions: [], unmappedThreats: [] };
+  }
+
+  try {
+    const parsed = JSON.parse(node.textContent ?? '{}');
+    return {
+      points: parsed.points ?? [],
+      regions: parsed.regions ?? [],
+      unmappedThreats: parsed.unmappedThreats ?? [],
+    };
+  } catch {
+    return { points: [], regions: [], unmappedThreats: [] };
+  }
+}
+
+const dataset = readDataset(datasetNode);
+state.activeRegion = dataset.regions[0]?.regionKey ?? '';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -22,13 +37,6 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
-}
-
-function projectAnchor(anchor) {
-  return {
-    x: ((anchor.lng + 180) / 360) * 100,
-    y: ((90 - anchor.lat) / 180) * 100,
-  };
 }
 
 function filterPoints(points) {
@@ -55,11 +63,11 @@ function renderNodes(regions) {
 
   container.innerHTML = regions
     .map((region) => {
-      const point = projectAnchor(region.anchor);
+      const point = projectThreatMapAnchor(region.anchor);
       const size = Math.min(72, 28 + region.threatCount * 8);
       const isActive = region.regionKey === state.activeRegion;
 
-      return `<button
+      return `<button type="button"
         class="map-region-node ${isActive ? 'active' : ''}"
         data-region-node="${escapeHtml(region.regionKey)}"
         style="left:${point.x}%;top:${point.y}%;width:${size}px;height:${size}px;"
@@ -70,6 +78,38 @@ function renderNodes(regions) {
       </button>`;
     })
     .join('');
+}
+
+function renderStageFallback(title, copy, regions = dataset.regions) {
+  const stage = document.getElementById('threat-map-stage');
+  const fallback = document.getElementById('threat-map-stage-fallback');
+  const titleNode = document.getElementById('threat-map-stage-fallback-title');
+  const copyNode = document.getElementById('threat-map-stage-fallback-copy');
+  const listNode = document.getElementById('threat-map-stage-fallback-list');
+
+  if (stage) stage.dataset.mapState = 'fallback';
+  if (titleNode) titleNode.textContent = title;
+  if (copyNode) copyNode.textContent = copy;
+  if (listNode) {
+    listNode.innerHTML = regions.length
+      ? regions.slice(0, 4).map((region) => `<div class="page-list-item">
+          <strong>${escapeHtml(region.regionName)}</strong>
+          <p>${region.threatCount} tracked threats · ${region.pointCount} mapped observations · ${escapeHtml(region.anchor.label)}</p>
+        </div>`).join('')
+      : `<div class="page-list-item">
+          <strong>No regional summary available</strong>
+          <p>The current dataset does not contain any defensible regional observations to display.</p>
+        </div>`;
+  }
+  if (fallback) fallback.hidden = false;
+}
+
+function clearStageFallback() {
+  const stage = document.getElementById('threat-map-stage');
+  const fallback = document.getElementById('threat-map-stage-fallback');
+
+  if (stage) stage.dataset.mapState = 'ready';
+  if (fallback) fallback.hidden = true;
 }
 
 function renderRegionDetails(points, regions) {
@@ -200,25 +240,45 @@ function renderFilterSummary(points, unmappedThreats) {
 }
 
 function render() {
-  const filteredPoints = filterPoints(dataset.points ?? []);
-  const filteredRegions = aggregateThreatMapRegions(filteredPoints);
-  const filteredUnmapped = filterUnmapped(dataset.unmappedThreats ?? []);
+  try {
+    const filteredPoints = filterPoints(dataset.points);
+    const filteredRegions = aggregateThreatMapRegions(filteredPoints);
+    const filteredUnmapped = filterUnmapped(dataset.unmappedThreats);
 
-  if (!filteredRegions.some((region) => region.regionKey === state.activeRegion)) {
-    state.activeRegion = filteredRegions[0]?.regionKey ?? '';
-  }
+    if (!filteredRegions.some((region) => region.regionKey === state.activeRegion)) {
+      state.activeRegion = filteredRegions[0]?.regionKey ?? '';
+    }
 
-  renderNodes(filteredRegions);
-  renderRegionDetails(filteredPoints, filteredRegions);
-  renderUnmapped(filteredUnmapped);
-  renderFilterSummary(filteredPoints, filteredUnmapped);
+    if (filteredRegions.length) {
+      clearStageFallback();
+    } else {
+      renderStageFallback(
+        'No mapped regions match the current filters',
+        'Adjust severity, model, or vector filters to restore mapped regional coverage. Regional summaries remain available here even when no markers qualify.',
+      );
+    }
 
-  document.querySelectorAll('[data-region-node]').forEach((node) => {
-    node.addEventListener('click', () => {
-      state.activeRegion = node.dataset.regionNode ?? '';
-      render();
+    renderNodes(filteredRegions);
+    renderRegionDetails(filteredPoints, filteredRegions);
+    renderUnmapped(filteredUnmapped);
+    renderFilterSummary(filteredPoints, filteredUnmapped);
+
+    document.querySelectorAll('[data-region-node]').forEach((node) => {
+      node.addEventListener('click', () => {
+        state.activeRegion = node.dataset.regionNode ?? '';
+        render();
+      });
     });
-  });
+  } catch {
+    renderNodes([]);
+    renderStageFallback(
+      'Projected map unavailable',
+      'The regional summary remains available while the map visualization is unavailable. Threat detail drilldowns and unmapped coverage continue to work below.',
+    );
+    renderRegionDetails(dataset.points, dataset.regions);
+    renderUnmapped(dataset.unmappedThreats);
+    renderFilterSummary([], dataset.unmappedThreats);
+  }
 }
 
 function bindSelect(id, key) {
