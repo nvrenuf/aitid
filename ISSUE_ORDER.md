@@ -47,7 +47,7 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Added canonical `/threats/[slug]` detail routes, linked them from the Threats surface, exposed canonical detail links from Overview while keeping the drawer, and wired Threat Map regional lists into the same deep-link flow.
 3. P3-03 [#21](https://github.com/nvrenuf/aitid/issues/21) Evidence, source transparency, and score/method context on threat detail - completed
    Note: Expanded canonical detail pages with source references, evidence/support notes, normalization and methodology framing, score breakdown context, and explicit limitations/confidence language grounded in the current dataset.
-4. P3-04 [#22](https://github.com/nvrenuf/aitid/issues/22) Threat Map drilldowns, filters, and unmapped reason categories - pending
-   Note: Add usable map filters, route drilldowns into canonical detail pages, and clearer unmapped reason framing.
+4. P3-04 [#22](https://github.com/nvrenuf/aitid/issues/22) Threat Map drilldowns, filters, and unmapped reason categories - completed
+   Note: Added severity/model/vector map filters, re-rendered regional drilldowns against the filtered dataset, linked regional entries into canonical threat pages, and replaced raw unmapped IDs with defensible reason categories based on current record support.
 5. P3-05 [#23](https://github.com/nvrenuf/aitid/issues/23) Final regression sweep, documentation touch-up, and PR polish - pending
    Note: Run the final build and test pass, update docs where needed, and create the single Phase III draft PR to `main`.

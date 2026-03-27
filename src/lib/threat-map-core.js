@@ -108,6 +108,48 @@ function uniqueValues(items) {
   return [...new Set(items)];
 }
 
+function buildUnmappedThreatSummary(threat) {
+  if (threat.iocs?.length) {
+    return {
+      threatId: threat.id,
+      threatTitle: threat.title,
+      severity: threat.severity,
+      status: threat.status,
+      reasonCategory: 'Indicator support, no region anchor',
+      reasonDetail:
+        'The record includes indicators or supporting artifacts, but the current dataset still lacks an explicit observed infrastructure or exposure region that would justify a map placement.',
+      vectors: threat.vectors,
+      models: threat.models,
+    };
+  }
+
+  if (threat.affectedVersions || threat.patchVersion || threat.cve) {
+    return {
+      threatId: threat.id,
+      threatTitle: threat.title,
+      severity: threat.severity,
+      status: threat.status,
+      reasonCategory: 'Advisory context, no geography signal',
+      reasonDetail:
+        'The current record provides product or version posture, but it does not capture a defensible observed geography for infrastructure or exposure.',
+      vectors: threat.vectors,
+      models: threat.models,
+    };
+  }
+
+  return {
+    threatId: threat.id,
+    threatTitle: threat.title,
+    severity: threat.severity,
+    status: threat.status,
+    reasonCategory: 'Context-only record, no geography signal',
+    reasonDetail:
+      'The current record describes threat behavior and scope, but it does not include an observed regional anchor for infrastructure or exposure.',
+    vectors: threat.vectors,
+    models: threat.models,
+  };
+}
+
 export function aggregateThreatMapRegions(points) {
   const grouped = new Map();
   for (const point of points) {
@@ -159,6 +201,9 @@ export function buildThreatMapDataset(threats, observations = THREAT_MAP_OBSERVA
     .filter(Boolean);
   const mappedThreatIds = new Set(points.map((point) => point.threatId));
   const regions = aggregateThreatMapRegions(points);
+  const unmappedThreats = threats
+    .filter((threat) => !mappedThreatIds.has(threat.id))
+    .map((threat) => buildUnmappedThreatSummary(threat));
 
   return {
     meaning: THREAT_MAP_MEANING,
@@ -171,6 +216,7 @@ export function buildThreatMapDataset(threats, observations = THREAT_MAP_OBSERVA
     },
     points,
     regions,
-    unmappedThreatIds: threats.filter((threat) => !mappedThreatIds.has(threat.id)).map((threat) => threat.id),
+    unmappedThreatIds: unmappedThreats.map((threat) => threat.threatId),
+    unmappedThreats,
   };
 }
