@@ -62,5 +62,5 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Replaced the abstract placeholder backdrop with a dedicated projected world map component, upgraded the ocean/coastline treatment, and kept the existing observed-geography marker layer aligned to the same restrained trust-first semantics.
 4. P4-04 [#28](https://github.com/nvrenuf/aitid/issues/28) Threat Map layout and detail-panel UX polish - completed
    Note: Rebalanced the filter bar and workspace proportions, added a reset path and stage caption, and reshaped the regional detail panel into a stickier, faster-scanning operator brief without changing the underlying map meaning.
-5. P4-05 [#29](https://github.com/nvrenuf/aitid/issues/29) Final regression sweep, documentation touch-up, and PR polish - pending
-   Note: Run the final build/test pass, verify timestamp behavior, refresh docs, and open the single Phase IV draft PR to `main`.
+5. P4-05 [#29](https://github.com/nvrenuf/aitid/issues/29) Final regression sweep, documentation touch-up, and PR polish - completed
+   Note: Re-ran the final build and test pass, refreshed README for the projected Threat Map and Eastern Time behavior, verified the preserved route surfaces, and prepared the branch as the single draft PR review surface for Phase IV.
