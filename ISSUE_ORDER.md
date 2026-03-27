@@ -73,7 +73,7 @@ ThreatParallax Phase I covers UI rebrand, visual-system cleanup, shell moderniza
    Note: Moved filters directly into the `/threats` results workflow and tightened row anatomy around severity, models, vectors, score, and age/patch context for faster analyst scanning.
 3. P5-03 [#33](https://github.com/nvrenuf/aitid/issues/33) Loading skeletons and perceived-performance polish - completed
    Note: Replaced bare dashboard loading text with restrained skeleton shells on the overview and model feeds, keeping the async behavior lightweight and the motion subdued.
-4. P5-04 [#34](https://github.com/nvrenuf/aitid/issues/34) Hide SIEM from primary UX and tighten navigation polish - pending
-   Note: Remove SIEM from the primary user-facing navigation and surfaces while keeping restoration practical later.
+4. P5-04 [#34](https://github.com/nvrenuf/aitid/issues/34) Hide SIEM from primary UX and tighten navigation polish - completed
+   Note: Hid the SIEM workspace tab and panel behind a recoverable feature flag, then tightened the surrounding workspace copy so the primary UX stays focused on the active analyst surfaces.
 5. P5-05 [#35](https://github.com/nvrenuf/aitid/issues/35) Final regression sweep, docs touch-up, and PR polish - pending
    Note: Re-run the final build/test pass, refresh docs where needed, and prepare the branch as the single draft PR review surface for Phase V.
