@@ -19,8 +19,8 @@ const severityClasses = {
 const statusClasses = {
   active: 'b-high',
   investigating: 'b-med',
-  mitigated: 'b-low',
-  patched: 'b-low',
+  mitigated: 'b-gray',
+  patched: 'b-gray',
   disputed: 'b-gray',
 };
 

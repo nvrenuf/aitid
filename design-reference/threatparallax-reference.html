@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThreatParallax Reference Surface</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson-client/3.1.0/topojson-client.min.js"></script>
+<style>
+  :root {
+    --bg: #07111a;
+    --surface: rgba(9, 19, 29, 0.9);
+    --border: rgba(129, 154, 182, 0.16);
+    --txt: #f3f7fb;
+    --txt2: #a9bfd6;
+    --txt3: #7390ae;
+    --info: #7dc4ff;
+    --low: #62d6aa;
+    --med: #ffd369;
+    --high: #ffb36a;
+    --crit: #ff7d8f;
+    --shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+    --radius-xl: 26px;
+    --radius-lg: 20px;
+    --radius-md: 16px;
+    --font-sans: "Manrope", sans-serif;
+    --font-display: "Space Grotesk", sans-serif;
+    --font-mono: "IBM Plex Mono", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    padding: 18px;
+    color: var(--txt);
+    font-family: var(--font-sans);
+    background:
+      radial-gradient(circle at top, rgba(125, 196, 255, 0.12), transparent 28%),
+      linear-gradient(180deg, #07111a, #040b12);
+  }
+  .app { max-width: 1500px; margin: 0 auto; display: grid; gap: 14px; }
+  .header, .nav, .panel {
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(8, 15, 24, 0.96), rgba(8, 15, 24, 0.88));
+    box-shadow: var(--shadow);
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: center;
+    padding: 16px 18px;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-mark {
+    width: 42px; height: 42px; border-radius: 14px; border: 1px solid var(--border);
+    background: linear-gradient(135deg, rgba(125, 196, 255, 0.18), rgba(98, 214, 170, 0.12));
+    display: grid; place-items: center;
+  }
+  .brand-title { font-family: var(--font-display); font-size: 19px; letter-spacing: -0.04em; }
+  .brand-sub, .label, .micro { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--txt3); font-weight: 700; }
+  .hero-title { font-family: var(--font-display); font-size: clamp(20px, 2.5vw, 32px); line-height: 0.98; letter-spacing: -0.05em; max-width: 24ch; }
+  .status { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; font-family: var(--font-mono); font-size: 11px; color: var(--txt2); text-transform: uppercase; }
+  .dot { width: 7px; height: 7px; border-radius: 999px; background: var(--low); box-shadow: 0 0 0 6px rgba(98, 214, 170, 0.12); }
+  .nav { padding: 8px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .tab {
+    display: grid; gap: 4px; padding: 14px 16px; border-radius: 16px; text-decoration: none; color: inherit;
+    border: 1px solid transparent; background: rgba(255,255,255,.02); cursor: pointer;
+  }
+  .tab.active, .tab:hover { border-color: rgba(125, 196, 255, 0.26); background: linear-gradient(180deg, rgba(125, 196, 255, 0.12), rgba(125, 196, 255, 0.03)); }
+  .tab strong { font-size: 14px; }
+  .panel { display: none; overflow: hidden; }
+  .panel.active { display: block; }
+  .head { padding: 24px 24px 18px; border-bottom: 1px solid rgba(147, 176, 208, 0.12); display: grid; gap: 10px; }
+  .title { font-family: var(--font-display); font-size: clamp(28px, 3vw, 42px); line-height: 0.96; letter-spacing: -0.06em; max-width: 16ch; }
+  .sub { color: var(--txt2); line-height: 1.65; max-width: 76ch; }
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid rgba(147,176,208,.12); }
+  .stat { padding: 22px; border-right: 1px solid rgba(147,176,208,.12); display: grid; gap: 10px; position: relative; }
+  .stat:last-child { border-right: none; }
+  .stat::before { content: ""; position: absolute; inset: 0 0 auto; height: 2px; background: var(--tone); }
+  .crit { --tone: var(--crit); } .high { --tone: var(--high); } .med { --tone: var(--med); } .info { --tone: var(--info); }
+  .value { font-family: var(--font-display); font-size: clamp(36px, 4vw, 56px); line-height: .92; letter-spacing: -0.06em; color: var(--tone); }
+  .copy { font-size: 13px; color: var(--txt2); line-height: 1.55; max-width: 24ch; }
+  .two-col { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(320px, .7fr); }
+  .col, .rail { padding: 22px; display: grid; gap: 18px; }
+  .rail { border-left: 1px solid rgba(147,176,208,.12); }
+  .card, .map-stage, .threat, .detail-card {
+    border: 1px solid rgba(147,176,208,.12);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+  }
+  .card, .detail-card { padding: 18px; display: grid; gap: 12px; }
+  .bands { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .chiprow, .badges { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip, .badge {
+    padding: 7px 10px; border-radius: 999px; font-size: 11px; font-weight: 700;
+    border: 1px solid rgba(147,176,208,.16); background: rgba(255,255,255,.03); color: var(--txt2);
+  }
+  .badge.crit { color: var(--crit); background: rgba(255,125,143,.1); }
+  .badge.high { color: var(--high); background: rgba(255,179,106,.1); }
+  .map-stage { min-height: 470px; position: relative; overflow: hidden; background: radial-gradient(circle at 50% 16%, rgba(125,196,255,.13), transparent 28%), linear-gradient(180deg, #0e1825, #07111a); }
+  #worldMap { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .node {
+    position: absolute; transform: translate(-50%, -50%); border-radius: 999px; cursor: pointer;
+    border: 1px solid rgba(125,196,255,.3); background: radial-gradient(circle at 30% 30%, rgba(125,196,255,.28), rgba(5,12,18,.92));
+    color: var(--txt); box-shadow: 0 0 0 12px rgba(125,196,255,.05), 0 18px 36px rgba(0,0,0,.32);
+  }
+  .node:hover, .node.active { transform: translate(-50%, -50%) scale(1.06); border-color: rgba(255,211,105,.42); }
+  .node b, .node span { position: absolute; left: 50%; transform: translateX(-50%); white-space: nowrap; }
+  .node b { top: 50%; transform: translate(-50%, -50%); font-family: var(--font-display); font-size: 24px; }
+  .node span { top: calc(100% + 10px); font-size: 11px; color: var(--txt2); font-weight: 700; }
+  .caption {
+    position: absolute; left: 18px; right: 18px; bottom: 18px; z-index: 4; display: flex; justify-content: space-between; gap: 16px; align-items: end;
+    padding: 16px 18px; border: 1px solid rgba(147,176,208,.14); border-radius: 20px; background: rgba(4,10,17,.82); backdrop-filter: blur(14px);
+  }
+  .caption strong { display: block; margin-top: 4px; font-size: 15px; }
+  .caption p, .list p, .meta, .summary { color: var(--txt2); font-size: 12px; line-height: 1.55; }
+  .list { display: grid; gap: 10px; }
+  .item { padding: 14px 16px; border: 1px solid rgba(147,176,208,.12); border-radius: 16px; background: rgba(255,255,255,.02); display: grid; gap: 6px; }
+  .item strong { font-size: 14px; }
+  .workbench, .detail { padding: 22px; display: grid; gap: 18px; }
+  .filters { padding: 16px; display: grid; gap: 14px; }
+  .fgrid { display: grid; grid-template-columns: minmax(0, 1.7fr) repeat(5, minmax(0, 1fr)) auto; gap: 10px; align-items: end; }
+  .field { display: grid; gap: 8px; }
+  .field input, .field select, .btn { width: 100%; padding: 12px 13px; border-radius: 14px; border: 1px solid rgba(147,176,208,.14); background: rgba(255,255,255,.03); color: var(--txt); font: inherit; }
+  .btn { cursor: pointer; font-weight: 700; }
+  .threats { display: grid; gap: 14px; }
+  .threat { padding: 16px; display: grid; gap: 12px; }
+  .row { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; align-items: start; }
+  .threat-title, .detail-title { font-family: var(--font-display); line-height: 1; letter-spacing: -0.05em; }
+  .threat-title { font-size: 26px; max-width: 26ch; }
+  .detail-title { font-size: clamp(28px, 3vw, 40px); max-width: 18ch; }
+  .score { min-width: 114px; padding: 11px 12px; border-radius: 14px; border: 1px solid rgba(147,176,208,.14); background: rgba(4,10,17,.46); text-align: right; }
+  .score strong { display: block; margin-top: 5px; font-family: var(--font-display); font-size: 28px; }
+  .detail-hero { display: grid; grid-template-columns: minmax(0, 1.18fr) minmax(320px, .82fr); gap: 18px; }
+  .tooltip { position: fixed; z-index: 100; min-width: 210px; max-width: 260px; padding: 14px 16px; border: 1px solid rgba(147,176,208,.18); border-radius: 18px; background: rgba(5,12,18,.94); backdrop-filter: blur(18px); box-shadow: var(--shadow); pointer-events: none; display: none; }
+  .tooltip p { margin-top: 8px; color: var(--txt2); font-size: 12px; line-height: 1.55; }
+  @media (max-width: 1260px) {
+    .two-col, .detail-hero { grid-template-columns: 1fr; }
+    .rail { border-left: none; border-top: 1px solid rgba(147,176,208,.12); }
+    .nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .fgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .fgrid .field:first-child { grid-column: 1 / -1; }
+  }
+  @media (max-width: 960px) {
+    body { padding: 12px; }
+    .header { flex-direction: column; align-items: stretch; }
+    .nav, .stats, .bands, .detail-grid, .fgrid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="tooltip" id="tooltip"></div>
+<div class="app">
+  <header class="header">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 14 14" width="18" height="18" fill="none" aria-hidden="true">
+          <rect x="1" y="1" width="5" height="5" rx="1" fill="#ef4444"/>
+          <rect x="8" y="1" width="5" height="5" rx="1" fill="#f97316" opacity=".74"/>
+          <rect x="1" y="8" width="5" height="5" rx="1" fill="#f97316" opacity=".74"/>
+          <rect x="8" y="8" width="5" height="5" rx="1" fill="#facc15" opacity=".55"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-title">ThreatParallax</div>
+        <div class="brand-sub">AI threat intelligence platform</div>
+      </div>
+    </div>
+    <div>
+      <div class="label">Reference Surface</div>
+      <div class="hero-title">Operational overview and threat records.</div>
+    </div>
+    <div class="status"><span class="dot"></span><span>Live feed active</span><span>&middot;</span><span>Updated: Mar 27, 4:05 PM EDT</span></div>
+  </header>
+
+  <nav class="nav">
+    <a class="tab active" data-target="overview" href="#"><span class="micro">Overview</span><strong>Operational posture</strong></a>
+    <a class="tab" data-target="map" href="#"><span class="micro">Threat Map</span><strong>Observed geography</strong></a>
+    <a class="tab" data-target="threats" href="#"><span class="micro">Threats</span><strong>Operator workbench</strong></a>
+    <a class="tab" data-target="detail" href="#"><span class="micro">Threat Detail</span><strong>Canonical record</strong></a>
+  </nav>
+
+  <section class="panel active" id="overview">
+    <div class="head">
+      <div class="section-label">Overview</div>
+      <div class="title">Current AI threat posture without the oversized preamble.</div>
+      <div class="sub">Review posture, queue pressure, and collection state, then move into the active watchlist.</div>
+    </div>
+    <div class="stats">
+      <div class="stat crit"><span>Critical active</span><div class="value">3</div><div class="copy">Leadership visibility remains concentrated in a small number of active campaigns.</div></div>
+      <div class="stat high"><span>Tracked queue</span><div class="value">18</div><div class="copy">Current record set, not a synthetic incident total.</div></div>
+      <div class="stat med"><span>New in seven days</span><div class="value">8</div><div class="copy">Recent additions remain visible without oversized top framing.</div></div>
+      <div class="stat info"><span>Models in scope</span><div class="value">7</div><div class="copy">Distinct model tags stay in operator context, not headline copy.</div></div>
+    </div>
+    <div class="two-col">
+      <div class="col">
+        <div class="card">
+          <div class="label">Priority posture</div>
+          <div class="title" style="font-size:34px;max-width:14ch">3 critical campaigns remain active and require immediate leadership visibility.</div>
+          <div class="sub">Priority posture should read like a live operating summary, not an explanation of the page.</div>
+        </div>
+        <div class="bands">
+          <div class="card"><div class="label">Executive focus</div><strong>8 items landed in the last seven days with overlapping model and vector pressure.</strong><div class="sub">Short, scannable, and specific.</div></div>
+          <div class="card"><div class="label">Queue framing</div><strong>18 tracked items, with the active watchlist directly below the summary band.</strong><div class="sub">The transition into the working set should be immediate.</div></div>
+        </div>
+      </div>
+      <div class="rail">
+        <div class="card"><div class="label">Analyst context</div><strong>Collection health remains visible without turning the top section into a briefing document.</strong><div class="sub">Keep trend and concentration cues in the rail so the hero stays shorter.</div></div>
+        <div class="card"><div class="label">Threat volume</div><div class="chiprow"><span class="chip">W1 5</span><span class="chip">W2 7</span><span class="chip">W3 6</span><span class="chip">W4 8</span><span class="chip">W5 9</span><span class="chip">W6 8</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="map">
+    <div class="head">
+      <div class="section-label">Threat Map</div>
+      <div class="title">Regional posture framed like analysis, not like a demo surface.</div>
+      <div class="sub">ThreatParallax keeps geography conservative: coarse regional anchors, explicit coverage limits, and no claim about actor origin, customer geography, or live attack traffic.</div>
+    </div>
+    <div class="two-col">
+      <div class="col">
+        <div class="map-stage">
+          <svg id="worldMap" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+          <button class="node active" data-region="na" style="left:22%;top:33%;width:74px;height:74px;"><b>3</b><span>North America</span></button>
+          <button class="node" data-region="we" style="left:48%;top:27%;width:64px;height:64px;"><b>2</b><span>Western Europe</span></button>
+          <button class="node" data-region="apac" style="left:74%;top:54%;width:58px;height:58px;"><b>1</b><span>Asia-Pacific</span></button>
+          <div class="caption">
+            <div><div class="label">Map meaning</div><strong>Regional infrastructure and exposure observations</strong><p>Not actor origin, not customer geography, and not live attack telemetry.</p></div>
+            <div class="chiprow"><span class="chip"><span style="display:inline-block;width:9px;height:9px;border-radius:999px;background:var(--crit);margin-right:6px"></span>higher-pressure cluster</span><span class="chip"><span style="display:inline-block;width:9px;height:9px;border-radius:999px;background:var(--info);margin-right:6px"></span>supporting observation</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="rail" id="mapRail">
+        <div class="card">
+          <div class="label">Regional brief</div>
+          <div class="title" style="font-size:28px;max-width:none">North America</div>
+          <div class="sub">Approximate posture based on the mapped observations currently in scope.</div>
+          <div class="list">
+            <div class="item"><strong>GhostClaw - SKILL.md AI agent file abuse</strong><p>Severity critical &middot; blended score 9.2</p></div>
+            <div class="item"><strong>PromptKit chain bypass in production copilots</strong><p>Severity high &middot; blended score 7.8</p></div>
+            <div class="item"><strong>Credential relay through agentic extension bridge</strong><p>Severity medium &middot; blended score 6.4</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="threats">
+    <div class="head">
+      <div class="section-label">Threats</div>
+      <div class="title">Operator scanning across the current ThreatParallax corpus.</div>
+      <div class="sub">Search, scope, and prioritize the current record set from one restrained workbench.</div>
+    </div>
+    <div class="workbench">
+      <div class="card filters">
+        <div class="row"><div><div class="label">Workbench</div><div class="title" style="font-size:30px;max-width:none">18 threats in scope</div></div><div class="chiprow"><span class="chip">All threats</span><span class="chip">7 models in scope</span></div></div>
+        <div class="fgrid">
+          <label class="field"><span class="micro">Search corpus</span><input type="text" value="skill file abuse"></label>
+          <label class="field"><span class="micro">Severity</span><select><option>Critical</option></select></label>
+          <label class="field"><span class="micro">Model</span><select><option>All models</option></select></label>
+          <label class="field"><span class="micro">Vector</span><select><option>All vectors</option></select></label>
+          <label class="field"><span class="micro">Status</span><select><option>Active</option></select></label>
+          <label class="field"><span class="micro">Sort</span><select><option>Blended score</option></select></label>
+          <button class="btn">Clear</button>
+        </div>
+      </div>
+      <div class="threats">
+        <article class="threat">
+          <div class="row"><div class="badges"><span class="badge crit">Critical</span><span class="badge high">Active</span><span class="badge">SKILL-file-abuse</span></div><div class="micro">Mar 25, 2026</div></div>
+          <div class="row"><div><div class="threat-title">GhostClaw - SKILL.md AI agent file abuse</div><div class="meta">JFrog Security Research &middot; OpenAI, Claude, Copilot &middot; file ingestion</div></div><div class="score"><div class="micro">Blended score</div><strong>9.2</strong></div></div>
+          <div class="summary">Structured markdown skill files are being used to steer agent behavior through trusted local context, creating a direct abuse path where tool-aware agents ingest hostile instructions as if they were operator-approved working memory.</div>
+          <div class="bands">
+            <div class="card"><div class="label">Exposure bands</div><div class="meta">Workspace file ingestion, prompt chaining, local context trust</div></div>
+            <div class="card"><div class="label">Operational notes</div><div class="meta">Linked source is explicit, remediation remains reviewable, and the record is suitable for direct handoff.</div></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="detail">
+    <div class="head">
+      <div class="section-label">Threat Detail</div>
+      <div class="title">A serious intelligence record with explicit evidence, source transparency, and bounded claims.</div>
+      <div class="sub">The detail surface should feel authoritative enough to link directly, while staying disciplined about what the record does and does not claim.</div>
+    </div>
+    <div class="detail">
+      <div class="detail-hero">
+        <div class="detail-card">
+          <div class="label">Canonical threat record</div>
+          <div class="detail-title">GhostClaw - SKILL.md AI agent file abuse</div>
+          <div class="sub">Malicious skill-file content can influence agent execution paths when local files are treated as trusted operating context.</div>
+          <div class="badges"><span class="badge crit">Critical</span><span class="badge high">Active</span><span class="badge">Supply chain</span><span class="badge">No CVE listed</span></div>
+          <div class="bands">
+            <div class="card"><div class="label">Published</div><strong>Mar 25, 2026</strong><div class="meta">Updated Mar 27, 2026</div></div>
+            <div class="card"><div class="label">Source</div><strong>JFrog Security Research</strong><div class="meta">Primary source retained in references.</div></div>
+            <div class="card"><div class="label">Patch posture</div><strong>Review required</strong><div class="meta">Mitigation guidance exists, but the record does not claim universal patch availability.</div></div>
+            <div class="card"><div class="label">Canonical route</div><strong>/threats/ghostclaw-skill-md-ai-agent-file-abuse</strong><div class="meta">Stable route for analyst handoff.</div></div>
+          </div>
+        </div>
+        <div class="detail-card">
+          <div class="label">Review framing</div>
+          <strong>Critical · Active · Prompt / file context abuse</strong>
+          <div class="sub">The detail rail should reinforce review posture, not restate the headline in softer language.</div>
+          <div class="score"><div class="micro">Blended score</div><strong>9.2</strong></div>
+        </div>
+      </div>
+      <div class="bands detail-grid">
+        <div class="detail-card"><div class="label">Source transparency</div><div class="list"><div class="item"><strong>Primary disclosure</strong><p>Research note describing malicious SKILL.md payload behavior and the trust boundary around local task context.</p></div><div class="item"><strong>Evidence highlight</strong><p>The demonstrated issue depends on trusted local file ingestion, not remote code execution or unsupported agent autonomy claims.</p></div></div></div>
+        <div class="detail-card"><div class="label">Operational read</div><div class="list"><div class="item"><strong>Immediate action</strong><p>Review local context ingestion paths, operator-trusted file conventions, and any automated prompt assembly steps.</p></div><div class="item"><strong>Observed limits</strong><p>The record supports prompt and context abuse claims. It does not support broader compromise or geopolitical attribution claims.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  const tabs = [...document.querySelectorAll('.tab')];
+  const panels = [...document.querySelectorAll('.panel')];
+  tabs.forEach((tab) => tab.addEventListener('click', (event) => {
+    event.preventDefault();
+    const target = tab.dataset.target;
+    tabs.forEach((item) => item.classList.toggle('active', item === tab));
+    panels.forEach((panel) => panel.classList.toggle('active', panel.id === target));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }));
+
+  const regions = {
+    na: { name: 'North America', threats: 3, copy: 'Approximate posture based on the mapped observations currently in scope.', leaders: ['GhostClaw - SKILL.md AI agent file abuse', 'PromptKit chain bypass in production copilots', 'Credential relay through agentic extension bridge'] },
+    we: { name: 'Western Europe', threats: 2, copy: 'The reference keeps the regional brief short, scannable, and bounded to observed geography.', leaders: ['Memory persistence via retrieval summarization', 'Plugin review evasion through staged tool prompts'] },
+    apac: { name: 'Asia-Pacific', threats: 1, copy: 'A lower-count region should still look deliberate rather than like a demo placeholder.', leaders: ['Model policy bypass in enterprise translation workflow'] }
+  };
+
+  const tooltip = document.getElementById('tooltip');
+  const mapRail = document.getElementById('mapRail');
+  [...document.querySelectorAll('.node')].forEach((node) => {
+    const key = node.dataset.region;
+    const data = regions[key];
+    node.addEventListener('mouseenter', (event) => {
+      tooltip.style.display = 'block';
+      tooltip.innerHTML = '<div class=\"micro\">Regional preview</div><strong>' + data.name + '</strong><p>' + data.copy + '</p><div class=\"micro\" style=\"margin-top:10px\">' + data.threats + ' threats · Observed geography</div>';
+      tooltip.style.left = (event.clientX + 16) + 'px';
+      tooltip.style.top = (event.clientY - 18) + 'px';
+    });
+    node.addEventListener('mousemove', (event) => {
+      tooltip.style.left = (event.clientX + 16) + 'px';
+      tooltip.style.top = (event.clientY - 18) + 'px';
+    });
+    node.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+    node.addEventListener('click', () => {
+      document.querySelectorAll('.node').forEach((item) => item.classList.toggle('active', item === node));
+      mapRail.innerHTML = '<div class=\"card\"><div class=\"label\">Regional brief</div><div class=\"title\" style=\"font-size:28px;max-width:none\">' + data.name + '</div><div class=\"sub\">' + data.copy + '</div><div class=\"list\">' + data.leaders.map((leader) => '<div class=\"item\"><strong>' + leader + '</strong><p>Severity-led ordering with a short operational line, not generic placeholder prose.</p></div>').join('') + '</div></div>';
+    });
+  });
+
+  async function drawMap() {
+    const svg = d3.select('#worldMap');
+    const projection = d3.geoNaturalEarth1().fitExtent([[30, 22], [970, 498]], { type: 'Sphere' });
+    const path = d3.geoPath(projection);
+    const defs = svg.append('defs');
+    const ocean = defs.append('linearGradient').attr('id', 'ocean').attr('x1', '10%').attr('y1', '0%').attr('x2', '86%').attr('y2', '100%');
+    ocean.append('stop').attr('offset', '0%').attr('stop-color', '#13273d');
+    ocean.append('stop').attr('offset', '55%').attr('stop-color', '#0c1826');
+    ocean.append('stop').attr('offset', '100%').attr('stop-color', '#07111a');
+    const atmosphere = defs.append('radialGradient').attr('id', 'atmosphere').attr('cx', '50%').attr('cy', '16%').attr('r', '78%');
+    atmosphere.append('stop').attr('offset', '0%').attr('stop-color', 'rgba(125,196,255,0.18)');
+    atmosphere.append('stop').attr('offset', '42%').attr('stop-color', 'rgba(125,196,255,0.08)');
+    atmosphere.append('stop').attr('offset', '100%').attr('stop-color', 'rgba(125,196,255,0)');
+    const land = defs.append('linearGradient').attr('id', 'land').attr('x1', '8%').attr('y1', '0%').attr('x2', '100%').attr('y2', '100%');
+    land.append('stop').attr('offset', '0%').attr('stop-color', '#5b7087');
+    land.append('stop').attr('offset', '55%').attr('stop-color', '#44586d');
+    land.append('stop').attr('offset', '100%').attr('stop-color', '#314456');
+    svg.append('rect').attr('width', 1000).attr('height', 520).attr('fill', 'url(#ocean)');
+    svg.append('path').datum({ type: 'Sphere' }).attr('d', path).attr('fill', 'url(#atmosphere)');
+    svg.append('path').datum(d3.geoGraticule10()).attr('d', path).attr('fill', 'none').attr('stroke', 'rgba(160,188,214,0.1)').attr('stroke-width', 0.85).attr('stroke-dasharray', '2 10');
+    try {
+      const response = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+      const world = await response.json();
+      svg.append('path').datum(topojson.feature(world, world.objects.countries)).attr('d', path).attr('fill', 'url(#land)').attr('stroke', 'rgba(212,228,244,0.18)').attr('stroke-width', 1);
+      svg.append('path').datum(topojson.mesh(world, world.objects.countries, (a, b) => a !== b)).attr('d', path).attr('fill', 'none').attr('stroke', 'rgba(180,204,226,0.12)').attr('stroke-width', 0.55);
+    } catch (error) {
+      svg.append('text').attr('x', 500).attr('y', 260).attr('text-anchor', 'middle').attr('fill', '#7390ae').attr('font-family', 'IBM Plex Mono, monospace').attr('font-size', 12).text('Projected world geometry unavailable');
+    }
+  }
+  drawMap();
+</script>
+</body>
+</html>

@@ -34,8 +34,8 @@ const severityClasses = {
 const statusClasses = {
   active: 'b-high',
   investigating: 'b-med',
-  mitigated: 'b-low',
-  patched: 'b-low',
+  mitigated: 'b-gray',
+  patched: 'b-gray',
   disputed: 'b-gray',
 };
 
@@ -115,7 +115,7 @@ function threatDrawerHtml(threat) {
           <span class="score">${threat.score.blended.toFixed(1)}</span>
         </div>
         <div class="drawer-band-title">Review focus</div>
-        <div class="drawer-copy">Model impact, distribution vectors, and mitigation readiness are grouped below for faster analyst review.</div>
+        <div class="drawer-copy">Models, vectors, and mitigation posture grouped for direct review.</div>
       </div>
     </section>
     <section class="drawer-section">
@@ -417,8 +417,8 @@ function applyOverviewStats(stats) {
   safeSetText('m-models', stats.modelsAffected);
   safeSetText('m-total-d', stats.totalThreats > 0 ? `+ ${Math.max(1, Math.floor(stats.totalThreats * 0.25))} vs last week` : '');
   safeSetText('m-crit-d', stats.activeCritical > 0 ? `+ ${stats.activeCritical} new today` : 'no active criticals');
-  safeSetText('m-week-d', 'steady vs prior');
-  safeSetText('m-models-d', 'distinct model tags in current corpus');
+  safeSetText('m-week-d', 'week over week');
+  safeSetText('m-models-d', 'current model tags');
   safeSetText('overview-status', statusText);
   safeSetText('overview-updated', updatedText);
   safeSetText('hdr-time', headerUpdatedText);
